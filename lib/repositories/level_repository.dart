@@ -47,20 +47,20 @@ class ScalableLevelRepository implements ILevelRepository {
   static const int _maxCacheSize = 25; // Keep at most 25 full level models in memory
 
   static const List<String> categories = [
-    'Formula Precedence',                      // 0
-    'Number Pattern Riddles',                  // 1
-    'Missing Number Puzzles',                  // 2
-    'Geometry: Triangles',                     // 3
-    'Equation Riddles',                        // 4
-    'Mathematical Sequence Puzzles',           // 5
-    'Matrix & Numeric Grid Riddles',           // 6
-    'Money & Shopping Riddles',                // 7
-    'Logic Number Riddles',                    // 8
-    'Geometry: Intersecting Circles',          // 9
+    'Formula Precedence',                        // 0
+    'Geometry: Triangles',                       // 1
+    'Number Pattern Riddles',                    // 2
+    'Missing Number Puzzles',                    // 3
+    'Equation Riddles',                          // 4
+    'Mathematical Sequence Puzzles',             // 5
+    'Matrix & Numeric Grid Riddles',             // 6
+    'Money & Shopping Riddles',                  // 7
+    'Logic Number Riddles',                      // 8
+    'Geometry: Intersecting Circles',            // 9
     'Arithmetic Precedence & Lateral Operators', // 10
-    'Age Riddles',                             // 11
-    'Mathematical Trick Riddles',              // 12
-    'Number Mazes',                            // 13
+    'Age Riddles',                               // 11
+    'Mathematical Trick Riddles',                // 12
+    'Number Mazes',                              // 13
   ];
 
   final int _totalLevels;
@@ -149,7 +149,7 @@ class ScalableLevelRepository implements ILevelRepository {
 
   static QuestionType _questionTypeForCategory(int catIndex) {
     switch (catIndex) {
-      case 3: // Geometry: Triangles
+      case 1: // Geometry: Triangles
       case 9: // Geometry: Intersecting Circles
         return QuestionType.Geometry;
       case 6: // Matrix & Numeric Grid Riddles
@@ -210,11 +210,11 @@ class ScalableLevelRepository implements ILevelRepository {
       case 0:
         return _generateFormula(level, category, difficulty, tier, k);
       case 1:
-        return _generatePattern(level, category, difficulty, tier, k);
-      case 2:
-        return _generateMissing(level, category, difficulty, tier, k);
-      case 3:
         return _generateTriangle(level, category, difficulty, tier, k);
+      case 2:
+        return _generatePattern(level, category, difficulty, tier, k);
+      case 3:
+        return _generateMissing(level, category, difficulty, tier, k);
       case 4:
         return _generateEquation(level, category, difficulty, tier, k);
       case 5:
@@ -571,13 +571,13 @@ class ScalableLevelRepository implements ILevelRepository {
     final top = (k * 2 % 9) + 3; final left = (k % 7) + 2; final right = (k % 5) + 2;
 
     if (tier <= 0) {
-      final ans = (top * left) + right;
+      final ans = top + left + right;
       return LevelData(
         levelNumber: level,
         questionType: QuestionType.Geometry,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Triangle [Mult-Add]: Top $top, Left $left, Right $right → Center [?]',
+        displayContent: 'Triangle [Vertex-Sum]: Top $top, Left $left, Right $right → Center [?]',
         nodes: [
           PuzzleNode(id: 'top', displayValue: '$top', relX: 0.5, relY: 0.16),
           PuzzleNode(id: 'left', displayValue: '$left', relX: 0.15, relY: 0.82),
@@ -585,8 +585,8 @@ class ScalableLevelRepository implements ILevelRepository {
           PuzzleNode(id: 'center', displayValue: '?', isTarget: true, relX: 0.5, relY: 0.56),
         ],
         correctAnswer: '$ans',
-        hint: 'Multiply the top vertex by the bottom-left vertex, then add the bottom-right.',
-        solution: '($top × $left) + $right = ${top * left} + $right = $ans.',
+        hint: 'Add all three outer vertices together to find the center.',
+        solution: '$top + $left + $right = $ans.',
       );
     } else if (tier <= 1) {
       final ans = (top + right) * left;

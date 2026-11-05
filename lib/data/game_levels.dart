@@ -1,7 +1,7 @@
 import '../models/level_model.dart';
 
 final List<LevelData> gameLevels = [
-  // Level 1: Order of Operations Formula
+  // Level 1: Order of Operations Formula (Easy)
   const LevelData(
     levelNumber: 1,
     questionType: QuestionType.Formula,
@@ -13,99 +13,155 @@ final List<LevelData> gameLevels = [
     solution: '2 × 2 = 4, then 2 + 4 = 6.',
   ),
 
-  // Level 2: Triangle Geometry
+  // Level 2: Elementary Number Pattern (Easy Beginner Step)
   const LevelData(
     levelNumber: 2,
-    questionType: QuestionType.Geometry,
-    category: 'Geometry: Triangles',
+    questionType: QuestionType.Formula,
+    category: 'Number Pattern Riddles',
     difficulty: 'Beginner',
-    displayContent: 'Triangle: Top 3, Left 5, Right 2 → Center [?]',
-    nodes: [
-      PuzzleNode(id: 'top', displayValue: '3', relX: 0.5, relY: 0.16),
-      PuzzleNode(id: 'left', displayValue: '5', relX: 0.15, relY: 0.82),
-      PuzzleNode(id: 'right', displayValue: '2', relX: 0.85, relY: 0.82),
-      PuzzleNode(id: 'center', displayValue: '?', isTarget: true, relX: 0.5, relY: 0.56),
-    ],
-    correctAnswer: '17',
-    hint: 'Multiply the top vertex by the bottom-left vertex, then add the bottom-right.',
-    solution: '(3 × 5) + 2 = 15 + 2 = 17.',
+    displayContent: '2, 4, 6, 8, [?]',
+    correctAnswer: '10',
+    hint: 'The pattern adds 2 at each step (+2 arithmetic progression).',
+    solution: '8 + 2 = 10.',
   ),
 
-  // Level 3: Grid Sequence (Powers)
+  // Level 3: Simple Missing Number
   const LevelData(
     levelNumber: 3,
-    questionType: QuestionType.Grid,
-    category: 'Matrix & Numeric Grid Riddles',
+    questionType: QuestionType.Formula,
+    category: 'Missing Number Puzzles',
     difficulty: 'Beginner',
-    displayContent: '3×3 Grid: Powers of Base Numbers (2..4)',
-    nodes: [
-      PuzzleNode(id: 'r1c1', displayValue: '2'),
-      PuzzleNode(id: 'r1c2', displayValue: '4'),
-      PuzzleNode(id: 'r1c3', displayValue: '8'),
-      PuzzleNode(id: 'r2c1', displayValue: '3'),
-      PuzzleNode(id: 'r2c2', displayValue: '9'),
-      PuzzleNode(id: 'r2c3', displayValue: '27'),
-      PuzzleNode(id: 'r3c1', displayValue: '4'),
-      PuzzleNode(id: 'r3c2', displayValue: '16'),
-      PuzzleNode(id: 'r3c3', displayValue: '?', isTarget: true),
-    ],
-    correctAnswer: '64',
-    hint: 'Each row consists of exponential powers: n¹, n², n³.',
-    solution: 'Row 3 represents powers of 4: 4¹=4, 4²=16, 4³=64.',
+    displayContent: '10 + [?] = 17',
+    correctAnswer: '7',
+    hint: 'Subtract 10 from 17 to find the missing number.',
+    solution: '17 - 10 = 7.',
   ),
 
-  // Level 4: Intersecting Circles Geometry
+  // Level 4: Basic Two-Operator Formula
   const LevelData(
     levelNumber: 4,
-    questionType: QuestionType.Geometry,
-    category: 'Geometry: Intersecting Circles',
-    difficulty: 'Beginner',
-    displayContent: 'Circles: Left 14, Right 22 → Overlap [?]',
-    nodes: [
-      PuzzleNode(id: 'left', displayValue: '14'),
-      PuzzleNode(id: 'center', displayValue: '?', isTarget: true),
-      PuzzleNode(id: 'right', displayValue: '22'),
-    ],
-    correctAnswer: '18',
-    hint: 'The center intersection is the arithmetic mean (average) of the outer circles.',
-    solution: '(14 + 22) / 2 = 36 / 2 = 18.',
-  ),
-
-  // Level 5: Division & Parentheses Precedence
-  const LevelData(
-    levelNumber: 5,
     questionType: QuestionType.Formula,
     category: 'Formula Precedence',
     difficulty: 'Beginner',
-    displayContent: '6 ÷ 2 × (1 + 2) = ?',
-    correctAnswer: '9',
-    hint: 'Parentheses first: (1 + 2) = 3. Division and multiplication are evaluated left to right.',
-    solution: '6 ÷ 2 = 3, then 3 × 3 = 9.',
+    displayContent: '3 + 3 × 3 = ?',
+    correctAnswer: '12',
+    hint: 'Multiply first: 3 × 3 = 9. Then add 3: 3 + 9 = 12.',
+    solution: '3 × 3 = 9, then 3 + 9 = 12.',
   ),
 
-  // Level 6: Triangle Multiplier & Division
+  // Level 5: Multiples Progression
+  const LevelData(
+    levelNumber: 5,
+    questionType: QuestionType.Formula,
+    category: 'Number Pattern Riddles',
+    difficulty: 'Beginner',
+    displayContent: '5, 10, 15, 20, [?]',
+    correctAnswer: '25',
+    hint: 'Each number increases by 5 (+5 progression).',
+    solution: '20 + 5 = 25.',
+  ),
+
+  // Level 6: One-Step Linear Equation
   const LevelData(
     levelNumber: 6,
-    questionType: QuestionType.Geometry,
-    category: 'Geometry: Triangles',
+    questionType: QuestionType.Formula,
+    category: 'Equation Riddles',
     difficulty: 'Beginner',
-    displayContent: 'Triangle: Top 8, Left 6, Right 3 → Center [?]',
-    nodes: [
-      PuzzleNode(id: 'top', displayValue: '8'),
-      PuzzleNode(id: 'left', displayValue: '6'),
-      PuzzleNode(id: 'right', displayValue: '3'),
-      PuzzleNode(id: 'center', displayValue: '?', isTarget: true),
-    ],
-    correctAnswer: '16',
-    hint: 'Multiply the top vertex by the left vertex, then divide by the right vertex.',
-    solution: '(8 × 6) / 3 = 48 / 3 = 16.',
+    displayContent: 'x + 7 = 15 → x = ?',
+    correctAnswer: '8',
+    hint: 'Subtract 7 from both sides: 15 - 7.',
+    solution: 'x = 15 - 7 = 8.',
   ),
 
-  // Level 7: Magic Row Sum Grid
+  // Level 7: Perfect Squares Sequence
   const LevelData(
     levelNumber: 7,
+    questionType: QuestionType.Formula,
+    category: 'Mathematical Sequence Puzzles',
+    difficulty: 'Beginner',
+    displayContent: '1, 4, 9, 16, [?]',
+    correctAnswer: '25',
+    hint: 'Consecutive perfect squares: 1², 2², 3², 4², 5².',
+    solution: '5² = 25.',
+  ),
+
+  // Level 8: Everyday Money Math
+  const LevelData(
+    levelNumber: 8,
+    questionType: QuestionType.Formula,
+    category: 'Money & Shopping Riddles',
+    difficulty: 'Beginner',
+    displayContent: '1 notebook (\$5) + 2 pens (\$2 each). Total = \$?',
+    correctAnswer: '9',
+    hint: 'Cost of 2 pens = 2 × \$2 = \$4. Plus \$5 notebook = \$9.',
+    solution: '5 + (2 × 2) = 5 + 4 = 9.',
+  ),
+
+  // Level 9: Zero Multiplication Trick
+  const LevelData(
+    levelNumber: 9,
+    questionType: QuestionType.Formula,
+    category: 'Mathematical Trick Riddles',
+    difficulty: 'Beginner',
+    displayContent: '10 + 10 × 0 + 10 = ?',
+    correctAnswer: '20',
+    hint: 'Multiplication takes precedence: 10 × 0 = 0. Then add: 10 + 0 + 10.',
+    solution: '10 + 0 + 10 = 20.',
+  ),
+
+  // Level 10: Simple Digit Logic
+  const LevelData(
+    levelNumber: 10,
+    questionType: QuestionType.Formula,
+    category: 'Logic Number Riddles',
+    difficulty: 'Beginner',
+    displayContent: 'Even number between 10..20 with units digit twice tens digit = ?',
+    correctAnswer: '12',
+    hint: 'Tens digit is 1. Units digit is 2 × 1 = 2.',
+    solution: 'Tens digit = 1, units digit = 2, giving 12.',
+  ),
+
+  // Level 11: Introductory Lateral Operator
+  const LevelData(
+    levelNumber: 11,
+    questionType: QuestionType.Formula,
+    category: 'Arithmetic Precedence & Lateral Operators',
+    difficulty: 'Beginner',
+    displayContent: 'If a ⊕ b = a + b + 2, what is 4 ⊕ 5?',
+    correctAnswer: '11',
+    hint: 'Add the two numbers together, then add 2: 4 + 5 + 2.',
+    solution: '4 + 5 + 2 = 11.',
+  ),
+
+  // Level 12: Basic Age Proportion
+  const LevelData(
+    levelNumber: 12,
+    questionType: QuestionType.Formula,
+    category: 'Age Riddles',
+    difficulty: 'Beginner',
+    displayContent: 'Sam is 8 years old. His older sister is twice as old. Sister age = ?',
+    correctAnswer: '16',
+    hint: 'Multiply Sam age by 2.',
+    solution: '8 × 2 = 16.',
+  ),
+
+  // Level 13: Number Maze Path
+  const LevelData(
+    levelNumber: 13,
+    questionType: QuestionType.Formula,
+    category: 'Number Mazes',
+    difficulty: 'Beginner',
+    displayContent: 'Start: 2 → [× 3] → [+ 4] → [- 2] → End = ?',
+    correctAnswer: '8',
+    hint: '2 × 3 = 6. 6 + 4 = 10. 10 - 2 = 8.',
+    solution: '(2 × 3 + 4) - 2 = 10 - 2 = 8.',
+  ),
+
+  // Level 14: Introductory 3x3 Magic Grid
+  const LevelData(
+    levelNumber: 14,
     questionType: QuestionType.Grid,
-    category: 'Missing Number Puzzles',
+    category: 'Matrix & Numeric Grid Riddles',
     difficulty: 'Beginner',
     displayContent: '3×3 Grid: Row Sum 15 Magic Matrix',
     nodes: [
@@ -120,229 +176,90 @@ final List<LevelData> gameLevels = [
       PuzzleNode(id: 'r3c3', displayValue: '?', isTarget: true),
     ],
     correctAnswer: '2',
-    hint: 'All rows and columns sum to 15.',
-    solution: 'Row 3: 4 + 9 + ? = 15. Thus, 15 - 13 = 2.',
+    hint: 'All rows sum to 15. Row 3: 4 + 9 + ? = 15.',
+    solution: '15 - (4 + 9) = 15 - 13 = 2.',
   ),
 
-  // Level 8: Intersecting Circles Geometric Mean
-  const LevelData(
-    levelNumber: 8,
-    questionType: QuestionType.Geometry,
-    category: 'Geometry: Intersecting Circles',
-    difficulty: 'Beginner',
-    displayContent: 'Circles: Left 9, Right 16 → Overlap [?]',
-    nodes: [
-      PuzzleNode(id: 'left', displayValue: '9'),
-      PuzzleNode(id: 'center', displayValue: '?', isTarget: true),
-      PuzzleNode(id: 'right', displayValue: '16'),
-    ],
-    correctAnswer: '12',
-    hint: 'Multiply the outer values and calculate the square root.',
-    solution: '√(9 × 16) = √144 = 12.',
-  ),
-
-  // Level 9: Alternating Equation
-  const LevelData(
-    levelNumber: 9,
-    questionType: QuestionType.Formula,
-    category: 'Formula Precedence',
-    difficulty: 'Beginner',
-    displayContent: '8 + 8 × 8 - 8 = ?',
-    correctAnswer: '64',
-    hint: 'Multiplication takes precedence over addition and subtraction (PEMDAS).',
-    solution: '8 × 8 = 64, then 8 + 64 - 8 = 72 - 8 = 64.',
-  ),
-
-  // Level 10: Sum of Vertex Squares
-  const LevelData(
-    levelNumber: 10,
-    questionType: QuestionType.Geometry,
-    category: 'Geometry: Triangles',
-    difficulty: 'Beginner',
-    displayContent: 'Triangle: Top 3, Left 4, Right 5 → Center [?]',
-    nodes: [
-      PuzzleNode(id: 'top', displayValue: '3'),
-      PuzzleNode(id: 'left', displayValue: '4'),
-      PuzzleNode(id: 'right', displayValue: '5'),
-      PuzzleNode(id: 'center', displayValue: '?', isTarget: true),
-    ],
-    correctAnswer: '50',
-    hint: 'Square each vertex and sum them all together.',
-    solution: '3² + 4² + 5² = 9 + 16 + 25 = 50.',
-  ),
-
-  // Level 11: Multiplicative Grid
-  const LevelData(
-    levelNumber: 11,
-    questionType: QuestionType.Grid,
-    category: 'Matrix & Numeric Grid Riddles',
-    difficulty: 'Beginner',
-    displayContent: '3×3 Grid: Product Rows Matrix',
-    nodes: [
-      PuzzleNode(id: 'r1c1', displayValue: '2'),
-      PuzzleNode(id: 'r1c2', displayValue: '3'),
-      PuzzleNode(id: 'r1c3', displayValue: '6'),
-      PuzzleNode(id: 'r2c1', displayValue: '4'),
-      PuzzleNode(id: 'r2c2', displayValue: '5'),
-      PuzzleNode(id: 'r2c3', displayValue: '20'),
-      PuzzleNode(id: 'r3c1', displayValue: '7'),
-      PuzzleNode(id: 'r3c2', displayValue: '8'),
-      PuzzleNode(id: 'r3c3', displayValue: '?', isTarget: true),
-    ],
-    correctAnswer: '56',
-    hint: 'In each row, Column 1 multiplied by Column 2 equals Column 3.',
-    solution: 'Row 3: 7 × 8 = 56.',
-  ),
-
-  // Level 12: Intersecting Circles Sum of Digits
-  const LevelData(
-    levelNumber: 12,
-    questionType: QuestionType.Geometry,
-    category: 'Geometry: Intersecting Circles',
-    difficulty: 'Beginner',
-    displayContent: 'Circles: Left 47, Right 29 → Overlap [?]',
-    nodes: [
-      PuzzleNode(id: 'left', displayValue: '47'),
-      PuzzleNode(id: 'center', displayValue: '?', isTarget: true),
-      PuzzleNode(id: 'right', displayValue: '29'),
-    ],
-    correctAnswer: '22',
-    hint: 'Sum all individual digits of the numbers: 4 + 7 + 2 + 9.',
-    solution: '(4 + 7) + (2 + 9) = 11 + 11 = 22.',
-  ),
-
-  // Level 13: Zero Multiplication Trick
-  const LevelData(
-    levelNumber: 13,
-    questionType: QuestionType.Formula,
-    category: 'Mathematical Trick Riddles',
-    difficulty: 'Beginner',
-    displayContent: '10 + 10 × 0 + 10 = ?',
-    correctAnswer: '20',
-    hint: '10 × 0 = 0. Then perform the additions.',
-    solution: '10 + 0 + 10 = 20.',
-  ),
-
-  // Level 14: Triangle Absolute Base Difference
-  const LevelData(
-    levelNumber: 14,
-    questionType: QuestionType.Geometry,
-    category: 'Geometry: Triangles',
-    difficulty: 'Beginner',
-    displayContent: 'Triangle: Top 9, Left 4, Right 7 → Center [?]',
-    nodes: [
-      PuzzleNode(id: 'top', displayValue: '9'),
-      PuzzleNode(id: 'left', displayValue: '4'),
-      PuzzleNode(id: 'right', displayValue: '7'),
-      PuzzleNode(id: 'center', displayValue: '?', isTarget: true),
-    ],
-    correctAnswer: '27',
-    hint: 'Multiply the top vertex by the difference between right and left base vertices.',
-    solution: '9 × (7 - 4) = 9 × 3 = 27.',
-  ),
-
-  // Level 15: Grid of Perfect Squares
+  // Level 15: Overlapping Circles Average
   const LevelData(
     levelNumber: 15,
-    questionType: QuestionType.Grid,
-    category: 'Matrix & Numeric Grid Riddles',
+    questionType: QuestionType.Geometry,
+    category: 'Geometry: Intersecting Circles',
     difficulty: 'Beginner',
-    displayContent: '3×3 Grid: Perfect Squares Matrix (1..9)',
+    displayContent: 'Circles: Left 10, Right 20 → Overlap [?]',
     nodes: [
-      PuzzleNode(id: 'r1c1', displayValue: '1'),
-      PuzzleNode(id: 'r1c2', displayValue: '4'),
-      PuzzleNode(id: 'r1c3', displayValue: '9'),
-      PuzzleNode(id: 'r2c1', displayValue: '16'),
-      PuzzleNode(id: 'r2c2', displayValue: '25'),
-      PuzzleNode(id: 'r2c3', displayValue: '36'),
-      PuzzleNode(id: 'r3c1', displayValue: '49'),
-      PuzzleNode(id: 'r3c2', displayValue: '64'),
-      PuzzleNode(id: 'r3c3', displayValue: '?', isTarget: true),
+      PuzzleNode(id: 'left', displayValue: '10'),
+      PuzzleNode(id: 'center', displayValue: '?', isTarget: true),
+      PuzzleNode(id: 'right', displayValue: '20'),
     ],
-    correctAnswer: '81',
-    hint: 'Consecutive natural squares: 1², 2², 3² ... 8², 9².',
-    solution: '9² = 81.',
+    correctAnswer: '15',
+    hint: 'Center overlap is the arithmetic mean (average) of 10 and 20.',
+    solution: '(10 + 20) / 2 = 30 / 2 = 15.',
   ),
 
-  // Level 16: Difference Squared Geometry
+  // Level 16: Triangle Geometry (Symmetric Sum)
   const LevelData(
     levelNumber: 16,
     questionType: QuestionType.Geometry,
-    category: 'Geometry: Intersecting Circles',
+    category: 'Geometry: Triangles',
     difficulty: 'Beginner',
-    displayContent: 'Circles: Left 15, Right 8 → Overlap [?]',
+    displayContent: 'Triangle: Top 3, Left 5, Right 2 → Center [?]',
     nodes: [
-      PuzzleNode(id: 'left', displayValue: '15'),
-      PuzzleNode(id: 'center', displayValue: '?', isTarget: true),
-      PuzzleNode(id: 'right', displayValue: '8'),
+      PuzzleNode(id: 'top', displayValue: '3', relX: 0.5, relY: 0.16),
+      PuzzleNode(id: 'left', displayValue: '5', relX: 0.15, relY: 0.82),
+      PuzzleNode(id: 'right', displayValue: '2', relX: 0.85, relY: 0.82),
+      PuzzleNode(id: 'center', displayValue: '?', isTarget: true, relX: 0.5, relY: 0.56),
     ],
-    correctAnswer: '49',
-    hint: 'Subtract the smaller number from the larger number, then square the result.',
-    solution: '(15 - 8)² = 7² = 49.',
+    correctAnswer: '10',
+    hint: 'Add all three outer vertices together to find the center.',
+    solution: '3 + 5 + 2 = 10.',
   ),
 
-  // Level 17: Precedence Cancellation
+  // Level 17: Viral Precedence Expression
   const LevelData(
     levelNumber: 17,
     questionType: QuestionType.Formula,
     category: 'Formula Precedence',
     difficulty: 'Beginner',
-    displayContent: '5 × 5 - 5 × 5 + 5 = ?',
-    correctAnswer: '5',
-    hint: 'Perform both multiplications first: 25 - 25 + 5.',
-    solution: '25 - 25 + 5 = 0 + 5 = 5.',
+    displayContent: '6 ÷ 2 × (1 + 2) = ?',
+    correctAnswer: '9',
+    hint: 'Parentheses first: (1 + 2) = 3. Division and multiplication are evaluated left to right.',
+    solution: '6 ÷ 2 = 3, then 3 × 3 = 9.',
   ),
 
-  // Level 18: Triangle Vertex Multipliers
+  // Level 18: Multiplication Balance
   const LevelData(
     levelNumber: 18,
-    questionType: QuestionType.Geometry,
-    category: 'Geometry: Triangles',
+    questionType: QuestionType.Formula,
+    category: 'Missing Number Puzzles',
     difficulty: 'Beginner',
-    displayContent: 'Triangle: Top 7, Left 3, Right 5 → Center [?]',
-    nodes: [
-      PuzzleNode(id: 'top', displayValue: '7'),
-      PuzzleNode(id: 'left', displayValue: '3'),
-      PuzzleNode(id: 'right', displayValue: '5'),
-      PuzzleNode(id: 'center', displayValue: '?', isTarget: true),
-    ],
-    correctAnswer: '26',
-    hint: 'Multiply Top by Left and add Right: (7 × 3) + 5.',
-    solution: '21 + 5 = 26.',
+    displayContent: '8 × [?] = 56',
+    correctAnswer: '7',
+    hint: 'Divide 56 by 8.',
+    solution: '56 ÷ 8 = 7.',
   ),
 
-  // Level 19: Grid Column Doubling
+  // Level 19: Two-Step Linear Equation
   const LevelData(
     levelNumber: 19,
-    questionType: QuestionType.Grid,
-    category: 'Mathematical Sequence Puzzles',
+    questionType: QuestionType.Formula,
+    category: 'Equation Riddles',
     difficulty: 'Beginner',
-    displayContent: '3×3 Grid: Doubling Progression Rows',
-    nodes: [
-      PuzzleNode(id: 'r1c1', displayValue: '3'),
-      PuzzleNode(id: 'r1c2', displayValue: '6'),
-      PuzzleNode(id: 'r1c3', displayValue: '12'),
-      PuzzleNode(id: 'r2c1', displayValue: '5'),
-      PuzzleNode(id: 'r2c2', displayValue: '10'),
-      PuzzleNode(id: 'r2c3', displayValue: '20'),
-      PuzzleNode(id: 'r3c1', displayValue: '7'),
-      PuzzleNode(id: 'r3c2', displayValue: '14'),
-      PuzzleNode(id: 'r3c3', displayValue: '?', isTarget: true),
-    ],
-    correctAnswer: '28',
-    hint: 'Each number doubles across the horizontal row.',
-    solution: '7 × 2 = 14, 14 × 2 = 28.',
+    displayContent: '2x + 4 = 16 → x = ?',
+    correctAnswer: '6',
+    hint: 'Subtract 4 to get 2x = 12, then divide by 2.',
+    solution: '2x = 12 → x = 6.',
   ),
 
-  // Level 20: Complex Mixed Operations Grand Finale
+  // Level 20: Fibonacci Sequence Intro
   const LevelData(
     levelNumber: 20,
     questionType: QuestionType.Formula,
-    category: 'Formula Precedence',
+    category: 'Mathematical Sequence Puzzles',
     difficulty: 'Beginner',
-    displayContent: '7 + 7 ÷ 7 + 7 × 7 - 7 = ?',
-    correctAnswer: '50',
-    hint: 'Division (7 ÷ 7 = 1) and multiplication (7 × 7 = 49) first. Then add and subtract.',
-    solution: '7 + 1 + 49 - 7 = 8 + 49 - 7 = 57 - 7 = 50.',
+    displayContent: '1, 1, 2, 3, 5, [?]',
+    correctAnswer: '8',
+    hint: 'Fibonacci sequence: each number is the sum of the two preceding numbers.',
+    solution: '3 + 5 = 8.',
   ),
 ];

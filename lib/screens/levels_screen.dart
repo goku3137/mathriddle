@@ -13,7 +13,7 @@ class LevelsScreen extends ConsumerStatefulWidget {
 }
 
 class _LevelsScreenState extends ConsumerState<LevelsScreen> {
-  static const int _levelsPerPack = 20;
+  static const int _levelsPerPack = 100;
   late int _currentPack;
 
   @override
@@ -95,14 +95,29 @@ class _LevelsScreenState extends ConsumerState<LevelsScreen> {
                               ? () => setState(() => _currentPack--)
                               : null,
                         ),
-                        Text(
-                          'PACK ${_currentPack + 1} ($startLevel–$endLevel)',
-                          style: const TextStyle(
-                            color: GameTheme.amberAccent,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1.5,
-                          ),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'PACK ${_currentPack + 1} ($startLevel–$endLevel)',
+                              style: const TextStyle(
+                                color: GameTheme.amberAccent,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 1.5,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              _getDifficultyName(_currentPack),
+                              style: const TextStyle(
+                                color: GameTheme.textMuted,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 1.0,
+                              ),
+                            ),
+                          ],
                         ),
                         IconButton(
                           icon: const Icon(Icons.chevron_right_rounded, color: GameTheme.textWhite),
@@ -251,5 +266,21 @@ class _LevelsScreenState extends ConsumerState<LevelsScreen> {
         ),
       ),
     );
+  }
+
+  String _getDifficultyName(int packIndex) {
+    switch (packIndex) {
+      case 0:
+        return 'DIFFICULTY: EASY';
+      case 1:
+        return 'DIFFICULTY: EASY–INTERMEDIATE';
+      case 2:
+        return 'DIFFICULTY: INTERMEDIATE';
+      case 3:
+        return 'DIFFICULTY: ADVANCED';
+      case 4:
+      default:
+        return 'DIFFICULTY: INSANE';
+    }
   }
 }

@@ -24,15 +24,26 @@ void main() {
 
       final level2 = await repository.getLevel(2);
       expect(level2.levelNumber, equals(2));
-      expect(level2.correctAnswer, equals('17'));
-      expect(level2.questionType, equals(QuestionType.Geometry));
-      expect(level2.nodes, isNotNull);
-      expect(level2.nodes!.length, equals(4));
+      expect(level2.correctAnswer, equals('10'));
+      expect(level2.questionType, equals(QuestionType.Formula));
+      expect(level2.category, equals('Number Pattern Riddles'));
 
       final level3 = await repository.getLevel(3);
-      expect(level3.questionType, equals(QuestionType.Grid));
-      expect(level3.nodes, isNotNull);
-      expect(level3.nodes!.length, equals(9));
+      expect(level3.questionType, equals(QuestionType.Formula));
+      expect(level3.category, equals('Missing Number Puzzles'));
+      expect(level3.correctAnswer, equals('7'));
+
+      final level14 = await repository.getLevel(14);
+      expect(level14.questionType, equals(QuestionType.Grid));
+      expect(level14.nodes, isNotNull);
+      expect(level14.nodes!.length, equals(9));
+      expect(level14.correctAnswer, equals('2'));
+
+      final level16 = await repository.getLevel(16);
+      expect(level16.questionType, equals(QuestionType.Geometry));
+      expect(level16.nodes, isNotNull);
+      expect(level16.nodes!.length, equals(4));
+      expect(level16.correctAnswer, equals('10'));
     });
 
     test('All 500 levels have strictly valid, non-negative integer answers matching 0-9 keypad', () {
@@ -174,10 +185,10 @@ void main() {
       expect(freshRepo.getCachedLevel(42), isNotNull);
     });
 
-    test('Level 9 formula produces valid 64 answer solvable with keypad', () {
+    test('Level 9 math trick produces valid 20 answer solvable with keypad', () {
       final level9 = repository.getLevelSync(9);
-      expect(level9.correctAnswer, equals('64'));
-      expect(level9.displayContent, equals('8 + 8 × 8 - 8 = ?'));
+      expect(level9.correctAnswer, equals('20'));
+      expect(level9.category, equals('Mathematical Trick Riddles'));
       expect(int.tryParse(level9.correctAnswer), isNotNull);
       expect(int.parse(level9.correctAnswer) >= 0, isTrue);
     });

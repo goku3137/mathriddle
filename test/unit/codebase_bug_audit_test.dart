@@ -72,8 +72,8 @@ void main() {
 
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      // Valid pack 25 (levels 481–500)
-      expect(find.text('PACK 25 (481–500)'), findsOneWidget);
+      // Valid pack 5 (levels 401–500)
+      expect(find.text('PACK 5 (401–500)'), findsOneWidget);
     });
 
     testWidgets('ChallengeScreen timer does not crash if popped before expiration', (WidgetTester tester) async {

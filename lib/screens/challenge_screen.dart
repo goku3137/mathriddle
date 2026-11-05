@@ -1,162 +1,16 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../controllers/game_controller.dart';
+import '../data/challenge_data.dart';
 import '../theme/game_theme.dart';
-import '../widgets/custom_keypad.dart';
 import '../widgets/score_badge.dart';
+import 'challenge_play_screen.dart';
 
-class ChallengeScreen extends ConsumerStatefulWidget {
+class ChallengeScreen extends ConsumerWidget {
   const ChallengeScreen({super.key});
 
   @override
-  ConsumerState<ChallengeScreen> createState() => _ChallengeScreenState();
-}
-
-class _ChallengeScreenState extends ConsumerState<ChallengeScreen> {
-  int _secondsLeft = 60;
-  Timer? _timer;
-  int _sessionPoints = 0;
-  int _solvedCount = 0;
-  String _input = '';
-  int _problemIndex = 0;
-
-  final List<Map<String, String>> _challenges = [
-    {'id': 'c1', 'q': '7 × 8 - 6 = ?', 'a': '50'},
-    {'id': 'c2', 'q': '3² + 4² = ?', 'a': '25'},
-    {'id': 'c3', 'q': '4, 9, 16, 25, ?', 'a': '36'},
-    {'id': 'c4', 'q': '100 / 4 + 17 = ?', 'a': '42'},
-    {'id': 'c5', 'q': '2, 6, 18, 54, ?', 'a': '162'},
-    {'id': 'c6', 'q': '12 × 12 - 44 = ?', 'a': '100'},
-    {'id': 'c7', 'q': '15 + 25 × 2 = ?', 'a': '65'},
-    {'id': 'c8', 'q': '9² - 9 = ?', 'a': '72'},
-    {'id': 'c9', 'q': '2³ + 3² = ?', 'a': '17'},
-    {'id': 'c10', 'q': '50% of 140 = ?', 'a': '70'},
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _startTimer();
-  }
-
-  void _startTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-      if (_secondsLeft > 0) {
-        setState(() => _secondsLeft--);
-      } else {
-        _timer?.cancel();
-        _showGameOverModal();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  Future<void> _submit() async {
-    final problem = _challenges[_problemIndex % _challenges.length];
-    if (_input.trim() == problem['a']) {
-      HapticFeedback.mediumImpact();
-      // Each challenge awards 3 points only once per completion
-      final wasNew = await ref.read(gameControllerProvider.notifier).completeChallenge(problem['id']!);
-      if (mounted) {
-        setState(() {
-          if (wasNew) {
-            _sessionPoints += 3;
-          }
-          _solvedCount++;
-          _input = '';
-          _problemIndex++;
-        });
-      }
-    } else {
-      HapticFeedback.vibrate();
-      if (mounted) {
-        setState(() {
-          _input = '';
-        });
-      }
-    }
-  }
-
-  void _showGameOverModal() {
-    if (!mounted) return;
-    final totalScore = ref.read(gameControllerProvider).totalScore;
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: GameTheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: GameTheme.amberAccent),
-        ),
-        title: const Text(
-          'TIME IS UP!',
-          style: TextStyle(color: GameTheme.textWhite, fontWeight: FontWeight.w700),
-          textAlign: TextAlign.center,
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.bolt_rounded, color: GameTheme.amberAccent, size: 48),
-            const SizedBox(height: 12),
-            Text(
-              '+$_sessionPoints PTS EARNED',
-              style: const TextStyle(
-                color: GameTheme.amberAccent,
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Solved $_solvedCount challenges (+3 PTS each)',
-              style: const TextStyle(color: GameTheme.textMuted, fontSize: 13),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Total Score: $totalScore PTS',
-              style: const TextStyle(
-                color: GameTheme.textWhite,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: GameTheme.amberAccent,
-              foregroundColor: Colors.black87,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-              Navigator.of(context).pop();
-            },
-            child: const Text('BACK TO MENU', style: TextStyle(fontWeight: FontWeight.w700)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final problem = _challenges[_problemIndex % _challenges.length];
-
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       backgroundColor: GameTheme.background,
       appBar: AppBar(
@@ -167,7 +21,7 @@ class _ChallengeScreenState extends ConsumerState<ChallengeScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
-          'CHALLENGE',
+          'CHALLENGES',
           style: TextStyle(
             color: GameTheme.textWhite,
             fontSize: 18,
@@ -186,61 +40,49 @@ class _ChallengeScreenState extends ConsumerState<ChallengeScreen> {
         ],
       ),
       body: SafeArea(
-        child: Column(
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           children: [
-            // Top Bar: Session Points & Timer
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            // Hero Header
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: GameTheme.surface,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: GameTheme.amberAccent.withValues(alpha: 0.3)),
+              ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: GameTheme.surface,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: GameTheme.borderSubtle),
+                      color: GameTheme.amberGlow,
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Row(
+                    child: const Icon(Icons.bolt_rounded, color: GameTheme.amberAccent, size: 28),
+                  ),
+                  const SizedBox(width: 14),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.stars_rounded, color: GameTheme.amberAccent, size: 16),
-                        const SizedBox(width: 4),
                         Text(
-                          '+$_sessionPoints PTS (+3/ea)',
-                          style: const TextStyle(
+                          'SPEED SPRINT ARENA',
+                          style: TextStyle(
                             color: GameTheme.amberAccent,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 1.2,
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: _secondsLeft < 15
-                          ? GameTheme.errorRed.withValues(alpha: 0.15)
-                          : GameTheme.surface,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(
-                        color: _secondsLeft < 15 ? GameTheme.errorRed : GameTheme.borderSubtle,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.timer_outlined,
-                          size: 16,
-                          color: _secondsLeft < 15 ? GameTheme.errorRed : GameTheme.amberAccent,
-                        ),
-                        const SizedBox(width: 6),
+                        SizedBox(height: 4),
                         Text(
-                          '${_secondsLeft}s',
+                          'Select an arithmetic operation to test your calculation speed. Race the 60s clock with zero heart loss!',
                           style: TextStyle(
-                            color: _secondsLeft < 15 ? GameTheme.errorRed : GameTheme.textWhite,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
+                            color: GameTheme.textLight,
+                            fontSize: 12,
+                            height: 1.4,
                           ),
                         ),
                       ],
@@ -249,63 +91,206 @@ class _ChallengeScreenState extends ConsumerState<ChallengeScreen> {
                 ],
               ),
             ),
+            const SizedBox(height: 20),
 
-            // Question Display Box
-            Expanded(
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-                    decoration: BoxDecoration(
-                      color: GameTheme.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: GameTheme.borderSubtle),
+            // Section Label
+            const Row(
+              children: [
+                Icon(Icons.category_rounded, color: GameTheme.amberAccent, size: 16),
+                SizedBox(width: 8),
+                Text(
+                  'SELECT CHALLENGE CATEGORY',
+                  style: TextStyle(
+                    color: GameTheme.amberAccent,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.4,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            // The 5 Challenge Cards in Strict Order:
+            // 1. Addition (+)
+            // 2. Subtraction (-)
+            // 3. Multiplication (×)
+            // 4. Division (÷)
+            // 5. All Mixed (Combined)
+            for (final category in challengeCategories) ...[
+              _buildChallengeCard(context, category),
+              const SizedBox(height: 12),
+            ],
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChallengeCard(BuildContext context, ChallengeCategoryInfo category) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () {
+          HapticFeedback.lightImpact();
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => ChallengePlayScreen(category: category),
+            ),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: GameTheme.surface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: category.type == ChallengeType.mixed
+                  ? GameTheme.amberAccent.withValues(alpha: 0.6)
+                  : GameTheme.borderSubtle,
+              width: category.type == ChallengeType.mixed ? 1.4 : 1.0,
+            ),
+            boxShadow: category.type == ChallengeType.mixed
+                ? const [
+                    BoxShadow(
+                      color: GameTheme.amberGlow,
+                      blurRadius: 10,
+                      offset: Offset(0, 3),
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Question ${_problemIndex + 1}',
-                          style: const TextStyle(
-                            color: GameTheme.textMuted,
-                            fontSize: 14,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          problem['q']!,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            color: GameTheme.textWhite,
-                            fontSize: 28,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 2.0,
-                          ),
-                        ),
-                      ],
+                  ]
+                : null,
+          ),
+          child: Row(
+            children: [
+              // Symbol Avatar
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: category.accentColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: category.accentColor.withValues(alpha: 0.5)),
+                ),
+                child: Center(
+                  child: Text(
+                    category.symbol,
+                    style: TextStyle(
+                      color: category.accentColor,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
                     ),
                   ),
                 ),
               ),
-            ),
+              const SizedBox(width: 14),
 
-            // Keypad & Input Row
-            CustomKeypad(
-              inputString: _input,
-              hasVibration: true,
-              onDigitPressed: (d) {
-                if (_input.length < 6) {
-                  setState(() => _input += d);
-                }
-              },
-              onClear: () => setState(() => _input = ''),
-              onHintPressed: () {},
-              onSubmit: _submit,
-            ),
-          ],
+              // Title, Description & Badges
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          category.title,
+                          style: const TextStyle(
+                            color: GameTheme.textWhite,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                        if (category.type == ChallengeType.mixed) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: GameTheme.amberGlow,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'GRAND SPRINT',
+                              style: TextStyle(
+                                color: GameTheme.amberAccent,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      category.description,
+                      style: const TextStyle(
+                        color: GameTheme.textMuted,
+                        fontSize: 11,
+                        height: 1.35,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: GameTheme.surfaceElevated,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: GameTheme.borderSubtle),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.timer_outlined, size: 11, color: GameTheme.amberAccent),
+                              SizedBox(width: 4),
+                              Text(
+                                '60s Sprint',
+                                style: TextStyle(color: GameTheme.textLight, fontSize: 10, fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: category.accentColor.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            '+3 PTS / solve',
+                            style: TextStyle(
+                              color: category.accentColor,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // Action Arrow Button
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: GameTheme.surfaceElevated,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: GameTheme.borderSubtle),
+                ),
+                child: const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: GameTheme.textLight,
+                  size: 14,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

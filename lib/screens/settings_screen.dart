@@ -4,6 +4,7 @@ import '../controllers/game_controller.dart';
 import '../services/monetization_service.dart';
 import '../services/progress_service.dart';
 import '../services/sound_service.dart';
+import '../services/store_service.dart';
 import '../theme/game_theme.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -108,6 +109,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       onChanged: (val) async {
                         await progress.setPersonalizedAdsEnabled(val);
                         setState(() {});
+                      },
+                    ),
+                    const Divider(color: GameTheme.borderSubtle, height: 1),
+
+                    // RATE US Actionable Row
+                    _buildActionRow(
+                      icon: Icons.star_rate_rounded,
+                      label: 'RATE US',
+                      onTap: () async {
+                        ref.read(soundServiceProvider).playTap();
+                        await StoreService.openPlayStoreReview();
                       },
                     ),
                     const Divider(color: GameTheme.borderSubtle, height: 1),

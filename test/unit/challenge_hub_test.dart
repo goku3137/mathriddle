@@ -166,8 +166,9 @@ void main() {
 
       // Verify ChallengePlayScreen opened in 15-second infinite mode
       expect(find.byType(ChallengePlayScreen), findsOneWidget);
-      expect(find.text('QUESTION 1'), findsOneWidget);
+      expect(find.textContaining('QUESTION 1'), findsOneWidget);
       expect(find.text('15s'), findsOneWidget);
+      expect(find.text('Played 0 times'), findsOneWidget);
 
       // Pop back to Challenge Hub
       await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
@@ -189,8 +190,8 @@ void main() {
 
       int questionCounter = 0;
       final testQuestions = [
-        const ChallengeItem(id: 'test_1', question: '10 + 15 = ?', answer: '25'),
-        const ChallengeItem(id: 'test_2', question: '20 + 30 = ?', answer: '50'),
+        const ChallengeItem(id: 'test_1', question: '5 + 3 = ?', answer: '8', explanation: '5 + 3 = 8'),
+        const ChallengeItem(id: 'test_2', question: '7 + 2 = ?', answer: '9', explanation: '7 + 2 = 9'),
       ];
 
       await tester.pumpWidget(
@@ -210,18 +211,17 @@ void main() {
       await tester.pumpAndSettle();
 
       // Initial state
-      expect(find.text('QUESTION 1'), findsOneWidget);
-      expect(find.text('10 + 15 = ?'), findsOneWidget);
+      expect(find.textContaining('QUESTION 1'), findsOneWidget);
+      expect(find.text('5 + 3 = ?'), findsOneWidget);
       expect(find.text('15s'), findsOneWidget);
+      expect(find.text('1-Digit'), findsOneWidget);
 
       // Fast-forward 5 seconds
       await tester.pump(const Duration(seconds: 5));
       expect(find.text('10s'), findsOneWidget);
 
-      // Input correct answer '25'
-      await tester.tap(find.widgetWithText(InkWell, '2'));
-      await tester.pump();
-      await tester.tap(find.widgetWithText(InkWell, '5'));
+      // Input correct answer '8'
+      await tester.tap(find.widgetWithText(InkWell, '8'));
       await tester.pump();
 
       // Submit
@@ -230,14 +230,14 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       // Verify timer reset back to 15s and advanced to Question 2
-      expect(find.text('QUESTION 2'), findsOneWidget);
-      expect(find.text('20 + 30 = ?'), findsOneWidget);
+      expect(find.textContaining('QUESTION 2'), findsOneWidget);
+      expect(find.text('7 + 2 = ?'), findsOneWidget);
       expect(find.text('15s'), findsOneWidget);
-      expect(find.text('STREAK: 1 (+3/ea)'), findsOneWidget);
+      expect(find.text('STREAK: 1 (+3 PTS)'), findsOneWidget);
       expect(progressService.totalScore, equals(3));
     });
 
-    testWidgets('ChallengePlayScreen ends immediately on incorrect answer with final results', (WidgetTester tester) async {
+    testWidgets('ChallengePlayScreen never terminates on wrong answer, shows explanation popup, and continues', (WidgetTester tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -247,6 +247,12 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       final progressService = ProgressService(prefs);
 
+      int questionCounter = 0;
+      final testQuestions = [
+        const ChallengeItem(id: 'q1', question: '4 + 5 = ?', answer: '9', explanation: '4 + 5 = 9'),
+        const ChallengeItem(id: 'q2', question: '6 + 3 = ?', answer: '9', explanation: '6 + 3 = 9'),
+      ];
+
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -255,7 +261,7 @@ void main() {
           child: MaterialApp(
             home: ChallengePlayScreen(
               category: challengeCategories[0],
-              questionGenerator: (_) => const ChallengeItem(id: 'q1', question: '10 + 10 = ?', answer: '20'),
+              questionGenerator: (_) => testQuestions[questionCounter++ % testQuestions.length],
             ),
           ),
         ),
@@ -263,27 +269,36 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Input wrong answer '99'
-      await tester.tap(find.widgetWithText(InkWell, '9'));
-      await tester.pump();
-      await tester.tap(find.widgetWithText(InkWell, '9'));
+      // Input wrong answer '7'
+      await tester.tap(find.widgetWithText(InkWell, '7'));
       await tester.pump();
 
       // Submit wrong answer
       await tester.tap(find.text('ENTER'));
       await tester.pumpAndSettle();
 
-      // Verify game over modal appeared immediately
-      expect(find.text('INCORRECT ANSWER!'), findsOneWidget);
-      expect(find.text('Streak: 0 questions solved'), findsOneWidget);
-      expect(find.text('Correct Answer:'), findsOneWidget);
-      expect(find.text('20'), findsOneWidget);
-      expect(find.text('Your Input:'), findsOneWidget);
-      expect(find.descendant(of: find.byType(AlertDialog), matching: find.text('99')), findsOneWidget);
-      expect(find.text('TRY AGAIN'), findsOneWidget);
+      // Verify Wrong Answer Popup appeared displaying "INCORRECT", correct answer, and explanation
+      expect(find.text('INCORRECT'), findsOneWidget);
+      expect(find.text('Correct answer:'), findsOneWidget);
+      expect(find.text('Your answer:'), findsOneWidget);
+      expect(find.descendant(of: find.byType(AlertDialog), matching: find.text('7')), findsOneWidget);
+      expect(find.descendant(of: find.byType(AlertDialog), matching: find.text('9')), findsOneWidget);
+      expect(find.text('4 + 5 = 9'), findsOneWidget);
+      expect(find.text('CONTINUE'), findsOneWidget);
+
+      // Dismiss popup via CONTINUE
+      await tester.tap(find.text('CONTINUE'));
+      await tester.pumpAndSettle();
+
+      // Requirement 5 & 7: Challenge NEVER ended! Immediately loaded next question with fresh 15s timer
+      expect(find.text('INCORRECT'), findsNothing);
+      expect(find.text('6 + 3 = ?'), findsOneWidget);
+      expect(find.text('15s'), findsOneWidget);
+      expect(find.textContaining('QUESTION 2'), findsOneWidget);
+      expect(find.text('Played 1 time'), findsOneWidget);
     });
 
-    testWidgets('ChallengePlayScreen ends when 15s timer runs out and shows results', (WidgetTester tester) async {
+    testWidgets('ChallengePlayScreen timeout shows correct answer & explanation and continues to next question', (WidgetTester tester) async {
       tester.view.physicalSize = const Size(800, 1600);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.resetPhysicalSize);
@@ -293,6 +308,12 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       final progressService = ProgressService(prefs);
 
+      int questionCounter = 0;
+      final testQuestions = [
+        const ChallengeItem(id: 'q_to1', question: '7 + 8 = ?', answer: '15', explanation: '7 + 8 = 15'),
+        const ChallengeItem(id: 'q_to2', question: '9 + 4 = ?', answer: '13', explanation: '9 + 4 = 13'),
+      ];
+
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -301,7 +322,7 @@ void main() {
           child: MaterialApp(
             home: ChallengePlayScreen(
               category: challengeCategories[0],
-              questionGenerator: (_) => const ChallengeItem(id: 'q_to', question: '7 + 8 = ?', answer: '15'),
+              questionGenerator: (_) => testQuestions[questionCounter++ % testQuestions.length],
             ),
           ),
         ),
@@ -314,21 +335,23 @@ void main() {
       await tester.pump(const Duration(seconds: 15));
       await tester.pumpAndSettle();
 
-      // Verify game over modal for timeout
-      expect(find.text("TIME'S UP!"), findsOneWidget);
-      expect(find.text('Streak: 0 questions solved'), findsOneWidget);
-      expect(find.text('Correct Answer:'), findsOneWidget);
-      expect(find.text('15'), findsOneWidget);
-      expect(find.text('TRY AGAIN'), findsOneWidget);
+      // Verify timeout modal shows "TIME'S UP", correct answer and explanation
+      expect(find.text("TIME'S UP"), findsOneWidget);
+      expect(find.text('Correct answer:'), findsOneWidget);
+      expect(find.descendant(of: find.byType(AlertDialog), matching: find.text('15')), findsOneWidget);
+      expect(find.text('7 + 8 = 15'), findsOneWidget);
+      expect(find.text('NEXT QUESTION'), findsOneWidget);
 
-      // Tap TRY AGAIN to reset
-      await tester.tap(find.text('TRY AGAIN'));
+      // Tap NEXT QUESTION to continue
+      await tester.tap(find.text('NEXT QUESTION'));
       await tester.pumpAndSettle();
 
-      // Modal dismissed and new 15s countdown started
-      expect(find.text("TIME'S UP!"), findsNothing);
+      // Session continues indefinitely to question 2 with fresh 15s timer
+      expect(find.text("TIME'S UP"), findsNothing);
+      expect(find.text('9 + 4 = ?'), findsOneWidget);
       expect(find.text('15s'), findsOneWidget);
-      expect(find.text('QUESTION 1'), findsOneWidget);
+      expect(find.textContaining('QUESTION 2'), findsOneWidget);
+      expect(find.text('Played 1 time'), findsOneWidget);
     });
   });
 }

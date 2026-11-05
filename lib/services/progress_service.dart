@@ -1,7 +1,8 @@
 import 'dart:developer' as developer;
 import 'dart:math' as math;
 import 'package:shared_preferences/shared_preferences.dart';
-import '../data/challenge_data.dart' show ChallengeType;
+import '../data/challenge_data.dart'
+    show ChallengeType, ChallengeBadge, ChallengeBadgeInfo, ChallengeBadgeTier;
 import '../domain/energy_rules.dart';
 import '../domain/scoring_rules.dart';
 import 'monetization_service.dart';
@@ -224,6 +225,66 @@ class ProgressService {
     return false;
   }
 
+  // --- Category Statistics & Smart Progression Tracking ---
+  CategoryStats getCategoryStats(ChallengeType type) {
+    final keyPrefix = 'math_challenge_stats_${type.name}';
+    final attempts = _safeGetInt('${keyPrefix}_attempts', 0);
+    final correct = _safeGetInt('${keyPrefix}_correct', 0);
+    final highestStreak = _safeGetInt('${keyPrefix}_highest_streak', 0);
+    final tier = _safeGetInt('${keyPrefix}_tier', 0).clamp(0, 2);
+    final highestBadgeIndex = _safeGetInt('${keyPrefix}_highest_badge', 0);
+    return CategoryStats(
+      attempts: attempts,
+      correctAnswers: correct,
+      highestStreak: highestStreak,
+      tier: tier,
+      highestBadgeIndex: highestBadgeIndex,
+    );
+  }
+
+  Future<void> recordChallengeAttempt({
+    required ChallengeType type,
+    required bool isCorrect,
+    required int currentStreak,
+    int? overrideTier,
+  }) async {
+    final keyPrefix = 'math_challenge_stats_${type.name}';
+    final currentStats = getCategoryStats(type);
+    final newAttempts = currentStats.attempts + 1;
+    final newCorrect = currentStats.correctAnswers + (isCorrect ? 1 : 0);
+    final newHighestStreak = math.max(currentStats.highestStreak, currentStreak);
+
+    // Tier progression: Advances based on cumulative correct answers (every 20 solved)
+    // with an accuracy requirement (≥60% for Tier 1, ≥65% for Tier 2) so difficulty
+    // progression is persistent and never lost upon a single mistake.
+    // Streak is tracked completely independently.
+    final accuracy = newAttempts > 0 ? (newCorrect / newAttempts) : 0.0;
+    int calculatedTier = 0;
+    if (newCorrect >= 40 && accuracy >= 0.65) {
+      calculatedTier = 2;
+    } else if (newCorrect >= 20 && accuracy >= 0.60) {
+      calculatedTier = 1;
+    }
+    final baseTier = overrideTier ?? currentStats.tier;
+    final newTier = math.max(baseTier, calculatedTier).clamp(0, 2);
+
+    // Badge progression based on all-time correct answers for this category.
+    // Badges never decrement or reset.
+    final currentBadge = ChallengeBadgeTier.getBadge(newCorrect);
+    final newHighestBadge = math.max(currentStats.highestBadgeIndex, currentBadge.index);
+
+    await _prefs.setInt('${keyPrefix}_attempts', newAttempts);
+    await _prefs.setInt('${keyPrefix}_correct', newCorrect);
+    await _prefs.setInt('${keyPrefix}_highest_streak', newHighestStreak);
+    await _prefs.setInt('${keyPrefix}_tier', newTier);
+    await _prefs.setInt('${keyPrefix}_highest_badge', newHighestBadge);
+  }
+
+  Future<void> setCategoryTier(ChallengeType type, int tier) async {
+    final keyPrefix = 'math_challenge_stats_${type.name}';
+    await _prefs.setInt('${keyPrefix}_tier', tier.clamp(0, 2));
+  }
+
   // --- Hints & Solutions ---
   bool isHintUnlocked(int level) {
     if (isPremiumUser) return true;
@@ -378,4 +439,48 @@ class ProgressService {
     _isTampered = false;
     await _updateSignature();
   }
+}
+
+/// Statistics and progression model for individual challenge categories.
+class CategoryStats {
+  final int attempts;
+  final int correctAnswers;
+  final int highestStreak;
+  final int tier; // 0: 1-digit, 1: 2-digit, 2: 3-digit / hard
+  final int highestBadgeIndex;
+
+  const CategoryStats({
+    this.attempts = 0,
+    this.correctAnswers = 0,
+    this.highestStreak = 0,
+    this.tier = 0,
+    this.highestBadgeIndex = 0,
+  });
+
+  double get accuracy => attempts > 0 ? (correctAnswers / attempts) * 100 : 0.0;
+  int get accuracyPercent => accuracy.round();
+
+  String get tierLabel {
+    switch (tier) {
+      case 0:
+        return '1-Digit';
+      case 1:
+        return '2-Digit';
+      case 2:
+      default:
+        return '3-Digit';
+    }
+  }
+
+  ChallengeBadge get badge {
+    final computed = ChallengeBadgeTier.getBadge(correctAnswers);
+    if (computed.index < highestBadgeIndex) {
+      return ChallengeBadge.values[highestBadgeIndex.clamp(0, ChallengeBadge.values.length - 1)];
+    }
+    return computed;
+  }
+
+  ChallengeBadgeInfo get badgeInfo => ChallengeBadgeTier.getInfo(badge);
+  double get badgeProgress => ChallengeBadgeTier.getProgressFraction(correctAnswers);
+  String get badgeProgressText => ChallengeBadgeTier.getProgressText(correctAnswers);
 }

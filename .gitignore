@@ -1,0 +1,104 @@
+# -----------------------------------------------------------------------------
+# Flutter & Dart Standard Ignore Rules
+# -----------------------------------------------------------------------------
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+/coverage/
+lib/generated_plugin_registrant.dart
+**/doc/api/
+.widget_preview/
+
+# Symbolication & Obfuscation
+app.*.symbols
+app.*.map.json
+
+# -----------------------------------------------------------------------------
+# Android
+# -----------------------------------------------------------------------------
+**/android/.gradle
+**/android/captures/
+**/android/gradle/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/local.properties
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Signing Keys & Secrets (Never commit keystore passwords or release certs!)
+*.keystore
+*.jks
+**/android/key.properties
+google-services.json
+
+# -----------------------------------------------------------------------------
+# iOS & macOS
+# -----------------------------------------------------------------------------
+**/ios/Flutter/.last_build_id
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/app.framework
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/profile
+**/ios/release
+**/ios/DerivedData/
+*.mode1v3
+*.mode2v3
+*.moved-aside
+*.pbxuser
+*.perspectivev3
+**/ios/**/xcshareddata/WorkspaceSettings.xcsettings
+**/ios/**/xcuserdata
+GoogleService-Info.plist
+
+# -----------------------------------------------------------------------------
+# Windows & Desktop Builds
+# -----------------------------------------------------------------------------
+windows/flutter/ephemeral/
+linux/flutter/ephemeral/
+macos/Flutter/ephemeral/
+
+# -----------------------------------------------------------------------------
+# IDEs & Editors
+# -----------------------------------------------------------------------------
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.history
+.atom/
+.project
+.classpath
+.settings/
+
+# -----------------------------------------------------------------------------
+# OS & Scratch Files
+# -----------------------------------------------------------------------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+*.class
+*.log
+*.pyc
+*.swp
+*~
+.build/
+.buildlog/
+.svn/
+.swiftpm/
+migrate_working_dir/
+.env*
+*.private.json

@@ -509,10 +509,10 @@ class ScalableLevelRepository implements ILevelRepository {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'A + B = $sum, A - B = $diff. A × B = ?',
+        displayContent: 'A + B = $sum\nA - B = $diff\nA × B = ?',
         correctAnswer: '$ans',
         hint: 'Add equations to find 2A = ${sum + diff}. Then find B and calculate A × B.',
-        solution: '2A = ${sum + diff} → A = $x. B = $y. A × B = $x × $y = $ans.',
+        solution: '2A = ${sum + diff}\nA = $x\nB = $y\nA × B = $x × $y = $ans.',
       );
     } else if (tier <= 3) {
       final target = (k * 2 % 13) + 6; final r1 = (k % 5) + 3; final r2 = (k % 4) + 5; final c1 = (k % 3) + 2; final c2 = (k % 4) + 4;
@@ -694,7 +694,7 @@ class ScalableLevelRepository implements ILevelRepository {
         ],
         correctAnswer: '$targetLeft',
         hint: 'Rule is (Top × Left) + Right = Center. Deduce Left vertex.',
-        solution: '($t × ?) + $r = $center → $t × ? = ${center - r} → ? = $targetLeft.',
+        solution: '($t × ?) + $r = $center\n$t × ? = ${center - r}\n? = $targetLeft.',
       );
     }
   }
@@ -708,10 +708,10 @@ class ScalableLevelRepository implements ILevelRepository {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: '${a}x + $b = $c. x = ?',
+        displayContent: '${a}x + $b = $c\nx = ?',
         correctAnswer: '$x',
         hint: 'Subtract $b from $c, then divide by $a.',
-        solution: '${a}x = $c - $b = ${c - b}. x = ${c - b} ÷ $a = $x.',
+        solution: '${a}x + $b = $c\n${a}x = ${c - b}\nx = $x.',
       );
     } else if (tier <= 1) {
       final apple = (k * 2 % 9) + 4; final banana = (k % 5) + 2; final s1 = apple + banana; final s2 = 2 * apple + banana;
@@ -720,10 +720,10 @@ class ScalableLevelRepository implements ILevelRepository {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'A + B = $s1, 2A + B = $s2. A = ?',
+        displayContent: 'A + B = $s1\n2A + B = $s2\nA = ?',
         correctAnswer: '$apple',
         hint: 'Subtract the first equation from the second to find A directly.',
-        solution: '(2A + B) - (A + B) = A = $s2 - $s1 = $apple.',
+        solution: '(2A + B) - (A + B) = A\nA = $s2 - $s1\nA = $apple.',
       );
     } else if (tier <= 2) {
       final a = (k * 2 % 7) + 3; final b = (k % 5) + 4; final c = (k % 4) + 2; final ab = a + b; final bc = b + c; final ac = a + c; final total = a + b + c;
@@ -732,10 +732,10 @@ class ScalableLevelRepository implements ILevelRepository {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'A+B=$ab, B+C=$bc, A+C=$ac. A+B+C = ?',
+        displayContent: 'A + B = $ab\nB + C = $bc\nA + C = $ac\nA + B + C = ?',
         correctAnswer: '$total',
         hint: 'Sum all three equations: 2(A + B + C) = ${ab + bc + ac}. Then divide by 2.',
-        solution: '2(A+B+C) = $ab + $bc + $ac = ${ab + bc + ac}. A+B+C = ${ab + bc + ac} ÷ 2 = $total.',
+        solution: '2(A + B + C) = ${ab + bc + ac}\nA + B + C = ${ab + bc + ac} ÷ 2\nA + B + C = $total.',
       );
     } else if (tier <= 3) {
       final step = k - 10;
@@ -748,10 +748,10 @@ class ScalableLevelRepository implements ILevelRepository {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'x² - ${b}x = $c. Positive x = ?',
+        displayContent: 'x² - ${b}x = $c\nPositive x = ?',
         correctAnswer: '$r',
         hint: 'Factor as (x - $r)(x + $sumCoeff) = 0.',
-        solution: '$r² - ($b × $r) = ${r * r} - ${b * r} = $c. Positive root is $r.',
+        solution: 'x² - ${b}x = $c\n($r)² - ($b × $r) = $c\nx = $r.',
       );
     } else if (tier <= 4) {
       final x = (k * 2 % 7) + 3; final y = (k % 5) + 2; final eq1 = 2 * x + 3 * y; final eq2 = 3 * x + y; final ans = x * y;
@@ -760,10 +760,10 @@ class ScalableLevelRepository implements ILevelRepository {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: '2x + 3y = $eq1, 3x + y = $eq2. x × y = ?',
+        displayContent: '2x + 3y = $eq1\n3x + y = $eq2\nx × y = ?',
         correctAnswer: '$ans',
         hint: 'From second equation y = $eq2 - 3x. Substitute into the first equation.',
-        solution: 'Solving gives x = $x, y = $y. x × y = $x × $y = $ans.',
+        solution: 'x = $x\ny = $y\nx × y = $x × $y = $ans.',
       );
     } else if (tier <= 5) {
       final x = (k % 4) + 2; final y = (k * 2 % 5) + 3; final z = (k % 3) + 4; final s = x + y + z; final eq2 = 2 * x - y; final eq3 = 3 * z; final ans = (x * x) + (y * y);
@@ -772,10 +772,10 @@ class ScalableLevelRepository implements ILevelRepository {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'x+y+z=$s, 2x-y=$eq2, 3z=$eq3. x² + y² = ?',
+        displayContent: 'x + y + z = $s\n2x - y = $eq2\n3z = $eq3\nx² + y² = ?',
         correctAnswer: '$ans',
         hint: 'Find z from 3z = $eq3, then solve the remaining 2 variables.',
-        solution: 'z = $z. Then x+y = ${s - z}. Solving with 2x-y = $eq2 gives x = $x, y = $y. x² + y² = $ans.',
+        solution: '3z = $eq3\nz = $z\nx + y = ${s - z}\nx = $x\ny = $y\nx² + y² = $ans.',
       );
     } else {
       final step = k - 28;
@@ -790,10 +790,10 @@ class ScalableLevelRepository implements ILevelRepository {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: '5x + 7y = $c for positive integers x, y. x + y = ?',
+        displayContent: '5x + 7y = $c\nPositive x, y\nx + y = ?',
         correctAnswer: '$ans',
         hint: 'Test multiples of 7 subtracted from $c that leave a multiple of 5.',
-        solution: 'Unique positive integer solution is x = $x, y = $y (5×$x + 7×$y = $c). x + y = $x + $y = $ans.',
+        solution: '5x + 7y = $c\nx = $x\ny = $y\nx + y = $x + $y = $ans.',
       );
     }
   }
@@ -925,7 +925,7 @@ class ScalableLevelRepository implements ILevelRepository {
         ],
         correctAnswer: '$ans',
         hint: 'Each horizontal row sums to $s.',
-        solution: 'Row 3: $r3c1 + $r3c2 + ? = $s → ? = $ans.',
+        solution: 'Row 3: $r3c1 + $r3c2 + ? = $s\n? = $ans.',
       );
     } else if (tier <= 1) {
       final a = (k * 2 % 7) + 2; final b = (k % 5) + 3; final ans = a * b;
@@ -1482,10 +1482,10 @@ class ScalableLevelRepository implements ILevelRepository {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'If a ⊕ b = a·b + a, and $a ⊕ x = $res, x = ?',
+        displayContent: 'If a ⊕ b = a·b + a\n$a ⊕ x = $res\nx = ?',
         correctAnswer: '$targetX',
         hint: 'Substitute into formula: $a·x + $a = $res.',
-        solution: '$a·x = $res - $a = ${res - a} → x = ${res - a} ÷ $a = $targetX.',
+        solution: '$a·x + $a = $res\n$a·x = ${res - a}\nx = $targetX.',
       );
     } else {
       final a = (k * 2 % 5) + 2; final b = (k % 4) + 3; final ans = (a * a + b) * (b * b - a);
@@ -1538,7 +1538,7 @@ class ScalableLevelRepository implements ILevelRepository {
         displayContent: 'Mom is $m and daughter is $d. In how many years will Mom be 2× daughter? [?]',
         correctAnswer: '$inYears',
         hint: 'Set up equation: $m + x = 2($d + x).',
-        solution: '$m + x = ${2 * d} + 2x → x = $m - ${2 * d} = $inYears.',
+        solution: '$m + x = ${2 * d} + 2x\nx = $m - ${2 * d}\nx = $inYears.',
       );
     } else if (tier <= 3) {
       final c = (k % 4) + 4; final b = 2 * c; final a = 3 * b; final total = a + b + c;
@@ -1550,7 +1550,7 @@ class ScalableLevelRepository implements ILevelRepository {
         displayContent: 'A is 3× B, B is 2× C. Sum of ages is $total. Age of A? [?]',
         correctAnswer: '$a',
         hint: 'Express in terms of C: B = 2C, A = 6C. Total = 9C.',
-        solution: '9C = $total → C = $c. Then A = 6 × $c = $a.',
+        solution: '9C = $total\nC = $c\nA = 6 × $c\nA = $a.',
       );
     } else if (tier <= 4) {
       final mult = (k * 2 % 7) + 7; final sum = 7 * mult; final myAge = 4 * mult;
@@ -1586,7 +1586,7 @@ class ScalableLevelRepository implements ILevelRepository {
         displayContent: 'Ages sum to $sum. Sum of their squares is $sumSquares. Older age? [?]',
         correctAnswer: '$a',
         hint: 'Use 2AB = (A+B)² - (A²+B²) to find their product, then find ages.',
-        solution: '2AB = $sum² - $sumSquares = ${sum * sum - sumSquares} → AB = ${a * b}. Ages are $a and $b.',
+        solution: '2AB = $sum² - $sumSquares\n2AB = ${sum * sum - sumSquares}\nAB = ${a * b}\nAges are $a and $b.',
       );
     }
   }
@@ -1723,7 +1723,7 @@ class ScalableLevelRepository implements ILevelRepository {
         displayContent: 'Start: $s → (+4) → (×2) → (-6) → (÷2) = [?]',
         correctAnswer: '$ans',
         hint: 'Perform each operation sequentially along the path.',
-        solution: '$s + 4 = ${s + 4} → ×2 = ${(s + 4) * 2} → -6 = ${(s + 4) * 2 - 6} → ÷2 = $ans.',
+        solution: '$s + 4 = ${s + 4}\n${s + 4} × 2 = ${(s + 4) * 2}\n${(s + 4) * 2} - 6 = ${(s + 4) * 2 - 6}\n${(s + 4) * 2 - 6} ÷ 2 = $ans.',
       );
     } else if (tier <= 2) {
       final s = (k * 2 % 7) + 5; final p1 = s * 2 + 3; final p2 = (s + 3) * 2; final ans = p1 + p2;

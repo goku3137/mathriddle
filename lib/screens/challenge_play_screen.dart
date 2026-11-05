@@ -4,16 +4,20 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/game_controller.dart';
 import '../data/challenge_data.dart';
+import '../domain/scoring_rules.dart';
+import '../services/sound_service.dart';
 import '../theme/game_theme.dart';
 import '../widgets/custom_keypad.dart';
 import '../widgets/score_badge.dart';
 
 class ChallengePlayScreen extends ConsumerStatefulWidget {
   final ChallengeCategoryInfo category;
+  final ChallengeItem Function(ChallengeType type)? questionGenerator;
 
   const ChallengePlayScreen({
     super.key,
     required this.category,
+    this.questionGenerator,
   });
 
   @override
@@ -21,30 +25,53 @@ class ChallengePlayScreen extends ConsumerStatefulWidget {
 }
 
 class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen> {
-  int _secondsLeft = 60;
+  static const int questionDurationMs = 15000;
+  static const int timerTickMs = 20; // 50 updates per second for silky smooth continuous motion
+
+  int _remainingMs = questionDurationMs;
   Timer? _timer;
   int _sessionPoints = 0;
   int _solvedCount = 0;
   String _input = '';
-  int _problemIndex = 0;
+  late ChallengeItem _currentQuestion;
+  bool _isGameOver = false;
 
   @override
   void initState() {
     super.initState();
-    _startTimer();
+    _currentQuestion = _getNextQuestion();
+    _resetTimer();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref.read(soundServiceProvider).playChallengeStart();
+      }
+    });
   }
 
-  void _startTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+  ChallengeItem _getNextQuestion() {
+    if (widget.questionGenerator != null) {
+      return widget.questionGenerator!(widget.category.type);
+    }
+    return ChallengeGenerator.generate(widget.category.type);
+  }
+
+  /// Resets countdown timer smoothly to 15 seconds for every new question.
+  void _resetTimer() {
+    _timer?.cancel();
+    if (!mounted) return;
+    setState(() => _remainingMs = questionDurationMs);
+
+    _timer = Timer.periodic(const Duration(milliseconds: timerTickMs), (timer) {
       if (!mounted) {
         timer.cancel();
         return;
       }
-      if (_secondsLeft > 0) {
-        setState(() => _secondsLeft--);
+      if (_remainingMs > timerTickMs) {
+        setState(() => _remainingMs -= timerTickMs);
       } else {
-        _timer?.cancel();
-        _showGameOverModal();
+        timer.cancel();
+        setState(() => _remainingMs = 0);
+        _handleGameOver(isTimeOut: true);
       }
     });
   }
@@ -56,33 +83,40 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen> {
   }
 
   Future<void> _submit() async {
-    final items = widget.category.items;
-    final problem = items[_problemIndex % items.length];
-    if (_input.trim() == problem.answer) {
-      HapticFeedback.mediumImpact();
-      final wasNew = await ref.read(gameControllerProvider.notifier).completeChallenge(problem.id);
+    if (_isGameOver) return;
+    final trimmed = _input.trim();
+    if (trimmed.isEmpty) return;
+
+    if (trimmed == _currentQuestion.answer) {
+      // Correct answer!
+      ref.read(soundServiceProvider).playCorrect();
+      unawaited(HapticFeedback.mediumImpact());
+      final wasNew = await ref.read(gameControllerProvider.notifier).completeChallenge(_currentQuestion.id);
       if (mounted) {
         setState(() {
           if (wasNew) {
-            _sessionPoints += 3;
+            _sessionPoints += ScoringRules.pointsPerChallenge;
           }
           _solvedCount++;
           _input = '';
-          _problemIndex++;
+          _currentQuestion = _getNextQuestion();
         });
+        // Automatically smoothly reset 15-second timer for the new question!
+        _resetTimer();
       }
     } else {
-      HapticFeedback.vibrate();
-      if (mounted) {
-        setState(() {
-          _input = '';
-        });
-      }
+      // Incorrect answer ends challenge immediately!
+      unawaited(HapticFeedback.vibrate());
+      _handleGameOver(isTimeOut: false, wrongInput: trimmed);
     }
   }
 
-  void _showGameOverModal() {
-    if (!mounted) return;
+  void _handleGameOver({required bool isTimeOut, String? wrongInput}) {
+    if (!mounted || _isGameOver) return;
+    _timer?.cancel();
+    ref.read(soundServiceProvider).playChallengeEnd();
+    setState(() => _isGameOver = true);
+
     final totalScore = ref.read(gameControllerProvider).totalScore;
 
     showDialog(
@@ -92,18 +126,36 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen> {
         backgroundColor: GameTheme.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: widget.category.accentColor, width: 1.5),
+          side: BorderSide(
+            color: isTimeOut ? GameTheme.errorRed : widget.category.accentColor,
+            width: 1.5,
+          ),
         ),
-        title: const Text(
-          'TIME IS UP!',
-          style: TextStyle(color: GameTheme.textWhite, fontWeight: FontWeight.w700),
+        title: Text(
+          isTimeOut ? "TIME'S UP!" : 'INCORRECT ANSWER!',
+          style: TextStyle(
+            color: isTimeOut ? GameTheme.errorRed : GameTheme.textWhite,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.5,
+          ),
           textAlign: TextAlign.center,
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.bolt_rounded, color: widget.category.accentColor, size: 48),
-            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: (isTimeOut ? GameTheme.errorRed : widget.category.accentColor).withValues(alpha: 0.15),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                isTimeOut ? Icons.timer_off_rounded : Icons.close_rounded,
+                color: isTimeOut ? GameTheme.errorRed : widget.category.accentColor,
+                size: 40,
+              ),
+            ),
+            const SizedBox(height: 14),
             Text(
               '+$_sessionPoints PTS EARNED',
               style: TextStyle(
@@ -114,17 +166,65 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen> {
             ),
             const SizedBox(height: 6),
             Text(
-              'Solved $_solvedCount ${widget.category.title.toLowerCase()} (+3 PTS each)',
+              'Streak: $_solvedCount questions solved',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: GameTheme.textMuted, fontSize: 13),
+              style: const TextStyle(
+                color: GameTheme.textLight,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: GameTheme.background,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: GameTheme.borderSubtle),
+              ),
+              child: Column(
+                children: [
+                  if (!isTimeOut && wrongInput != null) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Your Input:', style: TextStyle(color: GameTheme.textMuted, fontSize: 12)),
+                        Text(
+                          wrongInput,
+                          style: const TextStyle(
+                            color: GameTheme.errorRed,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                  ],
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Correct Answer:', style: TextStyle(color: GameTheme.textMuted, fontSize: 12)),
+                      Text(
+                        _currentQuestion.answer,
+                        style: const TextStyle(
+                          color: GameTheme.successGreen,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
             Text(
               'Total Score: $totalScore PTS',
               style: const TextStyle(
-                color: GameTheme.textWhite,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
+                color: GameTheme.textLight,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -135,7 +235,7 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen> {
               Expanded(
                 child: OutlinedButton(
                   style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: GameTheme.borderSubtle),
+                    side: const BorderSide(color: GameTheme.borderSubtle),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
                   onPressed: () {
@@ -156,15 +256,15 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen> {
                   onPressed: () {
                     Navigator.of(ctx).pop();
                     setState(() {
-                      _secondsLeft = 60;
+                      _isGameOver = false;
                       _sessionPoints = 0;
                       _solvedCount = 0;
                       _input = '';
-                      _problemIndex = 0;
+                      _currentQuestion = _getNextQuestion();
                     });
-                    _startTimer();
+                    _resetTimer();
                   },
-                  child: const Text('RETRY', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12)),
+                  child: const Text('TRY AGAIN', style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12)),
                 ),
               ),
             ],
@@ -176,8 +276,10 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final items = widget.category.items;
-    final problem = items[_problemIndex % items.length];
+    final progress = (_remainingMs / questionDurationMs).clamp(0.0, 1.0);
+    final secondsLeft = (_remainingMs / 1000).ceil();
+    final isCriticalTime = secondsLeft <= 5;
+    final timerColor = isCriticalTime ? GameTheme.errorRed : widget.category.accentColor;
 
     return Scaffold(
       backgroundColor: GameTheme.background,
@@ -210,9 +312,47 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Top Bar: Session Points & Timer
+            // Silky smooth 50Hz continuous fluid countdown bar
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: Container(
+                  height: 5,
+                  width: double.infinity,
+                  color: GameTheme.surface,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return Align(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                          width: constraints.maxWidth * progress,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: timerColor,
+                            borderRadius: BorderRadius.circular(4),
+                            boxShadow: isCriticalTime
+                                ? [
+                                    BoxShadow(
+                                      color: GameTheme.errorRed.withValues(alpha: 0.5),
+                                      blurRadius: 4,
+                                      spreadRadius: 0.5,
+                                    ),
+                                  ]
+                                : null,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            // Top Bar: Session Streak & 15s Timer Badge
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -225,10 +365,10 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen> {
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.stars_rounded, color: widget.category.accentColor, size: 16),
+                        Icon(Icons.bolt_rounded, color: widget.category.accentColor, size: 18),
                         const SizedBox(width: 4),
                         Text(
-                          '+$_sessionPoints PTS (+3/ea)',
+                          'STREAK: $_solvedCount (+3/ea)',
                           style: TextStyle(
                             color: widget.category.accentColor,
                             fontSize: 13,
@@ -241,12 +381,12 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                     decoration: BoxDecoration(
-                      color: _secondsLeft < 15
+                      color: isCriticalTime
                           ? GameTheme.errorRed.withValues(alpha: 0.15)
                           : GameTheme.surface,
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: _secondsLeft < 15 ? GameTheme.errorRed : GameTheme.borderSubtle,
+                        color: isCriticalTime ? GameTheme.errorRed : GameTheme.borderSubtle,
                       ),
                     ),
                     child: Row(
@@ -254,13 +394,13 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen> {
                         Icon(
                           Icons.timer_outlined,
                           size: 16,
-                          color: _secondsLeft < 15 ? GameTheme.errorRed : GameTheme.amberAccent,
+                          color: isCriticalTime ? GameTheme.errorRed : GameTheme.amberAccent,
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          '${_secondsLeft}s',
+                          '${secondsLeft}s',
                           style: TextStyle(
-                            color: _secondsLeft < 15 ? GameTheme.errorRed : GameTheme.textWhite,
+                            color: isCriticalTime ? GameTheme.errorRed : GameTheme.textWhite,
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
                           ),
@@ -279,30 +419,33 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                    padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 20),
                     decoration: BoxDecoration(
                       color: GameTheme.surface,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: GameTheme.borderSubtle),
+                      border: Border.all(
+                        color: isCriticalTime ? GameTheme.errorRed.withValues(alpha: 0.5) : GameTheme.borderSubtle,
+                      ),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'Question ${_problemIndex + 1}',
+                          'QUESTION ${_solvedCount + 1}',
                           style: const TextStyle(
                             color: GameTheme.textMuted,
                             fontSize: 14,
+                            fontWeight: FontWeight.w700,
                             letterSpacing: 1.5,
                           ),
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          problem.question,
+                          _currentQuestion.question,
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             color: GameTheme.textWhite,
-                            fontSize: 30,
+                            fontSize: 28,
                             fontWeight: FontWeight.w800,
                             letterSpacing: 2.0,
                           ),

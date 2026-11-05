@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../services/sound_service.dart';
 import '../theme/game_theme.dart';
 import '../widgets/heart_indicator.dart';
 import '../widgets/score_badge.dart';
@@ -47,6 +48,7 @@ class HomeScreen extends ConsumerWidget {
                           icon: const Icon(Icons.settings_outlined, color: GameTheme.textWhite, size: 24),
                           tooltip: 'Settings',
                           onPressed: () {
+                            ref.read(soundServiceProvider).playTap();
                             Navigator.of(context).push(
                               MaterialPageRoute(builder: (_) => const SettingsScreen()),
                             );
@@ -60,6 +62,7 @@ class HomeScreen extends ConsumerWidget {
                     InkWell(
                       borderRadius: BorderRadius.circular(20),
                       onTap: () {
+                        ref.read(soundServiceProvider).playTap();
                         Navigator.of(context).push(
                           MaterialPageRoute(builder: (_) => const ShopScreen()),
                         );
@@ -120,8 +123,8 @@ class HomeScreen extends ConsumerWidget {
                     const SizedBox(height: 14),
 
                     // Subtitle / Hero Quote
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
                         '“Logic is the anatomy of thought. Challenge your limits.”',
                         textAlign: TextAlign.center,
@@ -140,6 +143,7 @@ class HomeScreen extends ConsumerWidget {
                     // 3. Core Menu Buttons: RIDDLE, LEARN, CHALLENGE
                     _buildMenuButton(
                       context: context,
+                      ref: ref,
                       label: 'RIDDLE',
                       icon: Icons.play_arrow_rounded,
                       isAccent: true,
@@ -152,6 +156,7 @@ class HomeScreen extends ConsumerWidget {
                     const SizedBox(height: 14),
                     _buildMenuButton(
                       context: context,
+                      ref: ref,
                       label: 'LEARN',
                       icon: Icons.menu_book_rounded,
                       onTap: () {
@@ -163,6 +168,7 @@ class HomeScreen extends ConsumerWidget {
                     const SizedBox(height: 14),
                     _buildMenuButton(
                       context: context,
+                      ref: ref,
                       label: 'CHALLENGE',
                       icon: Icons.bolt_rounded,
                       onTap: () {
@@ -245,6 +251,7 @@ class HomeScreen extends ConsumerWidget {
 
   Widget _buildMenuButton({
     required BuildContext context,
+    required WidgetRef ref,
     required String label,
     required IconData icon,
     required VoidCallback onTap,
@@ -266,7 +273,10 @@ class HomeScreen extends ConsumerWidget {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
-          onTap: onTap,
+          onTap: () {
+            ref.read(soundServiceProvider).playTap();
+            onTap();
+          },
           splashColor: GameTheme.amberAccent.withValues(alpha: 0.15),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),

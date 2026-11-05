@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/game_controller.dart';
 import '../services/monetization_service.dart';
+import '../services/sound_service.dart';
 import '../theme/game_theme.dart';
 
 class ShopScreen extends ConsumerWidget {
@@ -20,7 +21,10 @@ class ShopScreen extends ConsumerWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close_rounded, color: GameTheme.textWhite, size: 24),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            ref.read(soundServiceProvider).playTap();
+            Navigator.of(context).pop();
+          },
         ),
         title: const Text(
           'SHOP',
@@ -63,6 +67,7 @@ class ShopScreen extends ConsumerWidget {
               onPurchase: () async {
                 final success = await billing.purchaseRemoveAds();
                 if (success) {
+                  ref.read(soundServiceProvider).playReward();
                   await progress.setPremiumTier(PremiumTier.removeAds);
                   ref.invalidate(gameControllerProvider);
                   if (context.mounted) {
@@ -89,6 +94,7 @@ class ShopScreen extends ConsumerWidget {
               onPurchase: () async {
                 final success = await billing.purchaseMonthlyPremium();
                 if (success) {
+                  ref.read(soundServiceProvider).playReward();
                   await progress.setPremiumTier(PremiumTier.monthPremium);
                   ref.invalidate(gameControllerProvider);
                   if (context.mounted) {
@@ -116,6 +122,7 @@ class ShopScreen extends ConsumerWidget {
               onPurchase: () async {
                 final success = await billing.purchaseLifetimePremium();
                 if (success) {
+                  ref.read(soundServiceProvider).playReward();
                   await progress.setPremiumTier(PremiumTier.lifetimePremium);
                   ref.invalidate(gameControllerProvider);
                   if (context.mounted) {

@@ -3,12 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/game_levels.dart';
+import '../domain/energy_rules.dart';
 import '../domain/scoring_rules.dart';
 import '../models/level_model.dart';
 import '../repositories/level_repository.dart';
 import '../services/monetization_service.dart';
 import '../services/progress_service.dart';
 import '../services/security_service.dart';
+import '../services/sound_service.dart';
 
 class GameState {
   final int activeLevelNumber;
@@ -120,6 +122,7 @@ class GameController extends Notifier<GameState> with WidgetsBindingObserver {
   ProgressService get _progress => ref.read(progressServiceProvider);
   ILevelRepository get _levelRepo => ref.read(levelRepositoryProvider);
   IAdService get _ads => ref.read(adServiceProvider);
+  ISoundService get _sound => ref.read(soundServiceProvider);
 
   Timer? _countdownTimer;
   bool _isValidating = false;
@@ -226,6 +229,7 @@ class GameController extends Notifier<GameState> with WidgetsBindingObserver {
   /// Validates answer with mutex lock to prevent concurrent double-submissions
   Future<bool> validateAnswer() async {
     if (_isValidating) return false;
+    if (state.isOutOfHearts) return false;
     if (state.currentInput.isEmpty) return false;
 
     _isValidating = true;
@@ -240,8 +244,9 @@ class GameController extends Notifier<GameState> with WidgetsBindingObserver {
       final isCorrect = sanitizedInput == trimmedSolution;
 
       if (isCorrect) {
+        _sound.playCorrect();
         if (_progress.vibrationEnabled) {
-          HapticFeedback.heavyImpact();
+          unawaited(HapticFeedback.heavyImpact());
         }
 
         final alreadyCompleted = _progress.completedLevelsList.contains(state.currentLevel.levelNumber);
@@ -267,16 +272,40 @@ class GameController extends Notifier<GameState> with WidgetsBindingObserver {
         );
         return true;
       } else {
-        if (_progress.vibrationEnabled) {
-          HapticFeedback.vibrate();
+        // Immediately deduct exactly 1 heart synchronously on the UI state:
+        // No waiting for animations, dialogs, timers or asynchronous operations.
+        final currentHearts = state.hearts;
+        final nextHearts = state.isUnlimitedHearts
+            ? currentHearts
+            : (currentHearts > 0 ? currentHearts - 1 : 0);
+        final nextSeconds = (currentHearts == EnergyRules.maxHearts && nextHearts < EnergyRules.maxHearts)
+            ? EnergyRules.refillIntervalSeconds
+            : state.secondsUntilNextHeart;
+
+        if (nextHearts <= 0 && currentHearts > 0) {
+          _sound.playHeartLost();
+        } else {
+          _sound.playIncorrect();
         }
-        // Consume 1 heart on incorrect answer
-        await _progress.consumeHeart();
+
+        if (_progress.vibrationEnabled) {
+          unawaited(HapticFeedback.vibrate());
+        }
+
         state = state.copyWith(
           isError: true,
-          hearts: _progress.currentHearts,
-          secondsUntilNextHeart: _progress.secondsUntilNextHeart,
+          hearts: nextHearts,
+          secondsUntilNextHeart: nextSeconds,
         );
+
+        // Persist deduction to storage immediately (guaranteed once per incorrect attempt)
+        if (!state.isUnlimitedHearts && currentHearts > 0) {
+          await _progress.consumeHeart();
+          state = state.copyWith(
+            hearts: _progress.currentHearts,
+            secondsUntilNextHeart: _progress.secondsUntilNextHeart,
+          );
+        }
         return false;
       }
     } finally {
@@ -287,6 +316,7 @@ class GameController extends Notifier<GameState> with WidgetsBindingObserver {
   Future<void> refillHeartWithAd() async {
     await _ads.showRewardedAd(
       onRewardEarned: () async {
+        _sound.playReward();
         await _progress.addHearts(1);
         state = state.copyWith(
           hearts: _progress.currentHearts,
@@ -297,6 +327,7 @@ class GameController extends Notifier<GameState> with WidgetsBindingObserver {
   }
 
   Future<void> refillAllHearts() async {
+    _sound.playReward();
     await _progress.refillAllHearts();
     state = state.copyWith(
       hearts: _progress.currentHearts,
@@ -307,6 +338,7 @@ class GameController extends Notifier<GameState> with WidgetsBindingObserver {
   Future<bool> completeLearnTopic(String topicId) async {
     final granted = await _progress.markLearnTopicCompleted(topicId);
     if (granted) {
+      _sound.playReward();
       state = state.copyWith(
         totalScore: _progress.totalScore,
         lastEarnedPoints: ScoringRules.pointsPerLearnLesson,
@@ -318,6 +350,7 @@ class GameController extends Notifier<GameState> with WidgetsBindingObserver {
   Future<bool> completeChallenge(String challengeId) async {
     final granted = await _progress.markChallengeCompleted(challengeId);
     if (granted) {
+      _sound.playReward();
       state = state.copyWith(
         totalScore: _progress.totalScore,
         lastEarnedPoints: ScoringRules.pointsPerChallenge,
@@ -327,6 +360,7 @@ class GameController extends Notifier<GameState> with WidgetsBindingObserver {
   }
 
   Future<void> addChallengeScore([int points = ScoringRules.pointsPerChallenge]) async {
+    _sound.playReward();
     await _progress.addScore(points);
     state = state.copyWith(
       totalScore: _progress.totalScore,
@@ -375,6 +409,7 @@ class GameController extends Notifier<GameState> with WidgetsBindingObserver {
   Future<void> unlockHintWithAd() async {
     await _ads.showRewardedAd(
       onRewardEarned: () async {
+        _sound.playHintUnlocked();
         await _progress.unlockHint(state.currentLevel.levelNumber);
         state = state.copyWith(isHintUnlocked: true);
       },
@@ -384,6 +419,7 @@ class GameController extends Notifier<GameState> with WidgetsBindingObserver {
   Future<void> unlockSolutionWithAd() async {
     await _ads.showRewardedAd(
       onRewardEarned: () async {
+        _sound.playHintUnlocked();
         await _progress.unlockSolution(state.currentLevel.levelNumber);
         state = state.copyWith(isSolutionUnlocked: true);
       },

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/challenge_data.dart';
+import '../services/sound_service.dart';
 import '../theme/game_theme.dart';
 import '../widgets/score_badge.dart';
 import 'challenge_play_screen.dart';
@@ -18,7 +19,10 @@ class ChallengeScreen extends ConsumerWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: GameTheme.textWhite, size: 20),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            ref.read(soundServiceProvider).playTap();
+            Navigator.of(context).pop();
+          },
         ),
         title: const Text(
           'CHALLENGES',
@@ -78,7 +82,7 @@ class ChallengeScreen extends ConsumerWidget {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          'Select an arithmetic operation to test your calculation speed. Race the 60s clock with zero heart loss!',
+                          'Select a challenge category to test your speed. Each question has a 15s timer that resets on every correct answer. One wrong answer or timeout ends the run!',
                           style: TextStyle(
                             color: GameTheme.textLight,
                             fontSize: 12,
@@ -118,7 +122,7 @@ class ChallengeScreen extends ConsumerWidget {
             // 4. Division (÷)
             // 5. All Mixed (Combined)
             for (final category in challengeCategories) ...[
-              _buildChallengeCard(context, category),
+              _buildChallengeCard(context, ref, category),
               const SizedBox(height: 12),
             ],
             const SizedBox(height: 16),
@@ -128,12 +132,13 @@ class ChallengeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildChallengeCard(BuildContext context, ChallengeCategoryInfo category) {
+  Widget _buildChallengeCard(BuildContext context, WidgetRef ref, ChallengeCategoryInfo category) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
         onTap: () {
+          ref.read(soundServiceProvider).playTap();
           HapticFeedback.lightImpact();
           Navigator.of(context).push(
             MaterialPageRoute(
@@ -164,23 +169,20 @@ class ChallengeScreen extends ConsumerWidget {
           ),
           child: Row(
             children: [
-              // Symbol Avatar
+              // Icon Avatar: Clean, consistent 24px vector icon with standardized stroke & alignment
               Container(
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: category.accentColor.withValues(alpha: 0.15),
+                  color: category.accentColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: category.accentColor.withValues(alpha: 0.5)),
+                  border: Border.all(color: category.accentColor.withValues(alpha: 0.4)),
                 ),
                 child: Center(
-                  child: Text(
-                    category.symbol,
-                    style: TextStyle(
-                      color: category.accentColor,
-                      fontSize: 24,
-                      fontWeight: FontWeight.w900,
-                    ),
+                  child: Icon(
+                    category.icon,
+                    size: 24,
+                    color: category.accentColor,
                   ),
                 ),
               ),
@@ -247,7 +249,7 @@ class ChallengeScreen extends ConsumerWidget {
                               Icon(Icons.timer_outlined, size: 11, color: GameTheme.amberAccent),
                               SizedBox(width: 4),
                               Text(
-                                '60s Sprint',
+                                '15s / Q',
                                 style: TextStyle(color: GameTheme.textLight, fontSize: 10, fontWeight: FontWeight.w600),
                               ),
                             ],

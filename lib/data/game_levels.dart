@@ -67,10 +67,10 @@ final List<LevelData> gameLevels = [
     questionType: QuestionType.Formula,
     category: 'Equation Riddles',
     difficulty: 'Beginner',
-    displayContent: 'x + 7 = 15 → x = ?',
+    displayContent: 'x + 7 = 15\nx = ?',
     correctAnswer: '8',
     hint: 'Subtract 7 from both sides: 15 - 7.',
-    solution: 'x = 15 - 7 = 8.',
+    solution: 'x + 7 = 15\nx = 15 - 7\nx = 8.',
   ),
 
   // Level 7: Perfect Squares Sequence
@@ -245,10 +245,10 @@ final List<LevelData> gameLevels = [
     questionType: QuestionType.Formula,
     category: 'Equation Riddles',
     difficulty: 'Beginner',
-    displayContent: '2x + 4 = 16 → x = ?',
+    displayContent: '2x + 4 = 16\nx = ?',
     correctAnswer: '6',
     hint: 'Subtract 4 to get 2x = 12, then divide by 2.',
-    solution: '2x = 12 → x = 6.',
+    solution: '2x + 4 = 16\n2x = 12\nx = 6.',
   ),
 
   // Level 20: Fibonacci Sequence Intro

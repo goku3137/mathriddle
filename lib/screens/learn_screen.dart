@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/game_controller.dart';
 import '../data/learning_curriculum.dart';
 import '../models/lesson_model.dart';
+import '../services/sound_service.dart';
 import '../theme/game_theme.dart';
 import '../widgets/score_badge.dart';
 import 'lesson_detail_screen.dart';
@@ -101,7 +102,10 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: GameTheme.textWhite, size: 20),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            ref.read(soundServiceProvider).playTap();
+            Navigator.of(context).pop();
+          },
         ),
         title: const Text(
           'LEARNING CURRICULUM',
@@ -222,6 +226,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                     ),
                     onSelected: (selected) {
                       if (selected) {
+                        ref.read(soundServiceProvider).playTap();
                         setState(() {
                           _selectedChapter = index;
                         });
@@ -259,6 +264,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                     ),
                     onSelected: (selected) {
                       if (selected) {
+                        ref.read(soundServiceProvider).playTap();
                         setState(() {
                           _selectedCategory = cat;
                         });
@@ -324,6 +330,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
           onTap: () {
+            ref.read(soundServiceProvider).playTap();
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (_) => LessonDetailScreen(lesson: lesson),

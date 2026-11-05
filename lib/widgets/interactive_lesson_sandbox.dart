@@ -1,11 +1,13 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/lesson_model.dart';
+import '../services/sound_service.dart';
 import '../theme/game_theme.dart';
 
 /// Interactive laboratory demonstration widget allowing users to manipulate
 /// numbers, operators, and parameters to see the math recompute in real-time.
-class InteractiveLessonSandbox extends StatefulWidget {
+class InteractiveLessonSandbox extends ConsumerStatefulWidget {
   final SandboxDemoType demoType;
 
   const InteractiveLessonSandbox({
@@ -14,10 +16,10 @@ class InteractiveLessonSandbox extends StatefulWidget {
   });
 
   @override
-  State<InteractiveLessonSandbox> createState() => _InteractiveLessonSandboxState();
+  ConsumerState<InteractiveLessonSandbox> createState() => _InteractiveLessonSandboxState();
 }
 
-class _InteractiveLessonSandboxState extends State<InteractiveLessonSandbox> {
+class _InteractiveLessonSandboxState extends ConsumerState<InteractiveLessonSandbox> {
   // Shared state variables
   int _valA = 6;
   int _valB = 3;
@@ -799,7 +801,10 @@ class _InteractiveLessonSandboxState extends State<InteractiveLessonSandbox> {
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
                 icon: const Icon(Icons.remove_rounded, color: GameTheme.amberAccent, size: 16),
-                onPressed: () => onChanged(value - 1),
+                onPressed: () {
+                  ref.read(soundServiceProvider).playTap();
+                  onChanged(value - 1);
+                },
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -812,7 +817,10 @@ class _InteractiveLessonSandboxState extends State<InteractiveLessonSandbox> {
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
                 icon: const Icon(Icons.add_rounded, color: GameTheme.amberAccent, size: 16),
-                onPressed: () => onChanged(value + 1),
+                onPressed: () {
+                  ref.read(soundServiceProvider).playTap();
+                  onChanged(value + 1);
+                },
               ),
             ],
           ),

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../services/sound_service.dart';
 import '../theme/game_theme.dart';
 
-class CustomKeypad extends StatelessWidget {
+class CustomKeypad extends ConsumerWidget {
   final String inputString;
   final ValueChanged<String> onDigitPressed;
   final VoidCallback onClear;
@@ -20,14 +22,15 @@ class CustomKeypad extends StatelessWidget {
     this.hasVibration = true,
   });
 
-  void _vibrate() {
+  void _feedback(WidgetRef ref) {
     if (hasVibration) {
       HapticFeedback.lightImpact();
     }
+    ref.read(soundServiceProvider).playTap();
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       color: GameTheme.background,
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
@@ -35,19 +38,19 @@ class CustomKeypad extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           // 1. Live Input Indicator Bar with Bulb and Enter Actions
-          _buildTopActionRow(),
+          _buildTopActionRow(ref),
           const SizedBox(height: 12),
 
           // 2. Strict Inbuilt 2-Row × 5-Column Numeric Pad (0-9)
-          _buildNumericRow(['1', '2', '3', '4', '5']),
+          _buildNumericRow(ref, ['1', '2', '3', '4', '5']),
           const SizedBox(height: 8),
-          _buildNumericRow(['6', '7', '8', '9', '0']),
+          _buildNumericRow(ref, ['6', '7', '8', '9', '0']),
         ],
       ),
     );
   }
 
-  Widget _buildTopActionRow() {
+  Widget _buildTopActionRow(WidgetRef ref) {
     return Container(
       height: 48,
       decoration: BoxDecoration(
@@ -80,7 +83,7 @@ class CustomKeypad extends StatelessWidget {
                   if (inputString.isNotEmpty)
                     GestureDetector(
                       onTap: () {
-                        _vibrate();
+                        _feedback(ref);
                         onClear();
                       },
                       child: const Padding(
@@ -101,7 +104,7 @@ class CustomKeypad extends StatelessWidget {
             icon: const Icon(Icons.lightbulb_outline_rounded, color: GameTheme.amberAccent, size: 22),
             tooltip: 'Need Help?',
             onPressed: () {
-              _vibrate();
+              _feedback(ref);
               onHintPressed();
             },
           ),
@@ -112,7 +115,7 @@ class CustomKeypad extends StatelessWidget {
           // Right: Bold ENTER button
           InkWell(
             onTap: () {
-              _vibrate();
+              _feedback(ref);
               onSubmit();
             },
             borderRadius: const BorderRadius.horizontal(right: Radius.circular(10)),
@@ -135,14 +138,14 @@ class CustomKeypad extends StatelessWidget {
     );
   }
 
-  Widget _buildNumericRow(List<String> digits) {
+  Widget _buildNumericRow(WidgetRef ref, List<String> digits) {
     return Row(
       children: digits
           .map(
             (digit) => Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: _buildDigitButton(digit),
+                child: _buildDigitButton(ref, digit),
               ),
             ),
           )
@@ -150,14 +153,14 @@ class CustomKeypad extends StatelessWidget {
     );
   }
 
-  Widget _buildDigitButton(String digit) {
+  Widget _buildDigitButton(WidgetRef ref, String digit) {
     return Material(
       color: GameTheme.surface,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
         onTap: () {
-          _vibrate();
+          _feedback(ref);
           onDigitPressed(digit);
         },
         splashColor: GameTheme.amberAccent.withValues(alpha: 0.15),

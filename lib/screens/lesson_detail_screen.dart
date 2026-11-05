@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/game_controller.dart';
 import '../models/lesson_model.dart';
+import '../services/sound_service.dart';
 import '../theme/game_theme.dart';
 import '../widgets/interactive_lesson_sandbox.dart';
 import '../widgets/score_badge.dart';
@@ -36,6 +37,7 @@ class _LessonDetailScreenState extends ConsumerState<LessonDetailScreen> {
     });
 
     if (isCorrect) {
+      ref.read(soundServiceProvider).playCorrect();
       final granted = await ref
           .read(gameControllerProvider.notifier)
           .completeLearnTopic(widget.lesson.id);
@@ -60,6 +62,8 @@ class _LessonDetailScreenState extends ConsumerState<LessonDetailScreen> {
           ),
         );
       }
+    } else {
+      ref.read(soundServiceProvider).playIncorrect();
     }
   }
 
@@ -86,7 +90,10 @@ class _LessonDetailScreenState extends ConsumerState<LessonDetailScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: GameTheme.textWhite, size: 20),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            ref.read(soundServiceProvider).playTap();
+            Navigator.of(context).pop();
+          },
         ),
         title: Text(
           widget.lesson.category.toUpperCase(),
@@ -422,7 +429,12 @@ class _LessonDetailScreenState extends ConsumerState<LessonDetailScreen> {
                         padding: const EdgeInsets.only(bottom: 10),
                         child: InkWell(
                           borderRadius: BorderRadius.circular(10),
-                          onTap: _isAnswerChecked ? null : () => setState(() => _selectedOption = option),
+                          onTap: _isAnswerChecked
+                              ? null
+                              : () {
+                                  ref.read(soundServiceProvider).playTap();
+                                  setState(() => _selectedOption = option);
+                                },
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                             decoration: BoxDecoration(
@@ -492,6 +504,7 @@ class _LessonDetailScreenState extends ConsumerState<LessonDetailScreen> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         ),
                         onPressed: () {
+                          ref.read(soundServiceProvider).playTap();
                           setState(() {
                             _showHint = !_showHint;
                           });
@@ -731,7 +744,10 @@ class _LessonDetailScreenState extends ConsumerState<LessonDetailScreen> {
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                   ),
                   onSelected: (val) {
-                    if (val) setState(() => _activeExampleIndex = idx);
+                    if (val) {
+                      ref.read(soundServiceProvider).playTap();
+                      setState(() => _activeExampleIndex = idx);
+                    }
                   },
                 ),
               );

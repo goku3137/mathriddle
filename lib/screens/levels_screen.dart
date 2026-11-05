@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/game_controller.dart';
+import '../services/sound_service.dart';
 import '../theme/game_theme.dart';
 import '../widgets/score_badge.dart';
 import 'riddle_screen.dart';
@@ -49,7 +50,10 @@ class _LevelsScreenState extends ConsumerState<LevelsScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: GameTheme.textWhite, size: 20),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            ref.read(soundServiceProvider).playTap();
+            Navigator.of(context).pop();
+          },
         ),
         title: const Text(
           'LEVEL SELECT',
@@ -189,10 +193,10 @@ class _LevelsScreenState extends ConsumerState<LevelsScreen> {
       textColor = GameTheme.amberAccent;
     } else if (isCompleted) {
       borderColor = GameTheme.borderActive;
-      tileColor = GameTheme.surface;
+      tileColor = GameTheme.surfaceElevated;
       textColor = GameTheme.textWhite;
     } else if (isUnlocked) {
-      borderColor = GameTheme.borderActive;
+      borderColor = GameTheme.borderSubtle;
       tileColor = GameTheme.surface;
       textColor = GameTheme.textLight;
     } else {
@@ -208,6 +212,7 @@ class _LevelsScreenState extends ConsumerState<LevelsScreen> {
         borderRadius: BorderRadius.circular(10),
         onTap: isUnlocked
             ? () async {
+                ref.read(soundServiceProvider).playTap();
                 await ref.read(gameControllerProvider.notifier).selectLevel(levelNum);
                 if (context.mounted) {
                   Navigator.of(context).pushReplacement(
@@ -227,36 +232,14 @@ class _LevelsScreenState extends ConsumerState<LevelsScreen> {
             ),
           ),
           child: isUnlocked
-              ? Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Text(
-                      '$levelNum',
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                    if (isCompleted)
-                      Positioned(
-                        bottom: 6,
-                        right: 6,
-                        child: Container(
-                          padding: const EdgeInsets.all(2),
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: GameTheme.successGreen,
-                          ),
-                          child: const Icon(
-                            Icons.check_rounded,
-                            size: 10,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                  ],
+              ? Text(
+                  '$levelNum',
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.0,
+                  ),
                 )
               : const Icon(
                   Icons.lock_outline_rounded,

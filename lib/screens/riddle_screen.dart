@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../controllers/game_controller.dart';
 import '../painters/puzzle_canvas_painter.dart';
+import '../services/sound_service.dart';
 import '../theme/game_theme.dart';
 import '../widgets/custom_keypad.dart';
 import '../widgets/heart_indicator.dart';
@@ -75,6 +76,10 @@ class _RiddleScreenState extends ConsumerState<RiddleScreen>
       } else {
         if (mounted) {
           _shakeController.forward(from: 0.0);
+          final updatedState = ref.read(gameControllerProvider);
+          if (updatedState.isOutOfHearts) {
+            _showOutOfHeartsModal();
+          }
         }
       }
     } finally {
@@ -85,61 +90,173 @@ class _RiddleScreenState extends ConsumerState<RiddleScreen>
   void _showOutOfHeartsModal() {
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
+      barrierDismissible: true,
+      builder: (ctx) => Dialog(
         backgroundColor: GameTheme.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: Color(0xFFE74C3C)),
+          side: const BorderSide(color: GameTheme.borderSubtle, width: 1.0),
         ),
-        title: const Row(
-          children: [
-            Icon(Icons.favorite_border_rounded, color: Color(0xFFE74C3C)),
-            SizedBox(width: 8),
-            Text(
-              'OUT OF HEARTS!',
-              style: TextStyle(color: GameTheme.textWhite, fontWeight: FontWeight.w800, fontSize: 16),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'You need at least 1 heart to submit an answer. 1 heart refills every 20 minutes.',
-              style: TextStyle(color: GameTheme.textMuted, fontSize: 13, height: 1.4),
-            ),
-            const SizedBox(height: 12),
-            Consumer(
-              builder: (context, ref, _) {
-                final timer = ref.watch(gameControllerProvider).formattedHeartTimer;
-                return Text(
-                  'Next heart in: $timer',
-                  style: const TextStyle(color: GameTheme.amberAccent, fontWeight: FontWeight.w700),
-                );
-              },
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('WAIT', style: TextStyle(color: GameTheme.textMuted)),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(22, 22, 22, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Subtle, minimal header with clean heart icon
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(7),
+                    decoration: BoxDecoration(
+                      color: GameTheme.surfaceElevated,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: GameTheme.borderSubtle),
+                    ),
+                    child: const Icon(
+                      Icons.favorite_border_rounded,
+                      color: Color(0xFFE74C3C),
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  const Text(
+                    'Out of Hearts',
+                    style: TextStyle(
+                      color: GameTheme.textWhite,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 17,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+
+              // Informative, non-aggressive description
+              const Text(
+                'You need at least 1 heart to submit an answer. 1 heart refills automatically every 20 minutes.',
+                style: TextStyle(color: GameTheme.textMuted, fontSize: 13, height: 1.4),
+              ),
+              const SizedBox(height: 12),
+
+              // Subtle live countdown timer
+              Consumer(
+                builder: (context, ref, _) {
+                  final timer = ref.watch(gameControllerProvider).formattedHeartTimer;
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: GameTheme.surfaceElevated,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: GameTheme.borderSubtle),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.schedule_rounded, size: 15, color: GameTheme.textMuted),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Next heart in: $timer',
+                          style: const TextStyle(
+                            color: GameTheme.amberAccent,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            fontFeatures: [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 18),
+
+              // Option 1: Watch an Ad to Refill Hearts
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: GameTheme.surfaceElevated,
+                  foregroundColor: GameTheme.textWhite,
+                  side: const BorderSide(color: GameTheme.amberAccent),
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  alignment: Alignment.centerLeft,
+                ),
+                onPressed: () async {
+                  Navigator.of(ctx).pop();
+                  await ref.read(gameControllerProvider.notifier).refillHeartWithAd();
+                },
+                icon: const Icon(Icons.play_circle_outline_rounded, color: GameTheme.amberAccent, size: 20),
+                label: const Text(
+                  'Watch an Ad to Refill Hearts',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              // Option 2: Buy Premium for Unlimited Hearts
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: GameTheme.textWhite,
+                  side: const BorderSide(color: GameTheme.borderSubtle),
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  alignment: Alignment.centerLeft,
+                ),
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const ShopScreen()),
+                  );
+                },
+                icon: const Icon(Icons.all_inclusive_rounded, color: GameTheme.amberAccent, size: 20),
+                label: const Text(
+                  'Buy Premium for Unlimited Hearts',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              // Option 3: Wait for Hearts to Refill
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: GameTheme.textMuted,
+                  side: const BorderSide(color: GameTheme.borderSubtle),
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  alignment: Alignment.centerLeft,
+                ),
+                onPressed: () => Navigator.of(ctx).pop(),
+                icon: const Icon(Icons.hourglass_empty_rounded, color: GameTheme.textMuted, size: 18),
+                label: const Text(
+                  'Wait for Hearts to Refill',
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              // Option 4: No Thanks (easy to find, pressure-free dismissal)
+              Align(
+                alignment: Alignment.center,
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: GameTheme.textDim,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: const Text(
+                    'No Thanks',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                      color: GameTheme.textMuted,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: GameTheme.surfaceElevated,
-              foregroundColor: GameTheme.amberAccent,
-              side: const BorderSide(color: GameTheme.amberAccent),
-            ),
-            onPressed: () async {
-              Navigator.of(ctx).pop();
-              await ref.read(gameControllerProvider.notifier).refillHeartWithAd();
-            },
-            icon: const Icon(Icons.play_circle_outline_rounded, size: 18),
-            label: const Text('WATCH AD (+1 ❤️)'),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -148,6 +265,8 @@ class _RiddleScreenState extends ConsumerState<RiddleScreen>
     final gameState = ref.read(gameControllerProvider);
     final currentLevel = gameState.currentLevel;
     final earned = gameState.lastEarnedPoints;
+
+    ref.read(soundServiceProvider).playLevelComplete();
 
     showDialog(
       context: context,
@@ -236,6 +355,7 @@ class _RiddleScreenState extends ConsumerState<RiddleScreen>
                     elevation: 0,
                   ),
                   onPressed: () {
+                    ref.read(soundServiceProvider).playTap();
                     Navigator.of(ctx).pop();
                     ref.read(gameControllerProvider.notifier).nextLevel();
                   },
@@ -359,7 +479,10 @@ class _RiddleScreenState extends ConsumerState<RiddleScreen>
             padding: const EdgeInsets.all(6),
             constraints: const BoxConstraints(),
             icon: const Icon(Icons.arrow_back_ios_new_rounded, color: GameTheme.textWhite, size: 18),
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+              ref.read(soundServiceProvider).playTap();
+              Navigator.of(context).pop();
+            },
           ),
           const SizedBox(width: 6),
 

@@ -1,5 +1,7 @@
 import 'dart:developer' as developer;
+import 'dart:math' as math;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../data/challenge_data.dart' show ChallengeType;
 import '../domain/energy_rules.dart';
 import '../domain/scoring_rules.dart';
 import 'monetization_service.dart';
@@ -12,6 +14,7 @@ class ProgressService {
   static const String _keyHighestUnlocked = 'math_highest_unlocked_level';
   static const String _keyCompletedLevels = 'math_completed_levels';
   static const String _keySound = 'math_sound_enabled';
+  static const String _keySoundVolume = 'math_sound_volume';
   static const String _keyVibration = 'math_vibration_enabled';
   static const String _keyPersonalizedAds = 'math_ads_enabled';
   static const String _keyPremiumTier = 'math_premium_tier';
@@ -342,6 +345,9 @@ class ProgressService {
   // --- Preferences & Settings ---
   bool get soundEnabled => _prefs.getBool(_keySound) ?? true;
   Future<void> setSoundEnabled(bool value) async => _prefs.setBool(_keySound, value);
+
+  double get soundVolume => (_prefs.getDouble(_keySoundVolume) ?? 0.8).clamp(0.0, 1.0);
+  Future<void> setSoundVolume(double value) async => _prefs.setDouble(_keySoundVolume, value.clamp(0.0, 1.0));
 
   bool get vibrationEnabled => _prefs.getBool(_keyVibration) ?? true;
   Future<void> setVibrationEnabled(bool value) async => _prefs.setBool(_keyVibration, value);

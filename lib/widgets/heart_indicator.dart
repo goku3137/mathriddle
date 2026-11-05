@@ -111,7 +111,7 @@ class HeartIndicator extends ConsumerWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 const Text(
-                                  'Next refill (+1 ❤️):',
+                                  'Next heart refill:',
                                   style: TextStyle(color: GameTheme.textMuted, fontSize: 13),
                                 ),
                                 Text(

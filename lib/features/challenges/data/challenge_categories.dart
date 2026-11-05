@@ -1,0 +1,328 @@
+﻿import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import '../models/challenge_models.dart';
+final List<ChallengeCategoryInfo> challengeCategories = [
+  // 1. ADDITION CHALLENGE (+)
+  const ChallengeCategoryInfo(
+    type: ChallengeType.addition,
+    title: 'ADDITION CHALLENGE',
+    icon: Icons.add_rounded,
+    symbol: '+',
+    description: 'Rapid mental addition, two-digit carrying & running sums.',
+    accentColor: Color(0xFF2ECC71), // Emerald green
+    items: [
+      ChallengeItem(id: 'add_1', question: '15 + 18 = ?', answer: '33'),
+      ChallengeItem(id: 'add_2', question: '27 + 36 = ?', answer: '63'),
+      ChallengeItem(id: 'add_3', question: '48 + 55 = ?', answer: '103'),
+      ChallengeItem(id: 'add_4', question: '64 + 79 = ?', answer: '143'),
+      ChallengeItem(id: 'add_5', question: '125 + 85 = ?', answer: '210'),
+      ChallengeItem(id: 'add_6', question: '99 + 48 = ?', answer: '147'),
+      ChallengeItem(id: 'add_7', question: '156 + 78 = ?', answer: '234'),
+      ChallengeItem(id: 'add_8', question: '234 + 189 = ?', answer: '423'),
+      ChallengeItem(id: 'add_9', question: '345 + 267 = ?', answer: '612'),
+      ChallengeItem(id: 'add_10', question: '489 + 512 = ?', answer: '1001'),
+      ChallengeItem(id: 'add_11', question: '75 + 75 + 50 = ?', answer: '200'),
+      ChallengeItem(id: 'add_12', question: '112 + 224 = ?', answer: '336'),
+      ChallengeItem(id: 'add_13', question: '365 + 135 = ?', answer: '500'),
+      ChallengeItem(id: 'add_14', question: '88 + 99 = ?', answer: '187'),
+      ChallengeItem(id: 'add_15', question: '540 + 460 = ?', answer: '1000'),
+    ],
+  ),
+
+  // 2. SUBTRACTION CHALLENGE (-)
+  const ChallengeCategoryInfo(
+    type: ChallengeType.subtraction,
+    title: 'SUBTRACTION CHALLENGE',
+    icon: Icons.remove_rounded,
+    symbol: 'âˆ’',
+    description: 'Speed borrows, subtraction shortcuts & mental differences.',
+    accentColor: Color(0xFFE74C3C), // Coral red
+    items: [
+      ChallengeItem(id: 'sub_1', question: '35 - 18 = ?', answer: '17'),
+      ChallengeItem(id: 'sub_2', question: '52 - 27 = ?', answer: '25'),
+      ChallengeItem(id: 'sub_3', question: '84 - 39 = ?', answer: '45'),
+      ChallengeItem(id: 'sub_4', question: '100 - 43 = ?', answer: '57'),
+      ChallengeItem(id: 'sub_5', question: '142 - 68 = ?', answer: '74'),
+      ChallengeItem(id: 'sub_6', question: '200 - 85 = ?', answer: '115'),
+      ChallengeItem(id: 'sub_7', question: '250 - 137 = ?', answer: '113'),
+      ChallengeItem(id: 'sub_8', question: '314 - 158 = ?', answer: '156'),
+      ChallengeItem(id: 'sub_9', question: '500 - 246 = ?', answer: '254'),
+      ChallengeItem(id: 'sub_10', question: '1000 - 375 = ?', answer: '625'),
+      ChallengeItem(id: 'sub_11', question: '90 - 45 - 15 = ?', answer: '30'),
+      ChallengeItem(id: 'sub_12', question: '180 - 95 = ?', answer: '85'),
+      ChallengeItem(id: 'sub_13', question: '420 - 165 = ?', answer: '255'),
+      ChallengeItem(id: 'sub_14', question: '150 - 88 = ?', answer: '62'),
+      ChallengeItem(id: 'sub_15', question: '750 - 385 = ?', answer: '365'),
+    ],
+  ),
+
+  // 3. MULTIPLICATION CHALLENGE (Ã—)
+  const ChallengeCategoryInfo(
+    type: ChallengeType.multiplication,
+    title: 'MULTIPLICATION CHALLENGE',
+    icon: Icons.close_rounded,
+    symbol: 'Ã—',
+    description: 'Times tables, cross-products & rapid factor calculations.',
+    accentColor: Color(0xFF9B59B6), // Purple
+    items: [
+      ChallengeItem(id: 'mul_1', question: '6 Ã— 7 = ?', answer: '42'),
+      ChallengeItem(id: 'mul_2', question: '8 Ã— 9 = ?', answer: '72'),
+      ChallengeItem(id: 'mul_3', question: '12 Ã— 6 = ?', answer: '72'),
+      ChallengeItem(id: 'mul_4', question: '15 Ã— 4 = ?', answer: '60'),
+      ChallengeItem(id: 'mul_5', question: '13 Ã— 7 = ?', answer: '91'),
+      ChallengeItem(id: 'mul_6', question: '16 Ã— 5 = ?', answer: '80'),
+      ChallengeItem(id: 'mul_7', question: '12 Ã— 12 = ?', answer: '144'),
+      ChallengeItem(id: 'mul_8', question: '14 Ã— 8 = ?', answer: '112'),
+      ChallengeItem(id: 'mul_9', question: '25 Ã— 6 = ?', answer: '150'),
+      ChallengeItem(id: 'mul_10', question: '15 Ã— 15 = ?', answer: '225'),
+      ChallengeItem(id: 'mul_11', question: '20 Ã— 18 = ?', answer: '360'),
+      ChallengeItem(id: 'mul_12', question: '35 Ã— 4 = ?', answer: '140'),
+      ChallengeItem(id: 'mul_13', question: '18 Ã— 9 = ?', answer: '162'),
+      ChallengeItem(id: 'mul_14', question: '45 Ã— 4 = ?', answer: '180'),
+      ChallengeItem(id: 'mul_15', question: '24 Ã— 5 = ?', answer: '120'),
+    ],
+  ),
+
+  // 4. DIVISION CHALLENGE (Ã·)
+  const ChallengeCategoryInfo(
+    type: ChallengeType.division,
+    title: 'DIVISION CHALLENGE',
+    icon: CupertinoIcons.divide,
+    symbol: 'Ã·',
+    description: 'Integer quotient factors, divisibility rules & split factors.',
+    accentColor: Color(0xFF3498DB), // Sky blue
+    items: [
+      ChallengeItem(id: 'div_1', question: '48 Ã· 6 = ?', answer: '8'),
+      ChallengeItem(id: 'div_2', question: '72 Ã· 8 = ?', answer: '9'),
+      ChallengeItem(id: 'div_3', question: '96 Ã· 8 = ?', answer: '12'),
+      ChallengeItem(id: 'div_4', question: '108 Ã· 9 = ?', answer: '12'),
+      ChallengeItem(id: 'div_5', question: '144 Ã· 12 = ?', answer: '12'),
+      ChallengeItem(id: 'div_6', question: '175 Ã· 5 = ?', answer: '35'),
+      ChallengeItem(id: 'div_7', question: '225 Ã· 15 = ?', answer: '15'),
+      ChallengeItem(id: 'div_8', question: '256 Ã· 16 = ?', answer: '16'),
+      ChallengeItem(id: 'div_9', question: '300 Ã· 12 = ?', answer: '25'),
+      ChallengeItem(id: 'div_10', question: '400 Ã· 25 = ?', answer: '16'),
+      ChallengeItem(id: 'div_11', question: '180 Ã· 4 = ?', answer: '45'),
+      ChallengeItem(id: 'div_12', question: '500 Ã· 20 = ?', answer: '25'),
+      ChallengeItem(id: 'div_13', question: '360 Ã· 8 = ?', answer: '45'),
+      ChallengeItem(id: 'div_14', question: '196 Ã· 14 = ?', answer: '14'),
+      ChallengeItem(id: 'div_15', question: '720 Ã· 9 = ?', answer: '80'),
+    ],
+  ),
+
+  // 5. SQUARES & POWERS CHALLENGE (xÂ²)
+  const ChallengeCategoryInfo(
+    type: ChallengeType.powers,
+    title: 'SQUARES & POWERS',
+    icon: Icons.superscript_rounded,
+    symbol: 'xÂ²',
+    description: 'Mental square numbers, cubes, power exponents & roots.',
+    accentColor: Color(0xFFE67E22), // Deep Orange
+    items: [
+      ChallengeItem(id: 'pow_1', question: '7Â² = ?', answer: '49'),
+      ChallengeItem(id: 'pow_2', question: '9Â² = ?', answer: '81'),
+      ChallengeItem(id: 'pow_3', question: '12Â² = ?', answer: '144'),
+      ChallengeItem(id: 'pow_4', question: '15Â² = ?', answer: '225'),
+      ChallengeItem(id: 'pow_5', question: '20Â² = ?', answer: '400'),
+      ChallengeItem(id: 'pow_6', question: '2â´ = ?', answer: '16'),
+      ChallengeItem(id: 'pow_7', question: '3Â³ = ?', answer: '27'),
+      ChallengeItem(id: 'pow_8', question: '4Â³ = ?', answer: '64'),
+      ChallengeItem(id: 'pow_9', question: '5Â³ = ?', answer: '125'),
+      ChallengeItem(id: 'pow_10', question: '2âµ = ?', answer: '32'),
+      ChallengeItem(id: 'pow_11', question: '3Â² + 4Â² = ?', answer: '25'),
+      ChallengeItem(id: 'pow_12', question: '6Â² + 8Â² = ?', answer: '100'),
+      ChallengeItem(id: 'pow_13', question: '5Â² + 12Â² = ?', answer: '169'),
+      ChallengeItem(id: 'pow_14', question: '10Â³ - 10Â² = ?', answer: '900'),
+      ChallengeItem(id: 'pow_15', question: '2â¶ = ?', answer: '64'),
+    ],
+  ),
+
+  // 6. PERCENTAGES & COMMERCIAL MATH (%)
+  const ChallengeCategoryInfo(
+    type: ChallengeType.percentages,
+    title: 'PERCENTAGES & RATES',
+    icon: Icons.percent_rounded,
+    symbol: '%',
+    description: 'Quick mental percentages, fractional discounts & commercial rates.',
+    accentColor: Color(0xFF1ABC9C), // Teal
+    items: [
+      ChallengeItem(id: 'pct_1', question: '50% of 80 = ?', answer: '40'),
+      ChallengeItem(id: 'pct_2', question: '25% of 120 = ?', answer: '30'),
+      ChallengeItem(id: 'pct_3', question: '10% of 450 = ?', answer: '45'),
+      ChallengeItem(id: 'pct_4', question: '20% of 150 = ?', answer: '30'),
+      ChallengeItem(id: 'pct_5', question: '75% of 200 = ?', answer: '150'),
+      ChallengeItem(id: 'pct_6', question: '50% of 140 = ?', answer: '70'),
+      ChallengeItem(id: 'pct_7', question: '30% of 90 = ?', answer: '27'),
+      ChallengeItem(id: 'pct_8', question: '40% of 250 = ?', answer: '100'),
+      ChallengeItem(id: 'pct_9', question: '15% of 200 = ?', answer: '30'),
+      ChallengeItem(id: 'pct_10', question: '5% of 600 = ?', answer: '30'),
+      ChallengeItem(id: 'pct_11', question: '25% off \$80 item. Price = \$?', answer: '60'),
+      ChallengeItem(id: 'pct_12', question: '20% off \$150 item. Price = \$?', answer: '120'),
+      ChallengeItem(id: 'pct_13', question: '50% of 360 = ?', answer: '180'),
+      ChallengeItem(id: 'pct_14', question: '10% of 1200 = ?', answer: '120'),
+      ChallengeItem(id: 'pct_15', question: '75% of 80 = ?', answer: '60'),
+    ],
+  ),
+
+  // 7. NUMBER SEQUENCES & PROGRESSIONS (...)
+  const ChallengeCategoryInfo(
+    type: ChallengeType.sequences,
+    title: 'SEQUENCES & PATTERNS',
+    icon: Icons.trending_up_rounded,
+    symbol: 'â‹¯',
+    description: 'Find the next term in arithmetic, geometric & Fibonacci series.',
+    accentColor: Color(0xFF8E44AD), // Dark purple
+    items: [
+      ChallengeItem(id: 'seq_1', question: '3, 7, 11, 15, ?', answer: '19'),
+      ChallengeItem(id: 'seq_2', question: '2, 6, 18, 54, ?', answer: '162'),
+      ChallengeItem(id: 'seq_3', question: '4, 9, 16, 25, ?', answer: '36'),
+      ChallengeItem(id: 'seq_4', question: '1, 1, 2, 3, 5, 8, ?', answer: '13'),
+      ChallengeItem(id: 'seq_5', question: '5, 10, 20, 40, ?', answer: '80'),
+      ChallengeItem(id: 'seq_6', question: '1, 8, 27, 64, ?', answer: '125'),
+      ChallengeItem(id: 'seq_7', question: '100, 95, 85, 70, ?', answer: '50'),
+      ChallengeItem(id: 'seq_8', question: '2, 5, 10, 17, 26, ?', answer: '37'),
+      ChallengeItem(id: 'seq_9', question: '6, 11, 21, 36, 56, ?', answer: '81'),
+      ChallengeItem(id: 'seq_10', question: '3, 6, 12, 24, 48, ?', answer: '96'),
+      ChallengeItem(id: 'seq_11', question: '2, 3, 5, 8, 12, ?', answer: '17'),
+      ChallengeItem(id: 'seq_12', question: '1, 4, 10, 22, 46, ?', answer: '94'),
+      ChallengeItem(id: 'seq_13', question: '7, 14, 28, 56, ?', answer: '112'),
+      ChallengeItem(id: 'seq_14', question: '81, 64, 49, 36, ?', answer: '25'),
+      ChallengeItem(id: 'seq_15', question: '10, 20, 25, 50, 55, ?', answer: '110'),
+    ],
+  ),
+
+  // 8. MISSING NUMBER & BALANCES (?)
+  const ChallengeCategoryInfo(
+    type: ChallengeType.missingNumbers,
+    title: 'MISSING NUMBER PUZZLES',
+    icon: Icons.question_mark_rounded,
+    symbol: '?',
+    description: 'Solve the missing variable in arithmetic equations & balances.',
+    accentColor: Color(0xFFD35400), // Amber-Red
+    items: [
+      ChallengeItem(id: 'mis_1', question: '14 + [?] = 39', answer: '25'),
+      ChallengeItem(id: 'mis_2', question: '5 Ã— [?] = 65', answer: '13'),
+      ChallengeItem(id: 'mis_3', question: '[?] - 28 = 45', answer: '73'),
+      ChallengeItem(id: 'mis_4', question: '84 Ã· [?] = 7', answer: '12'),
+      ChallengeItem(id: 'mis_5', question: '(3 Ã— [?]) + 7 = 31', answer: '8'),
+      ChallengeItem(id: 'mis_6', question: '(4 Ã— [?]) - 12 = 28', answer: '10'),
+      ChallengeItem(id: 'mis_7', question: '15 + [?] + 20 = 50', answer: '15'),
+      ChallengeItem(id: 'mis_8', question: '[?] Ã— 6 + 9 = 57', answer: '8'),
+      ChallengeItem(id: 'mis_9', question: '100 - [?] = 37', answer: '63'),
+      ChallengeItem(id: 'mis_10', question: '[?] Ã· 5 + 14 = 20', answer: '30'),
+      ChallengeItem(id: 'mis_11', question: '(2 Ã— [?]) + 15 = 45', answer: '15'),
+      ChallengeItem(id: 'mis_12', question: '70 - (3 Ã— [?]) = 25', answer: '15'),
+      ChallengeItem(id: 'mis_13', question: '[?] Ã— 9 = 108', answer: '12'),
+      ChallengeItem(id: 'mis_14', question: '45 + [?] = 100', answer: '55'),
+      ChallengeItem(id: 'mis_15', question: '(5 Ã— [?]) + 25 = 100', answer: '15'),
+    ],
+  ),
+
+  // 9. BODMAS & ORDER OF OPERATIONS
+  const ChallengeCategoryInfo(
+    type: ChallengeType.bodmas,
+    title: 'BODMAS PRECEDENCE',
+    icon: Icons.balance_rounded,
+    symbol: 'BODMAS',
+    description: 'Hierarchical operator evaluation, parentheses & precedence traps.',
+    accentColor: Color(0xFF2980B9), // Strong Blue
+    items: [
+      ChallengeItem(id: 'bod_1', question: '8 + 8 Ã— 2 = ?', answer: '24'),
+      ChallengeItem(id: 'bod_2', question: '20 - 10 Ã· 2 = ?', answer: '15'),
+      ChallengeItem(id: 'bod_3', question: '6 Ã· 2 Ã— (1 + 2) = ?', answer: '9'),
+      ChallengeItem(id: 'bod_4', question: '15 + 5 Ã— 4 - 10 = ?', answer: '25'),
+      ChallengeItem(id: 'bod_5', question: '50 - 5 Ã— 5 + 5 = ?', answer: '30'),
+      ChallengeItem(id: 'bod_6', question: '8 + 8 Ã· 8 + 8 = ?', answer: '17'),
+      ChallengeItem(id: 'bod_7', question: '(12 - 4) Ã— (3 + 2) = ?', answer: '40'),
+      ChallengeItem(id: 'bod_8', question: '100 - 20 Ã— 4 + 10 = ?', answer: '30'),
+      ChallengeItem(id: 'bod_9', question: '60 Ã· 5 Ã— 3 = ?', answer: '36'),
+      ChallengeItem(id: 'bod_10', question: '18 - 3 Ã— (2 + 3) = ?', answer: '3'),
+      ChallengeItem(id: 'bod_11', question: '4 Ã— 5 + 6 Ã— 3 = ?', answer: '38'),
+      ChallengeItem(id: 'bod_12', question: '30 - 2 Ã— 3Â² = ?', answer: '12'),
+      ChallengeItem(id: 'bod_13', question: '(15 + 25) Ã· 4 + 7 = ?', answer: '17'),
+      ChallengeItem(id: 'bod_14', question: '7 + 7 Ã· 7 + 7 Ã— 7 - 7 = ?', answer: '50'),
+      ChallengeItem(id: 'bod_15', question: '5 Ã— (10 - 2) - 4Â² = ?', answer: '24'),
+    ],
+  ),
+
+  // 10. LATERAL OPERATORS & CUSTOM MATH (âŠ•)
+  const ChallengeCategoryInfo(
+    type: ChallengeType.lateralOperators,
+    title: 'LATERAL OPERATORS',
+    icon: Icons.change_circle_outlined,
+    symbol: 'âŠ•',
+    description: 'Solve custom non-standard algebraic operator functions.',
+    accentColor: Color(0xFFC0392B), // Deep Red
+    items: [
+      ChallengeItem(id: 'lat_1', question: 'If a âŠ• b = a + 2b, then 5 âŠ• 4 = ?', answer: '13'),
+      ChallengeItem(id: 'lat_2', question: 'If a â˜… b = a Ã— b - a, then 6 â˜… 5 = ?', answer: '24'),
+      ChallengeItem(id: 'lat_3', question: 'If a â¨ b = 2a + 3b, then 4 â¨ 3 = ?', answer: '17'),
+      ChallengeItem(id: 'lat_4', question: 'If a âŠ— b = aÂ² - b, then 7 âŠ— 15 = ?', answer: '34'),
+      ChallengeItem(id: 'lat_5', question: 'If a âŠ™ b = (a + b) Ã— 2, then 8 âŠ™ 7 = ?', answer: '30'),
+      ChallengeItem(id: 'lat_6', question: 'If a âŠ˜ b = a Ã— b + 5, then 6 âŠ˜ 6 = ?', answer: '41'),
+      ChallengeItem(id: 'lat_7', question: 'If a â§« b = aÂ² - bÂ², then 10 â§« 6 = ?', answer: '64'),
+      ChallengeItem(id: 'lat_8', question: 'If a â‹ˆ b = 3a - b, then 9 â‹ˆ 7 = ?', answer: '20'),
+      ChallengeItem(id: 'lat_9', question: 'If a âˆ‡ b = (a Ã— b) Ã· 2, then 8 âˆ‡ 6 = ?', answer: '24'),
+      ChallengeItem(id: 'lat_10', question: 'If a âŠ› b = a + b + a Ã— b, then 4 âŠ› 5 = ?', answer: '29'),
+      ChallengeItem(id: 'lat_11', question: 'If a âŠž b = 2(a + b) + 1, then 6 âŠž 4 = ?', answer: '21'),
+      ChallengeItem(id: 'lat_12', question: 'If a â¨‚ b = aÂ² + bÂ², then 4 â¨‚ 5 = ?', answer: '41'),
+      ChallengeItem(id: 'lat_13', question: 'If a â–³ b = (a - b)Â², then 12 â–³ 5 = ?', answer: '49'),
+      ChallengeItem(id: 'lat_14', question: 'If a â—‡ b = 4a - 2b, then 7 â—‡ 5 = ?', answer: '18'),
+      ChallengeItem(id: 'lat_15', question: 'If a â¨ b = (a + b) Ã— (a - b), then 8 â¨ 2 = ?', answer: '60'),
+    ],
+  ),
+
+  // 11. SPEED MATH TRICKS & SHORTCUTS
+  const ChallengeCategoryInfo(
+    type: ChallengeType.mathTricks,
+    title: 'SPEED MATH TRICKS',
+    icon: Icons.lightbulb_outline_rounded,
+    symbol: 'TRICK',
+    description: 'Mental shortcuts, handshake formulas & clock angle secrets.',
+    accentColor: Color(0xFFF39C12), // Bright Orange-Gold
+    items: [
+      ChallengeItem(id: 'trk_1', question: '10 + 10 Ã— 0 + 10 = ?', answer: '20'),
+      ChallengeItem(id: 'trk_2', question: '4 people shake hands with each other once. Total handshakes? [?]', answer: '6'),
+      ChallengeItem(id: 'trk_3', question: '6 people shake hands with each other once. Total handshakes? [?]', answer: '15'),
+      ChallengeItem(id: 'trk_4', question: '8 people shake hands with each other once. Total handshakes? [?]', answer: '28'),
+      ChallengeItem(id: 'trk_5', question: 'Angle between clock hands at 3:00? [?]Â°', answer: '90'),
+      ChallengeItem(id: 'trk_6', question: 'Angle between clock hands at 4:00? [?]Â°', answer: '120'),
+      ChallengeItem(id: 'trk_7', question: 'Angle between clock hands at 6:00? [?]Â°', answer: '180'),
+      ChallengeItem(id: 'trk_8', question: '99 Ã— 6 = ?', answer: '594'),
+      ChallengeItem(id: 'trk_9', question: '99 Ã— 8 = ?', answer: '792'),
+      ChallengeItem(id: 'trk_10', question: '1000 - 364 = ?', answer: '636'),
+      ChallengeItem(id: 'trk_11', question: 'Sum of numbers from 1 to 10? [?]', answer: '55'),
+      ChallengeItem(id: 'trk_12', question: 'Sum of numbers from 1 to 8? [?]', answer: '36'),
+      ChallengeItem(id: 'trk_13', question: 'Snail climbs 3ft, slips 2ft daily. Days to escape 10ft well? [?]', answer: '8'),
+      ChallengeItem(id: 'trk_14', question: '101 Ã— 15 = ?', answer: '1515'),
+      ChallengeItem(id: 'trk_15', question: '15 Ã— 16 = ?', answer: '240'),
+    ],
+  ),
+
+  // 12. MIXED CHALLENGE (Combines all available categories)
+  const ChallengeCategoryInfo(
+    type: ChallengeType.mixed,
+    title: 'MIXED CHALLENGE',
+    icon: Icons.shuffle_rounded,
+    symbol: 'MIX',
+    description: 'Combines questions from all available challenge categories in a continuous mixed session.',
+    accentColor: Color(0xFFF5A623), // Amber gold
+    items: [
+      ChallengeItem(id: 'c1', question: '7 Ã— 8 - 6 = ?', answer: '50'),
+      ChallengeItem(id: 'c2', question: '3Â² + 4Â² = ?', answer: '25'),
+      ChallengeItem(id: 'c3', question: '4, 9, 16, 25, ?', answer: '36'),
+      ChallengeItem(id: 'c4', question: '100 / 4 + 17 = ?', answer: '42'),
+      ChallengeItem(id: 'c5', question: '2, 6, 18, 54, ?', answer: '162'),
+      ChallengeItem(id: 'c6', question: '12 Ã— 12 - 44 = ?', answer: '100'),
+      ChallengeItem(id: 'c7', question: '15 + 25 Ã— 2 = ?', answer: '65'),
+      ChallengeItem(id: 'c8', question: '9Â² - 9 = ?', answer: '72'),
+      ChallengeItem(id: 'c9', question: '2Â³ + 3Â² = ?', answer: '17'),
+      ChallengeItem(id: 'c10', question: '50% of 140 = ?', answer: '70'),
+      ChallengeItem(id: 'c11', question: '60 Ã· 5 Ã— 3 = ?', answer: '36'),
+      ChallengeItem(id: 'c12', question: '8 + 8 Ã— 8 - 8 = ?', answer: '64'),
+      ChallengeItem(id: 'c13', question: '150 - 25 Ã— 4 = ?', answer: '50'),
+      ChallengeItem(id: 'c14', question: '(20 + 30) Ã— 2 = ?', answer: '100'),
+      ChallengeItem(id: 'c15', question: '180 Ã· (3 Ã— 2) = ?', answer: '30'),
+    ],
+  ),
+];

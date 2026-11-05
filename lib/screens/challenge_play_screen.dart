@@ -43,6 +43,7 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
   String _input = '';
   late ChallengeItem _currentQuestion;
   bool _isShowingPopup = false;
+  bool _isSubmitting = false;
   FeedbackOverlayData? _feedbackData;
 
   @override
@@ -119,111 +120,122 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
   }
 
   Future<void> _submit() async {
-    if (_isShowingPopup) return;
+    if (_isSubmitting || _isShowingPopup) return;
     final trimmed = _input.trim();
     if (trimmed.isEmpty) return;
 
-    if (trimmed == _currentQuestion.answer) {
-      // Correct answer!
-      ref.read(soundServiceProvider).playCorrect();
-      unawaited(HapticFeedback.mediumImpact());
+    _isSubmitting = true;
+    try {
+      final parsedInput = int.tryParse(trimmed);
+      final parsedExpected = int.tryParse(_currentQuestion.answer.trim());
+      final isCorrect = (parsedInput != null && parsedExpected != null)
+          ? parsedInput == parsedExpected
+          : trimmed == _currentQuestion.answer;
 
-      _sessionAttempts++;
-      _sessionCorrect++;
-      _consecutiveCorrect++;
+      if (isCorrect) {
+        // Correct answer!
+        ref.read(soundServiceProvider).playCorrect();
+        unawaited(HapticFeedback.mediumImpact());
 
-      // Persist attempt, streak, and tier independently for this category.
-      // Difficulty advances based on cumulative correct answers (every 20) with accuracy check.
-      final progress = ref.read(progressServiceProvider);
-      final beforeStats = progress.getCategoryStats(widget.category.type);
-      final oldBadge = beforeStats.badge;
-      final oldTier = beforeStats.tier;
+        _sessionAttempts++;
+        _sessionCorrect++;
+        _consecutiveCorrect++;
 
-      await progress.recordChallengeAttempt(
-        type: widget.category.type,
-        isCorrect: true,
-        currentStreak: _consecutiveCorrect,
-      );
+        // Persist attempt, streak, and tier independently for this category.
+        // Difficulty advances based on cumulative correct answers (every 20) with accuracy check.
+        final progress = ref.read(progressServiceProvider);
+        final beforeStats = progress.getCategoryStats(widget.category.type);
+        final oldBadge = beforeStats.badge;
+        final oldTier = beforeStats.tier;
 
-      final afterStats = progress.getCategoryStats(widget.category.type);
-      final newBadge = afterStats.badge;
-      final bool badgeAdvanced = newBadge.index > oldBadge.index;
-      final bool tierAdvanced = afterStats.tier > oldTier;
-      if (tierAdvanced) {
-        _currentTier = afterStats.tier;
-      }
+        await progress.recordChallengeAttempt(
+          type: widget.category.type,
+          isCorrect: true,
+          currentStreak: _consecutiveCorrect,
+        );
 
-      await ref.read(gameControllerProvider.notifier).completeChallenge(_currentQuestion.id);
-
-      if (mounted) {
-        if (badgeAdvanced) {
-          ref.read(soundServiceProvider).playReward();
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: GameTheme.surfaceElevated,
-              duration: const Duration(seconds: 3),
-              content: Row(
-                children: [
-                  Icon(afterStats.badgeInfo.icon, color: afterStats.badgeInfo.color, size: 22),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'RANK UNLOCKED: ${afterStats.badgeInfo.title}!',
-                          style: TextStyle(
-                            color: afterStats.badgeInfo.color,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.8,
-                          ),
-                        ),
-                        Text(
-                          '${afterStats.correctAnswers} solved in ${widget.category.title}',
-                          style: const TextStyle(
-                            color: GameTheme.textMuted,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        } else if (tierAdvanced) {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: GameTheme.surfaceElevated,
-              duration: const Duration(seconds: 2),
-              content: Row(
-                children: [
-                  const Icon(Icons.arrow_upward_rounded, color: GameTheme.amberAccent, size: 18),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Level Up! Introduced ${ChallengeStatusBar.getTierLabel(_currentTier)} Calculations!',
-                    style: const TextStyle(color: GameTheme.textWhite, fontWeight: FontWeight.w700),
-                  ),
-                ],
-              ),
-            ),
-          );
+        final afterStats = progress.getCategoryStats(widget.category.type);
+        final newBadge = afterStats.badge;
+        final bool badgeAdvanced = newBadge.index > oldBadge.index;
+        final bool tierAdvanced = afterStats.tier > oldTier;
+        if (tierAdvanced) {
+          _currentTier = afterStats.tier;
         }
 
-        setState(() {
-          _input = '';
-          _currentQuestion = _getNextQuestion();
-        });
-        _startTimer();
+        await ref.read(gameControllerProvider.notifier).completeChallenge(_currentQuestion.id);
+
+        if (mounted) {
+          if (badgeAdvanced) {
+            ref.read(soundServiceProvider).playReward();
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: GameTheme.surfaceElevated,
+                duration: const Duration(seconds: 3),
+                content: Row(
+                  children: [
+                    Icon(afterStats.badgeInfo.icon, color: afterStats.badgeInfo.color, size: 22),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'RANK UNLOCKED: ${afterStats.badgeInfo.title}!',
+                            style: TextStyle(
+                              color: afterStats.badgeInfo.color,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                          Text(
+                            '${afterStats.correctAnswers} solved in ${widget.category.title}',
+                            style: const TextStyle(
+                              color: GameTheme.textMuted,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          } else if (tierAdvanced) {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: GameTheme.surfaceElevated,
+                duration: const Duration(seconds: 2),
+                content: Row(
+                  children: [
+                    const Icon(Icons.arrow_upward_rounded, color: GameTheme.amberAccent, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Level Up! Introduced ${ChallengeStatusBar.getTierLabel(_currentTier)} Calculations!',
+                      style: const TextStyle(color: GameTheme.textWhite, fontWeight: FontWeight.w700),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          setState(() {
+            _input = '';
+            _currentQuestion = _getNextQuestion();
+          });
+          _startTimer();
+        }
+      } else {
+        // Incorrect answer: challenge NEVER ends! Show wrong answer popup with calculation explanation.
+        unawaited(HapticFeedback.vibrate());
+        await _handleWrongAnswer(trimmed);
       }
-    } else {
-      // Incorrect answer: challenge NEVER ends! Show wrong answer popup with calculation explanation.
-      unawaited(HapticFeedback.vibrate());
-      await _handleWrongAnswer(trimmed);
+    } finally {
+      _isSubmitting = false;
     }
   }
 

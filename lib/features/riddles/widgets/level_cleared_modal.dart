@@ -24,6 +24,8 @@ class LevelClearedModal extends ConsumerWidget {
     final gameState = ref.read(gameControllerProvider);
     final currentLevel = gameState.currentLevel;
     final earned = gameState.lastEarnedPoints;
+    final totalLevels = ref.read(levelRepositoryProvider).totalLevelsCount;
+    final isFinalLevel = currentLevel.levelNumber >= totalLevels;
 
     return Dialog(
       backgroundColor: GameTheme.surface,
@@ -128,11 +130,17 @@ class LevelClearedModal extends ConsumerWidget {
                     onPressed: () {
                       ref.read(soundServiceProvider).playTap();
                       Navigator.of(context).pop();
-                      ref.read(gameControllerProvider.notifier).nextLevel();
+                      if (isFinalLevel) {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: (_) => const LevelsScreen()),
+                        );
+                      } else {
+                        ref.read(gameControllerProvider.notifier).nextLevel();
+                      }
                     },
-                    child: const Text(
-                      'NEXT',
-                      style: TextStyle(fontWeight: FontWeight.w700, letterSpacing: 1.5),
+                    child: Text(
+                      isFinalLevel ? 'COMPLETE' : 'NEXT',
+                      style: const TextStyle(fontWeight: FontWeight.w700, letterSpacing: 1.5),
                     ),
                   ),
                 ),

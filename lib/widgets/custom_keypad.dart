@@ -81,14 +81,18 @@ class CustomKeypad extends ConsumerWidget {
                     ),
                   ),
                   if (inputString.isNotEmpty)
-                    GestureDetector(
-                      onTap: () {
-                        _feedback(ref);
-                        onClear();
-                      },
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 4),
-                        child: Icon(Icons.close_rounded, color: GameTheme.textMuted, size: 20),
+                    Semantics(
+                      button: true,
+                      label: 'Clear input',
+                      child: GestureDetector(
+                        onTap: () {
+                          _feedback(ref);
+                          onClear();
+                        },
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 4),
+                          child: Icon(Icons.close_rounded, color: GameTheme.textMuted, size: 20),
+                        ),
                       ),
                     ),
                 ],
@@ -113,22 +117,26 @@ class CustomKeypad extends ConsumerWidget {
           Container(width: 1, height: 26, color: GameTheme.borderSubtle),
 
           // Right: Bold ENTER button
-          InkWell(
-            onTap: () {
-              _feedback(ref);
-              onSubmit();
-            },
-            borderRadius: const BorderRadius.horizontal(right: Radius.circular(10)),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              alignment: Alignment.center,
-              child: const Text(
-                'ENTER',
-                style: TextStyle(
-                  color: GameTheme.amberAccent,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1.5,
+          Semantics(
+            button: true,
+            label: 'Submit answer',
+            child: InkWell(
+              onTap: () {
+                _feedback(ref);
+                onSubmit();
+              },
+              borderRadius: const BorderRadius.horizontal(right: Radius.circular(10)),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                alignment: Alignment.center,
+                child: const Text(
+                  'ENTER',
+                  style: TextStyle(
+                    color: GameTheme.amberAccent,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.5,
+                  ),
                 ),
               ),
             ),

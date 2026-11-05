@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/game_controller.dart';
 import '../data/learning_curriculum.dart';
+import '../features/learning/widgets/lesson_category_card.dart';
 import '../models/lesson_model.dart';
 import '../services/sound_service.dart';
 import '../theme/game_theme.dart';
 import '../widgets/score_badge.dart';
-import 'lesson_detail_screen.dart';
 
 class LearnScreen extends ConsumerStatefulWidget {
   const LearnScreen({super.key});
@@ -69,11 +69,11 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
   }
 
   String _getAcademyRank(int completedCount) {
-    if (completedCount >= 15) return 'Grand Singularity Master 🎖️';
-    if (completedCount >= 10) return 'Mathematical Specialist ⭐';
-    if (completedCount >= 5) return 'Pattern Adept 📘';
-    if (completedCount >= 1) return 'Logic Novice ✏️';
-    return 'Academy Apprentice 🎓';
+    if (completedCount >= 15) return 'Grand Singularity Master';
+    if (completedCount >= 10) return 'Mathematical Specialist';
+    if (completedCount >= 5) return 'Pattern Adept';
+    if (completedCount >= 1) return 'Logic Novice';
+    return 'Academy Apprentice';
   }
 
   @override
@@ -286,8 +286,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                   final lesson = filteredLessons[index];
                   final isCompleted = completedTopics.contains(lesson.id);
 
-                  return _buildLessonCard(
-                    context: context,
+                  return LessonCategoryCard(
                     lesson: lesson,
                     isCompleted: isCompleted,
                   );
@@ -295,169 +294,6 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLessonCard({
-    required BuildContext context,
-    required Lesson lesson,
-    required bool isCompleted,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: GameTheme.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isCompleted
-              ? GameTheme.successGreen.withValues(alpha: 0.5)
-              : GameTheme.borderSubtle,
-          width: 1.2,
-        ),
-        boxShadow: isCompleted
-            ? [
-                BoxShadow(
-                  color: GameTheme.successGreen.withValues(alpha: 0.08),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ]
-            : null,
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: () {
-            ref.read(soundServiceProvider).playTap();
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => LessonDetailScreen(lesson: lesson),
-              ),
-            );
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Top Row: Category + Difficulty + Completed Badge
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(lesson.icon, size: 16, color: GameTheme.amberAccent),
-                        const SizedBox(width: 6),
-                        Text(
-                          lesson.category.toUpperCase(),
-                          style: const TextStyle(
-                            color: GameTheme.amberAccent,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: GameTheme.surfaceElevated,
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(color: GameTheme.borderSubtle),
-                          ),
-                          child: Text(
-                            lesson.difficulty,
-                            style: const TextStyle(
-                              color: GameTheme.textMuted,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        if (isCompleted) ...[
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: GameTheme.successGreen.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: GameTheme.successGreen.withValues(alpha: 0.4)),
-                            ),
-                            child: const Row(
-                              children: [
-                                Icon(Icons.check_circle_rounded, size: 11, color: GameTheme.successGreen),
-                                SizedBox(width: 3),
-                                Text(
-                                  'MASTERED',
-                                  style: TextStyle(
-                                    color: GameTheme.successGreen,
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-
-                // Title
-                Text(
-                  lesson.title,
-                  style: const TextStyle(
-                    color: GameTheme.textWhite,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.3,
-                  ),
-                ),
-                const SizedBox(height: 6),
-
-                // Formula Preview
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: GameTheme.surfaceElevated,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    lesson.formula,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: GameTheme.textLight,
-                      fontSize: 11,
-                      fontFamily: 'monospace',
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-
-                // Concept Summary snippet
-                Text(
-                  lesson.conceptSummary,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: GameTheme.textMuted,
-                    fontSize: 12,
-                    height: 1.35,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
       ),
     );

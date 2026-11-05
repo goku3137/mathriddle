@@ -1,5 +1,6 @@
-﻿import 'dart:math';
+import 'dart:math';
 import '../models/challenge_models.dart';
+
 class ChallengeGenerator {
   static final Random _defaultRng = Random();
 
@@ -97,9 +98,9 @@ class ChallengeGenerator {
     }
     return ChallengeItem(
       id: 'sub_${tier}_${a}_$b',
-      question: '$a âˆ’ $b = ?',
+      question: '$a − $b = ?',
       answer: '$diff',
-      explanation: '$a âˆ’ $b = $diff',
+      explanation: '$a − $b = $diff',
     );
   }
 
@@ -126,9 +127,9 @@ class ChallengeGenerator {
     final ans = a * b;
     return ChallengeItem(
       id: 'mul_${tier}_${a}_$b',
-      question: '$a Ã— $b = ?',
+      question: '$a × $b = ?',
       answer: '$ans',
-      explanation: '$a Ã— $b = $ans',
+      explanation: '$a × $b = $ans',
     );
   }
 
@@ -150,9 +151,9 @@ class ChallengeGenerator {
     final dividend = divisor * quotient;
     return ChallengeItem(
       id: 'div_${tier}_${dividend}_$divisor',
-      question: '$dividend Ã· $divisor = ?',
+      question: '$dividend ÷ $divisor = ?',
       answer: '$quotient',
-      explanation: '$dividend Ã· $divisor = $quotient (since $quotient Ã— $divisor = $dividend)',
+      explanation: '$dividend ÷ $divisor = $quotient (since $quotient × $divisor = $dividend)',
     );
   }
 
@@ -164,17 +165,17 @@ class ChallengeGenerator {
         final ans = n * n;
         return ChallengeItem(
           id: 'pow_0_sq_$n',
-          question: '$nÂ² = ?',
+          question: '$n² = ?',
           answer: '$ans',
-          explanation: '$n Ã— $n = $ans',
+          explanation: '$n × $n = $ans',
         );
       } else {
         final sq = n * n;
         return ChallengeItem(
           id: 'pow_0_sqrt_$sq',
-          question: 'âˆš$sq = ?',
+          question: '√$sq = ?',
           answer: '$n',
-          explanation: 'âˆš$sq = $n (since $n Ã— $n = $sq)',
+          explanation: '√$sq = $n (since $n × $n = $sq)',
         );
       }
     } else if (tier == 1) {
@@ -185,27 +186,27 @@ class ChallengeGenerator {
         final ans = n * n;
         return ChallengeItem(
           id: 'pow_1_sq_$n',
-          question: '$nÂ² = ?',
+          question: '$n² = ?',
           answer: '$ans',
-          explanation: '$n Ã— $n = $ans',
+          explanation: '$n × $n = $ans',
         );
       } else if (variant == 1) {
         final n = 10 + rnd.nextInt(11);
         final sq = n * n;
         return ChallengeItem(
           id: 'pow_1_sqrt_$sq',
-          question: 'âˆš$sq = ?',
+          question: '√$sq = ?',
           answer: '$n',
-          explanation: 'âˆš$sq = $n (since $n Ã— $n = $sq)',
+          explanation: '√$sq = $n (since $n × $n = $sq)',
         );
       } else {
         final n = 2 + rnd.nextInt(4);
         final ans = n * n * n;
         return ChallengeItem(
           id: 'pow_1_cb_$n',
-          question: '$nÂ³ = ?',
+          question: '$n³ = ?',
           answer: '$ans',
-          explanation: '$n Ã— $n Ã— $n = $ans',
+          explanation: '$n × $n × $n = $ans',
         );
       }
     } else {
@@ -216,27 +217,27 @@ class ChallengeGenerator {
         final ans = n * n;
         return ChallengeItem(
           id: 'pow_2_sq_$n',
-          question: '$nÂ² = ?',
+          question: '$n² = ?',
           answer: '$ans',
-          explanation: '$n Ã— $n = $ans',
+          explanation: '$n × $n = $ans',
         );
       } else if (variant == 1) {
         final n = 21 + rnd.nextInt(15);
         final sq = n * n;
         return ChallengeItem(
           id: 'pow_2_sqrt_$sq',
-          question: 'âˆš$sq = ?',
+          question: '√$sq = ?',
           answer: '$n',
-          explanation: 'âˆš$sq = $n (since $n Ã— $n = $sq)',
+          explanation: '√$sq = $n (since $n × $n = $sq)',
         );
       } else {
         final n = 6 + rnd.nextInt(5);
         final ans = n * n * n;
         return ChallengeItem(
           id: 'pow_2_cb_$n',
-          question: '$nÂ³ = ?',
+          question: '$n³ = ?',
           answer: '$ans',
-          explanation: '$n Ã— $n Ã— $n = $ans',
+          explanation: '$n × $n × $n = $ans',
         );
       }
     }
@@ -253,7 +254,7 @@ class ChallengeGenerator {
           id: 'pct_0_10_$base',
           question: '10% of $base = ?',
           answer: '$ans',
-          explanation: '10% of $base = $base Ã· 10 = $ans',
+          explanation: '10% of $base = $base ÷ 10 = $ans',
         );
       } else {
         final k = 1 + rnd.nextInt(9);
@@ -263,7 +264,7 @@ class ChallengeGenerator {
           id: 'pct_0_50_$base',
           question: '50% of $base = ?',
           answer: '$ans',
-          explanation: '50% of $base = $base Ã· 2 = $ans',
+          explanation: '50% of $base = $base ÷ 2 = $ans',
         );
       }
     } else if (tier == 1) {
@@ -283,7 +284,7 @@ class ChallengeGenerator {
         id: 'pct_1_${pct}_$base',
         question: '$pct% of $base = ?',
         answer: '$ans',
-        explanation: '$pct% of $base = ($pct Ã— $base) Ã· 100 = $ans',
+        explanation: '$pct% of $base = ($pct × $base) ÷ 100 = $ans',
       );
     } else {
       // Tier 2: 15%, 35%, 45%, 65%, 85% with 3-digit base
@@ -295,7 +296,7 @@ class ChallengeGenerator {
         id: 'pct_2_${pct}_$base',
         question: '$pct% of $base = ?',
         answer: '$ans',
-        explanation: '$pct% of $base = ($pct Ã— $base) Ã· 100 = $ans',
+        explanation: '$pct% of $base = ($pct × $base) ÷ 100 = $ans',
       );
     }
   }
@@ -343,7 +344,7 @@ class ChallengeGenerator {
           id: 'seq_1_gp_$a',
           question: '$t1, $t2, $t3, $t4, [?]',
           answer: '$ans',
-          explanation: 'Multiply by 2 each step: $t4 Ã— 2 = $ans',
+          explanation: 'Multiply by 2 each step: $t4 × 2 = $ans',
         );
       }
     } else {
@@ -372,7 +373,7 @@ class ChallengeGenerator {
           id: 'seq_2_sq_$offset',
           question: '$t1, $t2, $t3, $t4, [?]',
           answer: '$ans',
-          explanation: 'Consecutive squares: (${offset + 4})Â² = $ans',
+          explanation: 'Consecutive squares: (${offset + 4})² = $ans',
         );
       }
     }
@@ -389,7 +390,7 @@ class ChallengeGenerator {
           id: 'mis_0_add_${a}_$c',
           question: '$a + [?] = $c',
           answer: '$b',
-          explanation: '[?] = $c âˆ’ $a = $b',
+          explanation: '[?] = $c − $a = $b',
         );
       } else {
         final a = 2 + rnd.nextInt(8);
@@ -397,9 +398,9 @@ class ChallengeGenerator {
         final c = a * b;
         return ChallengeItem(
           id: 'mis_0_mul_${a}_$c',
-          question: '$a Ã— [?] = $c',
+          question: '$a × [?] = $c',
           answer: '$b',
-          explanation: '[?] = $c Ã· $a = $b',
+          explanation: '[?] = $c ÷ $a = $b',
         );
       }
     } else if (tier == 1) {
@@ -412,7 +413,7 @@ class ChallengeGenerator {
           id: 'mis_1_add_${a}_$c',
           question: '$a + [?] = $c',
           answer: '$b',
-          explanation: '[?] = $c âˆ’ $a = $b',
+          explanation: '[?] = $c − $a = $b',
         );
       } else {
         final a = 3 + rnd.nextInt(8);
@@ -420,13 +421,13 @@ class ChallengeGenerator {
         final c = a * b;
         return ChallengeItem(
           id: 'mis_1_mul_${a}_$c',
-          question: '$a Ã— [?] = $c',
+          question: '$a × [?] = $c',
           answer: '$b',
-          explanation: '[?] = $c Ã· $a = $b',
+          explanation: '[?] = $c ÷ $a = $b',
         );
       }
     } else {
-      // Tier 2: Linear equation a Ã— [?] + c = target or 3-digit addition
+      // Tier 2: Linear equation a × [?] + c = target or 3-digit addition
       if (rnd.nextBool()) {
         final a = 3 + rnd.nextInt(7);
         final b = 4 + rnd.nextInt(15);
@@ -434,9 +435,9 @@ class ChallengeGenerator {
         final target = a * b + c;
         return ChallengeItem(
           id: 'mis_2_lin_${a}_${c}_$target',
-          question: '$a Ã— [?] + $c = $target',
+          question: '$a × [?] + $c = $target',
           answer: '$b',
-          explanation: '$target âˆ’ $c = ${a * b}, then ${a * b} Ã· $a = $b',
+          explanation: '$target − $c = ${a * b}, then ${a * b} ÷ $a = $b',
         );
       } else {
         final a = 120 + rnd.nextInt(400);
@@ -446,7 +447,7 @@ class ChallengeGenerator {
           id: 'mis_2_add_${a}_$c',
           question: '$a + [?] = $c',
           answer: '$b',
-          explanation: '[?] = $c âˆ’ $a = $b',
+          explanation: '[?] = $c − $a = $b',
         );
       }
     }
@@ -454,16 +455,16 @@ class ChallengeGenerator {
 
   static ChallengeItem _generateBodmas(Random rnd, int tier) {
     if (tier == 0) {
-      // Tier 0: 1-digit BODMAS (a + b Ã— c)
+      // Tier 0: 1-digit BODMAS (a + b × c)
       final a = 1 + rnd.nextInt(9);
       final b = 2 + rnd.nextInt(5);
       final c = 2 + rnd.nextInt(5);
       final ans = a + b * c;
       return ChallengeItem(
         id: 'bod_0_${a}_${b}_$c',
-        question: '$a + $b Ã— $c = ?',
+        question: '$a + $b × $c = ?',
         answer: '$ans',
-        explanation: 'Multiply first: $b Ã— $c = ${b * c}, then $a + ${b * c} = $ans',
+        explanation: 'Multiply first: $b × $c = ${b * c}, then $a + ${b * c} = $ans',
       );
     } else if (tier == 1) {
       // Tier 1: Parentheses or subtraction
@@ -474,9 +475,9 @@ class ChallengeGenerator {
         final ans = (a + b) * c;
         return ChallengeItem(
           id: 'bod_1_par_${a}_${b}_$c',
-          question: '($a + $b) Ã— $c = ?',
+          question: '($a + $b) × $c = ?',
           answer: '$ans',
-          explanation: 'Parentheses first: $a + $b = ${a + b}, then ${a + b} Ã— $c = $ans',
+          explanation: 'Parentheses first: $a + $b = ${a + b}, then ${a + b} × $c = $ans',
         );
       } else {
         final a = 5 + rnd.nextInt(10);
@@ -485,9 +486,9 @@ class ChallengeGenerator {
         final ans = a * b - c;
         return ChallengeItem(
           id: 'bod_1_sub_${a}_${b}_$c',
-          question: '$a Ã— $b âˆ’ $c = ?',
+          question: '$a × $b − $c = ?',
           answer: '$ans',
-          explanation: 'Multiply first: $a Ã— $b = ${a * b}, then ${a * b} âˆ’ $c = $ans',
+          explanation: 'Multiply first: $a × $b = ${a * b}, then ${a * b} − $c = $ans',
         );
       }
     } else {
@@ -500,9 +501,9 @@ class ChallengeGenerator {
       final ans = a * b - k;
       return ChallengeItem(
         id: 'bod_2_${a}_${b}_${d}_$c',
-        question: '$a Ã— $b âˆ’ $d Ã· $c = ?',
+        question: '$a × $b − $d ÷ $c = ?',
         answer: '$ans',
-        explanation: 'Multiply & divide first: $a Ã— $b = ${a * b} and $d Ã· $c = $k, then ${a * b} âˆ’ $k = $ans',
+        explanation: 'Multiply & divide first: $a × $b = ${a * b} and $d ÷ $c = $k, then ${a * b} − $k = $ans',
       );
     }
   }
@@ -515,7 +516,7 @@ class ChallengeGenerator {
       final ans = 2 * a + b;
       return ChallengeItem(
         id: 'lat_0_${a}_$b',
-        question: 'a â˜… b = 2a + b\n$a â˜… $b = ?',
+        question: 'a ★ b = 2a + b\n$a ★ $b = ?',
         answer: '$ans',
         explanation: 'Substitute: 2($a) + $b = ${2 * a} + $b = $ans',
       );
@@ -527,9 +528,9 @@ class ChallengeGenerator {
         final ans = a * b + a;
         return ChallengeItem(
           id: 'lat_1_mul_${a}_$b',
-          question: 'a â˜… b = a Ã— b + a\n$a â˜… $b = ?',
+          question: 'a ★ b = a × b + a\n$a ★ $b = ?',
           answer: '$ans',
-          explanation: 'Substitute: ($a Ã— $b) + $a = ${a * b} + $a = $ans',
+          explanation: 'Substitute: ($a × $b) + $a = ${a * b} + $a = $ans',
         );
       } else {
         final a = 2 + rnd.nextInt(8);
@@ -537,28 +538,28 @@ class ChallengeGenerator {
         final ans = (a + b) * 3;
         return ChallengeItem(
           id: 'lat_1_par_${a}_$b',
-          question: 'a â˜… b = (a + b) Ã— 3\n$a â˜… $b = ?',
+          question: 'a ★ b = (a + b) × 3\n$a ★ $b = ?',
           answer: '$ans',
-          explanation: 'Substitute: ($a + $b) Ã— 3 = ${a + b} Ã— 3 = $ans',
+          explanation: 'Substitute: ($a + $b) × 3 = ${a + b} × 3 = $ans',
         );
       }
     } else {
-      // Tier 2: Quadratic or multi-variable rule
-      final a = 5 + rnd.nextInt(8);
-      final b = 2 + rnd.nextInt(5);
+      // Tier 2: Quadratic or multi-variable rule (guarantee a > b for non-negative result)
+      final b = 2 + rnd.nextInt(4);
+      final a = b + 1 + rnd.nextInt(6);
       final ans = a * a - b * b;
       return ChallengeItem(
         id: 'lat_2_sq_${a}_$b',
-        question: 'a â˜… b = aÂ² âˆ’ bÂ²\n$a â˜… $b = ?',
+        question: 'a ★ b = a² − b²\n$a ★ $b = ?',
         answer: '$ans',
-        explanation: 'Substitute: $aÂ² âˆ’ $bÂ² = ${a * a} âˆ’ ${b * b} = $ans',
+        explanation: 'Substitute: $a² − $b² = ${a * a} − ${b * b} = $ans',
       );
     }
   }
 
   static ChallengeItem _generateMathTricks(Random rnd, int tier) {
     if (tier == 0) {
-      // Tier 0: 1-digit tricks (+9 trick or Ã—5 trick)
+      // Tier 0: 1-digit tricks (+9 trick or ×5 trick)
       if (rnd.nextBool()) {
         final a = 2 + rnd.nextInt(8);
         final ans = a + 9;
@@ -566,16 +567,16 @@ class ChallengeGenerator {
           id: 'trk_0_add9_$a',
           question: '$a + 9 = ?',
           answer: '$ans',
-          explanation: 'Add 10 and subtract 1: ($a + 10) âˆ’ 1 = $ans',
+          explanation: 'Add 10 and subtract 1: ($a + 10) − 1 = $ans',
         );
       } else {
         final a = 2 + rnd.nextInt(7);
         final ans = a * 5;
         return ChallengeItem(
           id: 'trk_0_mul5_$a',
-          question: '$a Ã— 5 = ?',
+          question: '$a × 5 = ?',
           answer: '$ans',
-          explanation: 'Multiply by 10 and halve: ($a Ã— 10) Ã· 2 = $ans',
+          explanation: 'Multiply by 10 and halve: ($a × 10) ÷ 2 = $ans',
         );
       }
     } else if (tier == 1) {
@@ -585,9 +586,9 @@ class ChallengeGenerator {
         final ans = a * 11;
         return ChallengeItem(
           id: 'trk_1_11_$a',
-          question: '$a Ã— 11 = ?',
+          question: '$a × 11 = ?',
           answer: '$ans',
-          explanation: '11 trick: $a Ã— 10 + $a = ${a * 10} + $a = $ans',
+          explanation: '11 trick: $a × 10 + $a = ${a * 10} + $a = $ans',
         );
       } else {
         final n = 5 + rnd.nextInt(6); // 5 to 10 people
@@ -596,7 +597,7 @@ class ChallengeGenerator {
           id: 'trk_1_hand_$n',
           question: 'Handshakes among $n people = ?',
           answer: '$ans',
-          explanation: 'Handshake formula: n(nâˆ’1) Ã· 2 = ($n Ã— ${n - 1}) Ã· 2 = $ans',
+          explanation: 'Handshake formula: n(n−1) ÷ 2 = ($n × ${n - 1}) ÷ 2 = $ans',
         );
       }
     } else {
@@ -607,9 +608,9 @@ class ChallengeGenerator {
         final ans = k * 100;
         return ChallengeItem(
           id: 'trk_2_25_$a',
-          question: '$a Ã— 25 = ?',
+          question: '$a × 25 = ?',
           answer: '$ans',
-          explanation: '25 trick: ($a Ã· 4) Ã— 100 = $k Ã— 100 = $ans',
+          explanation: '25 trick: ($a ÷ 4) × 100 = $k × 100 = $ans',
         );
       } else {
         final n = 15 + rnd.nextInt(15);
@@ -618,7 +619,7 @@ class ChallengeGenerator {
           id: 'trk_2_sum_$n',
           question: '1 + 2 + ... + $n = ?',
           answer: '$ans',
-          explanation: 'Sum of first n numbers: n(n+1) Ã· 2 = ($n Ã— ${n + 1}) Ã· 2 = $ans',
+          explanation: 'Sum of first n numbers: n(n+1) ÷ 2 = ($n × ${n + 1}) ÷ 2 = $ans',
         );
       }
     }

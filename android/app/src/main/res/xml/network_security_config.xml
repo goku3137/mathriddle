@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- OWASP MASVS-NETWORK-1: Explicit Network Security Configuration.
+     Disallows cleartext HTTP traffic and restricts certificate trust anchors to trusted system CAs. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>
+

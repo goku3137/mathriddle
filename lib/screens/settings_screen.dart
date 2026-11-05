@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/game_controller.dart';
+import '../features/settings/widgets/settings_dialogs.dart';
+import '../features/settings/widgets/settings_tiles.dart';
 import '../services/monetization_service.dart';
-import '../services/progress_service.dart';
 import '../services/sound_service.dart';
 import '../services/store_service.dart';
 import '../theme/game_theme.dart';
 
+/// Clean, minimalistic settings screen organizing game preferences,
+/// audio controls, purchases, and data management.
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
@@ -61,7 +64,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // SOUND Toggle Switch
-                    _buildSwitchRow(
+                    SettingsSwitchTile(
                       icon: progress.soundEnabled ? Icons.volume_up_outlined : Icons.volume_off_outlined,
                       label: 'SOUND',
                       value: progress.soundEnabled,
@@ -75,8 +78,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                     if (progress.soundEnabled) ...[
                       const Divider(color: GameTheme.borderSubtle, height: 1),
-                      _buildVolumeSliderRow(
-                        context: context,
+                      SettingsVolumeTile(
                         progress: progress,
                         onChanged: (val) async {
                           await progress.setSoundVolume(val);
@@ -90,7 +92,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     const Divider(color: GameTheme.borderSubtle, height: 1),
 
                     // VIBRATION Toggle Switch
-                    _buildSwitchRow(
+                    SettingsSwitchTile(
                       icon: Icons.vibration_rounded,
                       label: 'VIBRATION',
                       value: progress.vibrationEnabled,
@@ -102,7 +104,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     const Divider(color: GameTheme.borderSubtle, height: 1),
 
                     // ADS SETTING Toggle Switch
-                    _buildSwitchRow(
+                    SettingsSwitchTile(
                       icon: Icons.ad_units_outlined,
                       label: 'ADS SETTING',
                       value: progress.personalizedAdsEnabled,
@@ -114,7 +116,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     const Divider(color: GameTheme.borderSubtle, height: 1),
 
                     // RATE US Actionable Row
-                    _buildActionRow(
+                    SettingsActionTile(
                       icon: Icons.star_rate_rounded,
                       label: 'RATE US',
                       onTap: () async {
@@ -125,7 +127,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     const Divider(color: GameTheme.borderSubtle, height: 1),
 
                     // RESTORE PURCHASE Actionable Row
-                    _buildActionRow(
+                    SettingsActionTile(
                       icon: Icons.restore_rounded,
                       label: 'RESTORE PURCHASE',
                       onTap: () async {
@@ -151,11 +153,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     const Divider(color: GameTheme.borderSubtle, height: 1),
 
                     // DELETE DATA Warning-Accented Row
-                    _buildActionRow(
+                    SettingsActionTile(
                       icon: Icons.delete_outline_rounded,
                       label: 'DELETE DATA',
                       isDestructive: true,
-                      onTap: () => _showDeleteConfirmation(context, progress),
+                      onTap: () => SettingsDialogs.showDeleteConfirmation(context, ref, progress),
                     ),
                   ],
                 ),
@@ -168,7 +170,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   GestureDetector(
-                    onTap: () => _showLegalDialog(
+                    onTap: () => SettingsDialogs.showLegalDialog(
                       context,
                       'Privacy Policy',
                       'Math Riddles operates with an offline-first privacy standard. No user tracking or behavioral telemetry is transmitted. All game progress and settings remain local on this device.',
@@ -189,7 +191,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     child: Text('|', style: TextStyle(color: GameTheme.textDim, fontSize: 12)),
                   ),
                   GestureDetector(
-                    onTap: () => _showLegalDialog(
+                    onTap: () => SettingsDialogs.showLegalDialog(
                       context,
                       'Terms of Services',
                       'By playing Math Riddles, you agree to fair use for personal cognitive exercise. All mathematical puzzles and vector geometry are protected intellectual properties of the publisher.',
@@ -211,198 +213,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildSwitchRow({
-    required IconData icon,
-    required String label,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: [
-          Icon(icon, color: GameTheme.textLight, size: 20),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(
-                color: GameTheme.textWhite,
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                letterSpacing: 1.5,
-              ),
-            ),
-          ),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            activeThumbColor: GameTheme.amberAccent,
-            activeTrackColor: GameTheme.amberGlow,
-            inactiveThumbColor: GameTheme.textDim,
-            inactiveTrackColor: GameTheme.surfaceElevated,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildVolumeSliderRow({
-    required BuildContext context,
-    required ProgressService progress,
-    required ValueChanged<double> onChanged,
-    required ValueChanged<double> onChangeEnd,
-  }) {
-    final percent = (progress.soundVolume * 100).round();
-    return Padding(
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 2, bottom: 10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.volume_down_rounded, color: GameTheme.textMuted, size: 20),
-              const SizedBox(width: 16),
-              const Expanded(
-                child: Text(
-                  'VOLUME',
-                  style: TextStyle(
-                    color: GameTheme.textWhite,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: 1.5,
-                  ),
-                ),
-              ),
-              Text(
-                '$percent%',
-                style: const TextStyle(
-                  color: GameTheme.amberAccent,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: GameTheme.amberAccent,
-              inactiveTrackColor: GameTheme.borderSubtle,
-              thumbColor: GameTheme.amberAccent,
-              overlayColor: GameTheme.amberAccent.withValues(alpha: 0.2),
-              trackHeight: 3.0,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6.0),
-            ),
-            child: Slider(
-              value: progress.soundVolume.clamp(0.0, 1.0),
-              min: 0.0,
-              max: 1.0,
-              divisions: 10,
-              onChanged: onChanged,
-              onChangeEnd: onChangeEnd,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActionRow({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    bool isDestructive = false,
-  }) {
-    final color = isDestructive ? GameTheme.errorRed : GameTheme.textLight;
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: Row(
-            children: [
-              Icon(icon, color: isDestructive ? GameTheme.errorRed : GameTheme.textMuted, size: 20),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: 1.5,
-                  ),
-                ),
-              ),
-              const Icon(Icons.chevron_right_rounded, color: GameTheme.textDim, size: 20),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showDeleteConfirmation(BuildContext context, ProgressService progress) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: GameTheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: const Text(
-          'RESET PROGRESS?',
-          style: TextStyle(color: GameTheme.errorRed, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 1.5),
-        ),
-        content: const Text(
-          'This will permanently reset your solved levels, timer records, and unlocked stages. You will return to Level 1.',
-          style: TextStyle(color: GameTheme.textMuted, fontSize: 13, height: 1.4),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('CANCEL', style: TextStyle(color: GameTheme.textMuted)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: GameTheme.errorRed,
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () async {
-              await progress.resetAllData();
-              ref.invalidate(gameControllerProvider);
-              if (ctx.mounted) Navigator.of(ctx).pop();
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('All local data and level progress reset.')),
-                );
-              }
-            },
-            child: const Text('CONFIRM RESET'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showLegalDialog(BuildContext context, String title, String content) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: GameTheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: Text(title, style: const TextStyle(color: GameTheme.textWhite, letterSpacing: 1.5)),
-        content: Text(content, style: const TextStyle(color: GameTheme.textMuted, fontSize: 13, height: 1.4)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('CLOSE', style: TextStyle(color: GameTheme.amberAccent)),
-          ),
-        ],
       ),
     );
   }

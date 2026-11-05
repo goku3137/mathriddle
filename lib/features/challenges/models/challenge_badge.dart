@@ -119,3 +119,4 @@ class ChallengeBadgeTier {
     return '$correctCount / 25 to Beginner';
   }
 }
+

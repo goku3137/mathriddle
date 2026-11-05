@@ -55,3 +55,4 @@ class ChallengeTimerBar extends StatelessWidget {
     );
   }
 }
+

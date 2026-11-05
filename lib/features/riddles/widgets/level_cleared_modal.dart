@@ -144,3 +144,4 @@ class LevelClearedModal extends ConsumerWidget {
     );
   }
 }
+

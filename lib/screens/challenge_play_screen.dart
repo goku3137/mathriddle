@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +6,7 @@ import '../controllers/game_controller.dart';
 import '../data/challenge_data.dart';
 import '../features/challenges/widgets/challenge_feedback_card.dart';
 import '../features/challenges/widgets/challenge_question_card.dart';
+import '../features/challenges/widgets/challenge_status_bar.dart';
 import '../features/challenges/widgets/challenge_timer_bar.dart';
 import '../services/sound_service.dart';
 import '../theme/game_theme.dart';
@@ -53,7 +54,7 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
       vsync: this,
       duration: const Duration(milliseconds: questionDurationMs),
     )..addStatusListener((status) {
-        if (status == AnimationStatus.dismissed && !_isShowingPopup) {
+        if ((status == AnimationStatus.dismissed || (status == AnimationStatus.completed && _timerController.value <= 0.01)) && !_isShowingPopup) {
           _handleTimeout();
         }
       });
@@ -83,12 +84,7 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
       } else {
         final remainingFraction = (1.0 - (elapsed / questionDurationMs)).clamp(0.0, 1.0);
         _timerController.value = remainingFraction;
-        final remainingMs = questionDurationMs - elapsed;
-        _timerController.animateTo(
-          0.0,
-          duration: Duration(milliseconds: remainingMs),
-          curve: Curves.linear,
-        );
+        _timerController.reverse(from: remainingFraction);
       }
     } else if (state == AppLifecycleState.paused) {
       _timerController.stop();
@@ -107,12 +103,7 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
     if (!mounted || _isShowingPopup) return;
     _questionStartTime = DateTime.now();
     _timerController.stop();
-    _timerController.value = 1.0;
-    _timerController.animateTo(
-      0.0,
-      duration: const Duration(milliseconds: questionDurationMs),
-      curve: Curves.linear,
-    );
+    _timerController.reverse(from: 1.0);
   }
 
   void _stopTimer() {
@@ -125,18 +116,6 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
     _timerController.dispose();
     _autoAdvanceTimer?.cancel();
     super.dispose();
-  }
-
-  String _tierLabel(int tier) {
-    switch (tier) {
-      case 0:
-        return '1-Digit';
-      case 1:
-        return '2-Digit';
-      case 2:
-      default:
-        return '3-Digit';
-    }
   }
 
   Future<void> _submit() async {
@@ -226,7 +205,7 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
                   const Icon(Icons.arrow_upward_rounded, color: GameTheme.amberAccent, size: 18),
                   const SizedBox(width: 8),
                   Text(
-                    'Level Up! Introduced ${_tierLabel(_currentTier)} Calculations!',
+                    'Level Up! Introduced ${ChallengeStatusBar.getTierLabel(_currentTier)} Calculations!',
                     style: const TextStyle(color: GameTheme.textWhite, fontWeight: FontWeight.w700),
                   ),
                 ],
@@ -403,7 +382,7 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
             ),
             const SizedBox(height: 2),
             Text(
-              'Played $totalAttemptsForCategory ${totalAttemptsForCategory == 1 ? 'time' : 'times'} â€¢ Best: ${stats.highestStreak} â€¢ ${stats.accuracyPercent}% ACC',
+              'Played $totalAttemptsForCategory ${totalAttemptsForCategory == 1 ? 'time' : 'times'} • Best: ${stats.highestStreak} • ${stats.accuracyPercent}% ACC',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
@@ -433,104 +412,10 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
             const SizedBox(height: 8),
 
             // 2. Progressive Indicators: Current Streak, Tier Badge, and 15s Timer
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Current Streak
-                  Flexible(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: GameTheme.surface,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: GameTheme.borderSubtle),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.bolt_rounded, color: GameTheme.amberAccent, size: 16),
-                          const SizedBox(width: 4),
-                          Flexible(
-                            child: Text(
-                              'STREAK: $_consecutiveCorrect',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: GameTheme.amberAccent,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-
-                  // Progressive Difficulty Tier Pill
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: GameTheme.surfaceElevated,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: GameTheme.borderSubtle),
-                    ),
-                    child: Text(
-                      _tierLabel(_currentTier),
-                      style: const TextStyle(
-                        color: GameTheme.textLight,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-
-                  // 15s Timer Badge
-                  AnimatedBuilder(
-                    animation: _timerController,
-                    builder: (context, _) {
-                      final secondsLeft = (_timerController.value * 15).ceil();
-                      final isCriticalTime = secondsLeft <= 5;
-
-                      return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: isCriticalTime
-                              ? GameTheme.errorRed.withValues(alpha: 0.15)
-                              : GameTheme.surface,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: isCriticalTime ? GameTheme.errorRed : GameTheme.borderSubtle,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.timer_outlined,
-                              size: 15,
-                              color: isCriticalTime ? GameTheme.errorRed : GameTheme.amberAccent,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${secondsLeft}s',
-                              style: TextStyle(
-                                color: isCriticalTime ? GameTheme.errorRed : GameTheme.textWhite,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
+            ChallengeStatusBar(
+              consecutiveCorrect: _consecutiveCorrect,
+              currentTier: _currentTier,
+              timerController: _timerController,
             ),
 
             // 3. Question Display Box or Compact Feedback Overlay

@@ -5,15 +5,42 @@ import '../theme/game_theme.dart';
 import '../widgets/score_badge.dart';
 import 'riddle_screen.dart';
 
-class LevelsScreen extends ConsumerWidget {
+class LevelsScreen extends ConsumerStatefulWidget {
   const LevelsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LevelsScreen> createState() => _LevelsScreenState();
+}
+
+class _LevelsScreenState extends ConsumerState<LevelsScreen> {
+  static const int _levelsPerPack = 20;
+  late int _currentPack;
+
+  @override
+  void initState() {
+    super.initState();
+    // Default to the pack containing the highest unlocked level, clamped to valid pack range
+    final progress = ref.read(progressServiceProvider);
+    final totalLevels = ref.read(levelRepositoryProvider).totalLevelsCount;
+    final totalPacks = (totalLevels / _levelsPerPack).ceil();
+    final unlocked = progress.unlockedLevelIndex;
+    final maxPack = totalPacks > 0 ? totalPacks - 1 : 0;
+    _currentPack = ((unlocked - 1) ~/ _levelsPerPack).clamp(0, maxPack);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final progress = ref.watch(progressServiceProvider);
-    final gameState = ref.watch(gameControllerProvider);
+    final activeLevelNumber = ref.watch(gameControllerProvider.select((s) => s.activeLevelNumber));
+    final levelRepo = ref.watch(levelRepositoryProvider);
+
+    final totalLevels = levelRepo.totalLevelsCount;
+    final totalPacks = (totalLevels / _levelsPerPack).ceil();
     final unlockedIndex = progress.unlockedLevelIndex;
     final completedLevels = progress.completedLevelsList;
+
+    final startLevel = (_currentPack * _levelsPerPack) + 1;
+    final endLevel = (startLevel + _levelsPerPack - 1).clamp(1, totalLevels);
 
     return Scaffold(
       backgroundColor: GameTheme.background,
@@ -45,10 +72,51 @@ class LevelsScreen extends ConsumerWidget {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           child: Column(
             children: [
-              // 20-Box Uniform Responsive Grid (4 columns × 5 rows or 5 columns × 4 rows)
+              // Pack Navigation Header (Supporting all 500 levels in clean 20-box packs)
+              if (totalPacks > 1) ...[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: GameTheme.surface,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: GameTheme.borderSubtle),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.chevron_left_rounded, color: GameTheme.textWhite),
+                          onPressed: _currentPack > 0
+                              ? () => setState(() => _currentPack--)
+                              : null,
+                        ),
+                        Text(
+                          'PACK ${_currentPack + 1} ($startLevel–$endLevel)',
+                          style: const TextStyle(
+                            color: GameTheme.amberAccent,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.chevron_right_rounded, color: GameTheme.textWhite),
+                          onPressed: _currentPack < totalPacks - 1
+                              ? () => setState(() => _currentPack++)
+                              : null,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+
+              // Exactly 20 Uniform Responsive Containers
               Expanded(
                 child: GridView.builder(
                   physics: const BouncingScrollPhysics(),
@@ -58,13 +126,17 @@ class LevelsScreen extends ConsumerWidget {
                     crossAxisSpacing: 14,
                     childAspectRatio: 1.0,
                   ),
-                  itemCount: 20, // Exactly 20 uniform containers
+                  itemCount: _levelsPerPack,
                   itemBuilder: (context, index) {
-                    final levelNum = index + 1;
-                    // Box 1 unlocked by default; Level N unlocks strictly when Level N-1 solved
+                    final levelNum = startLevel + index;
+                    if (levelNum > totalLevels) {
+                      return const SizedBox.shrink();
+                    }
+
+                    // Strict sequential unlock progression: Level N unlocks when Level N - 1 is completed
                     final isUnlocked = levelNum <= unlockedIndex;
                     final isCompleted = completedLevels.contains(levelNum);
-                    final isCurrent = gameState.activeLevelNumber == levelNum;
+                    final isCurrent = activeLevelNumber == levelNum;
 
                     return _buildLevelContainer(
                       context: context,
@@ -120,11 +192,13 @@ class LevelsScreen extends ConsumerWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
         onTap: isUnlocked
-            ? () {
-                ref.read(gameControllerProvider.notifier).selectLevel(levelNum);
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const RiddleScreen()),
-                );
+            ? () async {
+                await ref.read(gameControllerProvider.notifier).selectLevel(levelNum);
+                if (context.mounted) {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (_) => const RiddleScreen()),
+                  );
+                }
               }
             : null,
         child: Container(
@@ -151,12 +225,20 @@ class LevelsScreen extends ConsumerWidget {
                       ),
                     ),
                     if (isCompleted)
-                      const Positioned(
+                      Positioned(
                         bottom: 6,
-                        child: Icon(
-                          Icons.check_rounded,
-                          color: GameTheme.amberAccent,
-                          size: 14,
+                        right: 6,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: GameTheme.successGreen,
+                          ),
+                          child: const Icon(
+                            Icons.check_rounded,
+                            size: 10,
+                            color: Colors.black,
+                          ),
                         ),
                       ),
                   ],

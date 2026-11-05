@@ -195,9 +195,15 @@ class HeartIndicator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(gameControllerProvider);
-    final hearts = state.hearts;
-    final isUnlimited = state.isUnlimitedHearts;
+    final heartData = ref.watch(
+      gameControllerProvider.select((s) => (
+        hearts: s.hearts,
+        isUnlimited: s.isUnlimitedHearts,
+        formattedHeartTimer: s.formattedHeartTimer,
+      )),
+    );
+    final hearts = heartData.hearts;
+    final isUnlimited = heartData.isUnlimited;
     final isLow = !isUnlimited && hearts <= 1;
 
     return Material(
@@ -245,7 +251,7 @@ class HeartIndicator extends ConsumerWidget {
               if (!isUnlimited && hearts < 5 && !compact) ...[
                 const SizedBox(width: 4),
                 Text(
-                  state.formattedHeartTimer,
+                  heartData.formattedHeartTimer,
                   style: const TextStyle(
                     color: GameTheme.textDim,
                     fontSize: 10,

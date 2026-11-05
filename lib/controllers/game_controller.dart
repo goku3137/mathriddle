@@ -1,13 +1,18 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/game_levels.dart';
+import '../domain/scoring_rules.dart';
 import '../models/level_model.dart';
+import '../repositories/level_repository.dart';
 import '../services/monetization_service.dart';
 import '../services/progress_service.dart';
+import '../services/security_service.dart';
 
 class GameState {
-  final int activeLevelNumber; // 1 to 20
+  final int activeLevelNumber;
+  final LevelData? loadedLevel;
   final String currentInput;
   final bool isError;
   final bool isSolved;
@@ -23,6 +28,7 @@ class GameState {
 
   const GameState({
     required this.activeLevelNumber,
+    this.loadedLevel,
     this.currentInput = '',
     this.isError = false,
     this.isSolved = false,
@@ -38,7 +44,10 @@ class GameState {
   });
 
   LevelData get currentLevel =>
-      gameLevels[(activeLevelNumber - 1).clamp(0, gameLevels.length - 1)];
+      loadedLevel ??
+      (activeLevelNumber <= gameLevels.length
+          ? gameLevels[activeLevelNumber - 1]
+          : gameLevels.first);
 
   String get formattedTimer {
     final m = (remainingSeconds ~/ 60).toString().padLeft(2, '0');
@@ -56,6 +65,7 @@ class GameState {
 
   GameState copyWith({
     int? activeLevelNumber,
+    LevelData? loadedLevel,
     String? currentInput,
     bool? isError,
     bool? isSolved,
@@ -71,6 +81,7 @@ class GameState {
   }) {
     return GameState(
       activeLevelNumber: activeLevelNumber ?? this.activeLevelNumber,
+      loadedLevel: loadedLevel ?? this.loadedLevel,
       currentInput: currentInput ?? this.currentInput,
       isError: isError ?? this.isError,
       isSolved: isSolved ?? this.isSolved,
@@ -92,6 +103,10 @@ final progressServiceProvider = Provider<ProgressService>((ref) {
   throw UnimplementedError('ProgressService must be initialized in main()');
 });
 
+final levelRepositoryProvider = Provider<ILevelRepository>((ref) {
+  return ScalableLevelRepository(totalLevels: 500);
+});
+
 final adServiceProvider = Provider<IAdService>((ref) {
   return ProductionAdService();
 });
@@ -101,25 +116,34 @@ final billingServiceProvider = Provider<IBillingService>((ref) {
 });
 
 // Game Controller
-class GameController extends Notifier<GameState> {
+class GameController extends Notifier<GameState> with WidgetsBindingObserver {
   ProgressService get _progress => ref.read(progressServiceProvider);
+  ILevelRepository get _levelRepo => ref.read(levelRepositoryProvider);
   IAdService get _ads => ref.read(adServiceProvider);
+
   Timer? _countdownTimer;
+  bool _isValidating = false;
 
   @override
   GameState build() {
     final progress = ref.watch(progressServiceProvider);
+    final levelRepo = ref.watch(levelRepositoryProvider);
     final highestUnlocked = progress.unlockedLevelIndex;
-    final initialLevelId = highestUnlocked.clamp(1, gameLevels.length);
+    final initialLevelId = highestUnlocked.clamp(1, levelRepo.totalLevelsCount);
 
+    WidgetsBinding.instance.addObserver(this);
     _startTimer();
 
     ref.onDispose(() {
+      WidgetsBinding.instance.removeObserver(this);
       _countdownTimer?.cancel();
     });
 
+    final initialLevel = levelRepo.getLevelSync(initialLevelId);
+
     return GameState(
       activeLevelNumber: initialLevelId,
+      loadedLevel: initialLevel,
       isHintUnlocked: progress.isHintUnlocked(initialLevelId),
       isSolutionUnlocked: progress.isSolutionUnlocked(initialLevelId),
       totalScore: progress.totalScore,
@@ -127,6 +151,23 @@ class GameController extends Notifier<GameState> {
       secondsUntilNextHeart: progress.secondsUntilNextHeart,
       isUnlimitedHearts: progress.isPremiumUser,
     );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      pauseTimer();
+    } else if (state == AppLifecycleState.resumed) {
+      if (!this.state.isSolved) {
+        resumeTimer();
+      }
+      // Re-synchronize offline hearts immediately on foreground resume
+      this.state = this.state.copyWith(
+        hearts: _progress.currentHearts,
+        secondsUntilNextHeart: _progress.secondsUntilNextHeart,
+      );
+    }
   }
 
   void _startTimer() {
@@ -160,10 +201,14 @@ class GameController extends Notifier<GameState> {
   void appendDigit(String digit) {
     if (state.isSolved) return;
     if (state.currentInput.length >= 6) return;
-    state = state.copyWith(
-      currentInput: state.currentInput + digit,
-      isError: false,
-    );
+
+    final sanitized = SecurityService.sanitizeNumericInput(state.currentInput + digit);
+    if (sanitized.isNotEmpty && sanitized.length <= 6) {
+      state = state.copyWith(
+        currentInput: sanitized,
+        isError: false,
+      );
+    }
   }
 
   void clearInput() {
@@ -175,61 +220,67 @@ class GameController extends Notifier<GameState> {
   }
 
   int getPointsForLevel(int levelNumber) {
-    if (levelNumber <= 10) {
-      return 5;
-    } else {
-      // after each 10 levels, increase by 10
-      final tenBlock = (levelNumber - 1) ~/ 10;
-      return 5 + (tenBlock * 10);
-    }
+    return ScoringRules.pointsForRiddleLevel(levelNumber);
   }
 
+  /// Validates answer with mutex lock to prevent concurrent double-submissions
   Future<bool> validateAnswer() async {
+    if (_isValidating) return false;
     if (state.currentInput.isEmpty) return false;
 
-    final trimmedInput = state.currentInput.trim();
-    final trimmedSolution = state.currentLevel.correctAnswer.trim();
-    final isCorrect = trimmedInput == trimmedSolution;
-
-    if (isCorrect) {
-      if (_progress.vibrationEnabled) {
-        HapticFeedback.heavyImpact();
+    _isValidating = true;
+    try {
+      final sanitizedInput = SecurityService.sanitizeNumericInput(state.currentInput);
+      if (sanitizedInput.isEmpty) {
+        state = state.copyWith(isError: true);
+        return false;
       }
 
-      final alreadyCompleted = _progress.completedLevelsList.contains(state.currentLevel.levelNumber);
-      int earnedPoints = 0;
-      if (!alreadyCompleted) {
-        earnedPoints = getPointsForLevel(state.currentLevel.levelNumber);
-        await _progress.addScore(earnedPoints);
-      }
+      final trimmedSolution = state.currentLevel.correctAnswer.trim();
+      final isCorrect = sanitizedInput == trimmedSolution;
 
-      await _progress.markLevelCompleted(state.currentLevel.levelNumber);
+      if (isCorrect) {
+        if (_progress.vibrationEnabled) {
+          HapticFeedback.heavyImpact();
+        }
 
-      // Trigger periodic interstitial ad
-      if (!_progress.isAdsRemoved) {
-        await _ads.showInterstitialAd();
-      }
+        final alreadyCompleted = _progress.completedLevelsList.contains(state.currentLevel.levelNumber);
+        int earnedPoints = 0;
+        if (!alreadyCompleted) {
+          earnedPoints = ScoringRules.pointsForRiddleLevel(state.currentLevel.levelNumber);
+          await _progress.addScore(earnedPoints);
+        }
 
-      state = state.copyWith(
-        isSolved: true,
-        isError: false,
-        isTimerActive: false,
-        totalScore: _progress.totalScore,
-        lastEarnedPoints: earnedPoints,
-      );
-      return true;
-    } else {
-      if (_progress.vibrationEnabled) {
-        HapticFeedback.vibrate();
+        await _progress.markLevelCompleted(state.currentLevel.levelNumber);
+
+        // Trigger periodic interstitial ad
+        if (!_progress.isAdsRemoved) {
+          await _ads.showInterstitialAd();
+        }
+
+        state = state.copyWith(
+          isSolved: true,
+          isError: false,
+          isTimerActive: false,
+          totalScore: _progress.totalScore,
+          lastEarnedPoints: earnedPoints,
+        );
+        return true;
+      } else {
+        if (_progress.vibrationEnabled) {
+          HapticFeedback.vibrate();
+        }
+        // Consume 1 heart on incorrect answer
+        await _progress.consumeHeart();
+        state = state.copyWith(
+          isError: true,
+          hearts: _progress.currentHearts,
+          secondsUntilNextHeart: _progress.secondsUntilNextHeart,
+        );
+        return false;
       }
-      // Consume 1 heart on incorrect answer
-      await _progress.consumeHeart();
-      state = state.copyWith(
-        isError: true,
-        hearts: _progress.currentHearts,
-        secondsUntilNextHeart: _progress.secondsUntilNextHeart,
-      );
-      return false;
+    } finally {
+      _isValidating = false;
     }
   }
 
@@ -258,7 +309,7 @@ class GameController extends Notifier<GameState> {
     if (granted) {
       state = state.copyWith(
         totalScore: _progress.totalScore,
-        lastEarnedPoints: 50,
+        lastEarnedPoints: ScoringRules.pointsPerLearnLesson,
       );
     }
     return granted;
@@ -269,13 +320,13 @@ class GameController extends Notifier<GameState> {
     if (granted) {
       state = state.copyWith(
         totalScore: _progress.totalScore,
-        lastEarnedPoints: 3,
+        lastEarnedPoints: ScoringRules.pointsPerChallenge,
       );
     }
     return granted;
   }
 
-  Future<void> addChallengeScore([int points = 3]) async {
+  Future<void> addChallengeScore([int points = ScoringRules.pointsPerChallenge]) async {
     await _progress.addScore(points);
     state = state.copyWith(
       totalScore: _progress.totalScore,
@@ -291,15 +342,18 @@ class GameController extends Notifier<GameState> {
     state = state.copyWith(isError: false, currentInput: '');
   }
 
-  void selectLevel(int levelNumber) {
-    final targetLevel = levelNumber.clamp(1, gameLevels.length);
+  Future<void> selectLevel(int levelNumber) async {
+    final clampedLevel = levelNumber.clamp(1, _levelRepo.totalLevelsCount);
+    final levelData = await _levelRepo.getLevel(clampedLevel);
+
     state = GameState(
-      activeLevelNumber: targetLevel,
+      activeLevelNumber: clampedLevel,
+      loadedLevel: levelData,
       currentInput: '',
       isError: false,
       isSolved: false,
-      isHintUnlocked: _progress.isHintUnlocked(targetLevel),
-      isSolutionUnlocked: _progress.isSolutionUnlocked(targetLevel),
+      isHintUnlocked: _progress.isHintUnlocked(clampedLevel),
+      isSolutionUnlocked: _progress.isSolutionUnlocked(clampedLevel),
       remainingSeconds: 300,
       isTimerActive: true,
       totalScore: _progress.totalScore,
@@ -309,12 +363,12 @@ class GameController extends Notifier<GameState> {
     );
   }
 
-  void nextLevel() {
+  Future<void> nextLevel() async {
     final nextId = state.currentLevel.levelNumber + 1;
-    if (nextId <= gameLevels.length) {
-      selectLevel(nextId);
+    if (nextId <= _levelRepo.totalLevelsCount) {
+      await selectLevel(nextId);
     } else {
-      selectLevel(gameLevels.length);
+      await selectLevel(_levelRepo.totalLevelsCount);
     }
   }
 

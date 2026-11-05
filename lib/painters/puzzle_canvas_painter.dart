@@ -10,6 +10,11 @@ class PuzzleCanvasPainter extends CustomPainter {
   final bool isError;
   final double pulseScale;
 
+  // Reusable static Paint instances to eliminate per-frame heap allocations at 60 FPS
+  static final Paint _strokePaint = Paint()..style = PaintingStyle.stroke;
+  static final Paint _fillPaint = Paint()..style = PaintingStyle.fill;
+  static final TextPainter _cachedTextPainter = TextPainter(textDirection: TextDirection.ltr);
+
   PuzzleCanvasPainter({
     required this.level,
     required this.currentInput,
@@ -43,24 +48,46 @@ class PuzzleCanvasPainter extends CustomPainter {
   void _paintFormula(Canvas canvas, Size size) {
     final center = Offset(size.width / 2 + shakeOffset, size.height / 2);
 
-    final frameRect = RRect.fromRectAndRadius(
-      Rect.fromCenter(center: center, width: size.width * 0.9, height: 110),
-      const Radius.circular(16),
-    );
-    final borderPaint = Paint()
-      ..color = isError ? GameTheme.errorRed : GameTheme.borderSubtle
-      ..strokeWidth = 1.5
-      ..style = PaintingStyle.stroke;
-    canvas.drawRRect(frameRect, borderPaint);
-
-    final bgPaint = Paint()
-      ..color = GameTheme.surface
-      ..style = PaintingStyle.fill;
-    canvas.drawRRect(frameRect, bgPaint);
-
     final displayEquation = currentInput.isEmpty
         ? level.displayContent
         : level.displayContent.replaceAll('?', currentInput);
+
+    // Responsive typography based on equation / word problem length
+    final double fontSize;
+    final double letterSpacing;
+    if (displayEquation.length > 55) {
+      fontSize = 15;
+      letterSpacing = 0.8;
+    } else if (displayEquation.length > 35) {
+      fontSize = 17;
+      letterSpacing = 1.2;
+    } else if (displayEquation.length > 20) {
+      fontSize = 21;
+      letterSpacing = 1.8;
+    } else {
+      fontSize = 28;
+      letterSpacing = 2.5;
+    }
+
+    final double frameHeight = math.min(
+      size.height * 0.78,
+      math.max(110.0, 100.0 + (displayEquation.length > 45 ? 30.0 : 0.0)),
+    );
+
+    final frameRect = RRect.fromRectAndRadius(
+      Rect.fromCenter(center: center, width: size.width * 0.92, height: frameHeight),
+      const Radius.circular(16),
+    );
+
+    // Frame Fill
+    _fillPaint.color = GameTheme.surface;
+    canvas.drawRRect(frameRect, _fillPaint);
+
+    // Frame Border
+    _strokePaint
+      ..color = isError ? GameTheme.errorRed : GameTheme.borderSubtle
+      ..strokeWidth = 1.5;
+    canvas.drawRRect(frameRect, _strokePaint);
 
     final textSpan = TextSpan(
       text: displayEquation,
@@ -68,22 +95,14 @@ class PuzzleCanvasPainter extends CustomPainter {
         color: isError
             ? GameTheme.errorRed
             : (currentInput.isNotEmpty ? GameTheme.amberAccent : GameTheme.textWhite),
-        fontSize: displayEquation.length > 18 ? 22 : 28,
-        fontWeight: FontWeight.w300,
-        letterSpacing: 2.5,
+        fontSize: fontSize,
+        fontWeight: FontWeight.w400,
+        letterSpacing: letterSpacing,
+        height: 1.35,
       ),
     );
 
-    final textPainter = TextPainter(
-      text: textSpan,
-      textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
-    )..layout(maxWidth: size.width * 0.85);
-
-    textPainter.paint(
-      canvas,
-      Offset(center.dx - textPainter.width / 2, center.dy - textPainter.height / 2),
-    );
+    _paintCenteredText(canvas, center, textSpan, maxWidth: size.width * 0.84);
   }
 
   // ==========================================
@@ -103,10 +122,9 @@ class PuzzleCanvasPainter extends CustomPainter {
       center.dy + radius * math.sin(math.pi / 6),
     );
 
-    final linePaint = Paint()
+    _strokePaint
       ..color = GameTheme.borderSubtle
-      ..strokeWidth = 2.0
-      ..style = PaintingStyle.stroke;
+      ..strokeWidth = 2.0;
 
     final path = Path()
       ..moveTo(topVertex.dx, topVertex.dy)
@@ -114,10 +132,10 @@ class PuzzleCanvasPainter extends CustomPainter {
       ..lineTo(rightVertex.dx, rightVertex.dy)
       ..close();
 
-    canvas.drawPath(path, linePaint);
-    canvas.drawLine(topVertex, center, linePaint);
-    canvas.drawLine(leftVertex, center, linePaint);
-    canvas.drawLine(rightVertex, center, linePaint);
+    canvas.drawPath(path, _strokePaint);
+    canvas.drawLine(topVertex, center, _strokePaint);
+    canvas.drawLine(leftVertex, center, _strokePaint);
+    canvas.drawLine(rightVertex, center, _strokePaint);
 
     final nodes = level.nodes ?? [];
     for (final node in nodes) {
@@ -149,19 +167,15 @@ class PuzzleCanvasPainter extends CustomPainter {
     final leftCenter = Offset(center.dx - offset, center.dy);
     final rightCenter = Offset(center.dx + offset, center.dy);
 
-    final circlePaint = Paint()
+    _fillPaint.color = const Color(0x0AFFFFFF);
+    canvas.drawCircle(leftCenter, circleRadius, _fillPaint);
+    canvas.drawCircle(rightCenter, circleRadius, _fillPaint);
+
+    _strokePaint
       ..color = GameTheme.borderActive
-      ..strokeWidth = 2.0
-      ..style = PaintingStyle.stroke;
-
-    final fillPaint = Paint()
-      ..color = const Color(0x0AFFFFFF)
-      ..style = PaintingStyle.fill;
-
-    canvas.drawCircle(leftCenter, circleRadius, fillPaint);
-    canvas.drawCircle(leftCenter, circleRadius, circlePaint);
-    canvas.drawCircle(rightCenter, circleRadius, fillPaint);
-    canvas.drawCircle(rightCenter, circleRadius, circlePaint);
+      ..strokeWidth = 2.0;
+    canvas.drawCircle(leftCenter, circleRadius, _strokePaint);
+    canvas.drawCircle(rightCenter, circleRadius, _strokePaint);
 
     final nodes = level.nodes ?? [];
     for (final node in nodes) {
@@ -196,22 +210,22 @@ class PuzzleCanvasPainter extends CustomPainter {
       Rect.fromLTWH(startX, startY, gridSize, gridSize),
       const Radius.circular(16),
     );
-    final borderPaint = Paint()
+
+    _strokePaint
       ..color = GameTheme.borderSubtle
-      ..strokeWidth = 1.5
-      ..style = PaintingStyle.stroke;
-    canvas.drawRRect(outerRect, borderPaint);
+      ..strokeWidth = 1.5;
+    canvas.drawRRect(outerRect, _strokePaint);
 
     for (int i = 1; i < 3; i++) {
       canvas.drawLine(
         Offset(startX + i * cellSize, startY),
         Offset(startX + i * cellSize, startY + gridSize),
-        borderPaint,
+        _strokePaint,
       );
       canvas.drawLine(
         Offset(startX, startY + i * cellSize),
         Offset(startX + gridSize, startY + i * cellSize),
-        borderPaint,
+        _strokePaint,
       );
     }
 
@@ -240,74 +254,62 @@ class PuzzleCanvasPainter extends CustomPainter {
   // HELPERS
   // ==========================================
   void _drawStandardNode(Canvas canvas, Offset center, double radius, String value) {
-    final fillPaint = Paint()
-      ..color = GameTheme.surfaceElevated
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(center, radius, fillPaint);
+    _fillPaint.color = GameTheme.surfaceElevated;
+    canvas.drawCircle(center, radius, _fillPaint);
 
-    final borderPaint = Paint()
+    _strokePaint
       ..color = GameTheme.borderSubtle
-      ..strokeWidth = 1.5
-      ..style = PaintingStyle.stroke;
-    canvas.drawCircle(center, radius, borderPaint);
+      ..strokeWidth = 1.5;
+    canvas.drawCircle(center, radius, _strokePaint);
 
-    final textSpan = TextSpan(
-      text: value,
-      style: const TextStyle(
+    const textSpan = TextSpan(
+      style: TextStyle(
         color: GameTheme.textWhite,
         fontSize: 20,
         fontWeight: FontWeight.w400,
       ),
     );
-    final textPainter = TextPainter(
-      text: textSpan,
-      textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
-    )..layout();
 
-    textPainter.paint(
+    _paintCenteredText(
       canvas,
-      Offset(center.dx - textPainter.width / 2, center.dy - textPainter.height / 2),
+      center,
+      TextSpan(text: value, style: textSpan.style),
     );
   }
 
   void _drawTargetNode(Canvas canvas, Offset center, double radius) {
-    final borderColor = isError
-        ? GameTheme.errorRed
-        : GameTheme.amberAccent;
+    final borderColor = isError ? GameTheme.errorRed : GameTheme.amberAccent;
 
-    final glowPaint = Paint()
-      ..color = borderColor.withValues(alpha: 0.15)
-      ..style = PaintingStyle.fill;
+    // Outer Glow
+    _fillPaint.color = borderColor.withValues(alpha: 0.15);
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromCenter(center: center, width: radius * 2.2, height: radius * 2.2),
         const Radius.circular(10),
       ),
-      glowPaint,
+      _fillPaint,
     );
 
-    final tilePaint = Paint()
-      ..color = GameTheme.surface
-      ..style = PaintingStyle.fill;
+    // Inner Tile Background
+    _fillPaint.color = GameTheme.surface;
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromCenter(center: center, width: radius * 2.0, height: radius * 2.0),
         const Radius.circular(8),
       ),
-      tilePaint,
+      _fillPaint,
     );
 
-    final borderPaint = Paint()
+    // Inner Border
+    _strokePaint
       ..color = borderColor
-      ..strokeWidth = 2.0
-      ..style = PaintingStyle.stroke;
+      ..strokeWidth = 2.0;
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromCenter(center: center, width: radius * 2.0, height: radius * 2.0),
         const Radius.circular(8),
       ),
-      borderPaint,
+      _strokePaint,
     );
 
     final displayText = currentInput.isEmpty ? '?' : currentInput;
@@ -319,16 +321,8 @@ class PuzzleCanvasPainter extends CustomPainter {
         fontWeight: FontWeight.w600,
       ),
     );
-    final textPainter = TextPainter(
-      text: textSpan,
-      textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
-    )..layout();
 
-    textPainter.paint(
-      canvas,
-      Offset(center.dx - textPainter.width / 2, center.dy - textPainter.height / 2),
-    );
+    _paintCenteredText(canvas, center, textSpan);
   }
 
   void _drawCellText(Canvas canvas, Offset center, String text) {
@@ -340,15 +334,21 @@ class PuzzleCanvasPainter extends CustomPainter {
         fontWeight: FontWeight.w400,
       ),
     );
-    final textPainter = TextPainter(
-      text: textSpan,
-      textAlign: TextAlign.center,
-      textDirection: TextDirection.ltr,
-    )..layout();
+    _paintCenteredText(canvas, center, textSpan);
+  }
 
-    textPainter.paint(
+  void _paintCenteredText(Canvas canvas, Offset center, TextSpan textSpan, {double? maxWidth}) {
+    _cachedTextPainter.text = textSpan;
+    _cachedTextPainter.textAlign = TextAlign.center;
+    if (maxWidth != null) {
+      _cachedTextPainter.layout(maxWidth: maxWidth);
+    } else {
+      _cachedTextPainter.layout();
+    }
+
+    _cachedTextPainter.paint(
       canvas,
-      Offset(center.dx - textPainter.width / 2, center.dy - textPainter.height / 2),
+      Offset(center.dx - _cachedTextPainter.width / 2, center.dy - _cachedTextPainter.height / 2),
     );
   }
 

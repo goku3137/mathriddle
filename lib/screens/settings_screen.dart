@@ -99,12 +99,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                         final restored = await billing.restorePurchases();
                         if (restored != PremiumTier.none) {
                           await progress.setPremiumTier(restored);
+                          ref.invalidate(gameControllerProvider);
                         }
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
+                            SnackBar(
                               backgroundColor: GameTheme.surface,
-                              content: Text('Purchases queried and restored.'),
+                              content: Text(
+                                restored != PremiumTier.none
+                                    ? 'Purchases successfully restored.'
+                                    : 'No previous purchases found to restore.',
+                              ),
                             ),
                           );
                         }

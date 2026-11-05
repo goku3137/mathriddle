@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import '../domain/scoring_rules.dart';
 
 enum SecurityViolation {
   none,
@@ -60,6 +61,22 @@ class SecurityService {
     return expectedSignature == storedSignature;
   }
 
+  /// Computes the absolute mathematical upper bound for total score
+  /// based on legitimate completion records.
+  static int computeMaximumValidScore({
+    required Iterable<int> completedLevels,
+    required int completedLearnCount,
+    required int completedChallengeCount,
+  }) {
+    int maxScore = 0;
+    for (final level in completedLevels) {
+      maxScore += ScoringRules.pointsForRiddleLevel(level);
+    }
+    maxScore += completedLearnCount * ScoringRules.pointsPerLearnLesson;
+    maxScore += completedChallengeCount * ScoringRules.pointsPerChallenge;
+    return maxScore;
+  }
+
   /// Detects device clock manipulation (e.g., player setting clock backward or jumping forward).
   static SecurityViolation checkClockIntegrity({
     required int currentDeviceTimeMs,
@@ -103,3 +120,4 @@ class SecurityService {
     return trimmed;
   }
 }
+

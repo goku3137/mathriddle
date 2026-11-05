@@ -9,6 +9,7 @@ class ShopScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(gameControllerProvider);
     final billing = ref.read(billingServiceProvider);
     final progress = ref.watch(progressServiceProvider);
 
@@ -63,7 +64,7 @@ class ShopScreen extends ConsumerWidget {
                 final success = await billing.purchaseRemoveAds();
                 if (success) {
                   await progress.setPremiumTier(PremiumTier.removeAds);
-                  ref.invalidate(progressServiceProvider);
+                  ref.invalidate(gameControllerProvider);
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Ads removed successfully!')),
@@ -89,7 +90,7 @@ class ShopScreen extends ConsumerWidget {
                 final success = await billing.purchaseMonthlyPremium();
                 if (success) {
                   await progress.setPremiumTier(PremiumTier.monthPremium);
-                  ref.invalidate(progressServiceProvider);
+                  ref.invalidate(gameControllerProvider);
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('30-Day Premium activated!')),
@@ -116,7 +117,7 @@ class ShopScreen extends ConsumerWidget {
                 final success = await billing.purchaseLifetimePremium();
                 if (success) {
                   await progress.setPremiumTier(PremiumTier.lifetimePremium);
-                  ref.invalidate(progressServiceProvider);
+                  ref.invalidate(gameControllerProvider);
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Lifetime Premium activated!')),
@@ -135,7 +136,7 @@ class ShopScreen extends ConsumerWidget {
                   final restoredTier = await billing.restorePurchases();
                   if (restoredTier != PremiumTier.none) {
                     await progress.setPremiumTier(restoredTier);
-                    ref.invalidate(progressServiceProvider);
+                    ref.invalidate(gameControllerProvider);
                   }
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(

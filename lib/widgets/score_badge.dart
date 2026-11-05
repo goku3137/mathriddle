@@ -113,8 +113,7 @@ class ScoreBadge extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final gameState = ref.watch(gameControllerProvider);
-    final score = gameState.totalScore;
+    final score = ref.watch(gameControllerProvider.select((s) => s.totalScore));
 
     return Material(
       color: Colors.transparent,

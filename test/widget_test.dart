@@ -163,4 +163,111 @@ void main() {
     expect(progressService.currentHearts, equals(5));
     expect(progressService.secondsUntilNextHeart, equals(0));
   });
+
+  test('ProgressService sanitizes impossible score to verified maximum on launch', () async {
+    // Attacker modified SharedPreferences with 99,999 score without completing levels
+    SharedPreferences.setMockInitialValues({
+      'math_total_score': 99999,
+      'math_completed_levels': <String>['1'], // Only level 1 is completed (max 5 pts)
+    });
+    final prefs = await SharedPreferences.getInstance();
+    final progressService = ProgressService(prefs);
+
+    // Score must be clamped to the verified theoretical maximum (5)
+    expect(progressService.totalScore, equals(5));
+    expect(progressService.isStorageTampered, isTrue);
+  });
+
+  test('GameController loads procedural level cleanly on cold start for levels > 20', () async {
+    SharedPreferences.setMockInitialValues({
+      'math_highest_unlocked_level': 25,
+      'math_completed_levels': List.generate(24, (i) => '${i + 1}'),
+    });
+    final prefs = await SharedPreferences.getInstance();
+    final progressService = ProgressService(prefs);
+
+    final container = ProviderContainer(
+      overrides: [
+        progressServiceProvider.overrideWithValue(progressService),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    final state = container.read(gameControllerProvider);
+    expect(state.activeLevelNumber, equals(25));
+    expect(state.loadedLevel, isNotNull);
+    expect(state.loadedLevel!.levelNumber, equals(25));
+    expect(state.currentLevel.levelNumber, equals(25));
+  });
+
+  testWidgets('Learn Screen navigates, presents curriculum, and awards 50 points on correct practice question', (WidgetTester tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final progressService = ProgressService(prefs);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          progressServiceProvider.overrideWithValue(progressService),
+        ],
+        child: const MathRiddlesApp(),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    // Tap LEARN button
+    expect(find.text('LEARN'), findsOneWidget);
+    await tester.tap(find.text('LEARN'));
+    await tester.pumpAndSettle();
+
+    // Verify Learn Screen UI elements
+    expect(find.text('LEARNING CURRICULUM'), findsOneWidget);
+    expect(find.text('0 of 15 Concepts Mastered'), findsOneWidget);
+    expect(find.text('+0 PTS'), findsOneWidget);
+    expect(find.text('1. Order of Operations (BODMAS / PEMDAS)'), findsOneWidget);
+
+    // Tap first lesson
+    await tester.tap(find.text('1. Order of Operations (BODMAS / PEMDAS)'));
+    await tester.pumpAndSettle();
+
+    // Verify Lesson Detail Screen
+    expect(find.text('CORE FORMULA & SHORTCUT'), findsOneWidget);
+    expect(find.text('STEP-BY-STEP REASONING'), findsOneWidget);
+
+    // Drag down to reveal interactive practice question
+    await tester.drag(find.byType(ListView), const Offset(0, -1400));
+    await tester.pumpAndSettle();
+
+    expect(find.text('INTERACTIVE PRACTICE TEST'), findsOneWidget);
+    expect(find.text('Evaluate: 8 + 8 ÷ 4 + 8 × 2 - 4 = ?'), findsOneWidget);
+
+    // Select correct option '22'
+    await tester.tap(find.text('22'));
+    await tester.pump();
+
+    // Tap SUBMIT ANSWER
+    await tester.tap(find.text('SUBMIT ANSWER'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    // Verify success feedback and score update
+    expect(find.text('EXCELLENT! ANSWER CORRECT'), findsOneWidget);
+    expect(progressService.totalScore, equals(50));
+    expect(progressService.isLearnTopicCompleted('topic_pemdas'), isTrue);
+
+    // Return back to Learn Screen
+    await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
+    await tester.pumpAndSettle();
+
+    // Verify progress card now reflects 1 mastered and +50 PTS
+    expect(find.text('1 of 15 Concepts Mastered'), findsOneWidget);
+    expect(find.text('+50 PTS'), findsOneWidget);
+  });
 }

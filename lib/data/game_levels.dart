@@ -5,6 +5,8 @@ final List<LevelData> gameLevels = [
   const LevelData(
     levelNumber: 1,
     questionType: QuestionType.Formula,
+    category: 'Formula Precedence',
+    difficulty: 'Beginner',
     displayContent: '2 + 2 × 2 = ?',
     correctAnswer: '6',
     hint: 'Multiplication takes precedence over addition (BODMAS / PEMDAS).',
@@ -15,7 +17,9 @@ final List<LevelData> gameLevels = [
   const LevelData(
     levelNumber: 2,
     questionType: QuestionType.Geometry,
-    displayContent: 'Triangle Center Target',
+    category: 'Geometry: Triangles',
+    difficulty: 'Beginner',
+    displayContent: 'Triangle: Top 3, Left 5, Right 2 → Center [?]',
     nodes: [
       PuzzleNode(id: 'top', displayValue: '3', relX: 0.5, relY: 0.16),
       PuzzleNode(id: 'left', displayValue: '5', relX: 0.15, relY: 0.82),
@@ -31,7 +35,9 @@ final List<LevelData> gameLevels = [
   const LevelData(
     levelNumber: 3,
     questionType: QuestionType.Grid,
-    displayContent: 'Powers of Base Numbers',
+    category: 'Matrix & Numeric Grid Riddles',
+    difficulty: 'Beginner',
+    displayContent: '3×3 Grid: Powers of Base Numbers (2..4)',
     nodes: [
       PuzzleNode(id: 'r1c1', displayValue: '2'),
       PuzzleNode(id: 'r1c2', displayValue: '4'),
@@ -52,7 +58,9 @@ final List<LevelData> gameLevels = [
   const LevelData(
     levelNumber: 4,
     questionType: QuestionType.Geometry,
-    displayContent: 'Overlapping Circles',
+    category: 'Geometry: Intersecting Circles',
+    difficulty: 'Beginner',
+    displayContent: 'Circles: Left 14, Right 22 → Overlap [?]',
     nodes: [
       PuzzleNode(id: 'left', displayValue: '14'),
       PuzzleNode(id: 'center', displayValue: '?', isTarget: true),
@@ -67,6 +75,8 @@ final List<LevelData> gameLevels = [
   const LevelData(
     levelNumber: 5,
     questionType: QuestionType.Formula,
+    category: 'Formula Precedence',
+    difficulty: 'Beginner',
     displayContent: '6 ÷ 2 × (1 + 2) = ?',
     correctAnswer: '9',
     hint: 'Parentheses first: (1 + 2) = 3. Division and multiplication are evaluated left to right.',
@@ -77,7 +87,9 @@ final List<LevelData> gameLevels = [
   const LevelData(
     levelNumber: 6,
     questionType: QuestionType.Geometry,
-    displayContent: 'Triangle Center Target',
+    category: 'Geometry: Triangles',
+    difficulty: 'Beginner',
+    displayContent: 'Triangle: Top 8, Left 6, Right 3 → Center [?]',
     nodes: [
       PuzzleNode(id: 'top', displayValue: '8'),
       PuzzleNode(id: 'left', displayValue: '6'),
@@ -93,7 +105,9 @@ final List<LevelData> gameLevels = [
   const LevelData(
     levelNumber: 7,
     questionType: QuestionType.Grid,
-    displayContent: 'Row Constant Sum',
+    category: 'Missing Number Puzzles',
+    difficulty: 'Beginner',
+    displayContent: '3×3 Grid: Row Sum 15 Magic Matrix',
     nodes: [
       PuzzleNode(id: 'r1c1', displayValue: '8'),
       PuzzleNode(id: 'r1c2', displayValue: '1'),
@@ -114,7 +128,9 @@ final List<LevelData> gameLevels = [
   const LevelData(
     levelNumber: 8,
     questionType: QuestionType.Geometry,
-    displayContent: 'Geometric Mean Circles',
+    category: 'Geometry: Intersecting Circles',
+    difficulty: 'Beginner',
+    displayContent: 'Circles: Left 9, Right 16 → Overlap [?]',
     nodes: [
       PuzzleNode(id: 'left', displayValue: '9'),
       PuzzleNode(id: 'center', displayValue: '?', isTarget: true),
@@ -129,17 +145,21 @@ final List<LevelData> gameLevels = [
   const LevelData(
     levelNumber: 9,
     questionType: QuestionType.Formula,
-    displayContent: '8 - 8 × 8 + 8 = ?',
-    correctAnswer: '-48',
-    hint: 'Multiplication first: 8 × 8 = 64.',
-    solution: '8 - 64 + 8 = -56 + 8 = -48.',
+    category: 'Formula Precedence',
+    difficulty: 'Beginner',
+    displayContent: '8 + 8 × 8 - 8 = ?',
+    correctAnswer: '64',
+    hint: 'Multiplication takes precedence over addition and subtraction (PEMDAS).',
+    solution: '8 × 8 = 64, then 8 + 64 - 8 = 72 - 8 = 64.',
   ),
 
   // Level 10: Sum of Vertex Squares
   const LevelData(
     levelNumber: 10,
     questionType: QuestionType.Geometry,
-    displayContent: 'Triangle Center Target',
+    category: 'Geometry: Triangles',
+    difficulty: 'Beginner',
+    displayContent: 'Triangle: Top 3, Left 4, Right 5 → Center [?]',
     nodes: [
       PuzzleNode(id: 'top', displayValue: '3'),
       PuzzleNode(id: 'left', displayValue: '4'),
@@ -155,7 +175,9 @@ final List<LevelData> gameLevels = [
   const LevelData(
     levelNumber: 11,
     questionType: QuestionType.Grid,
-    displayContent: 'Multiplication Matrix',
+    category: 'Matrix & Numeric Grid Riddles',
+    difficulty: 'Beginner',
+    displayContent: '3×3 Grid: Product Rows Matrix',
     nodes: [
       PuzzleNode(id: 'r1c1', displayValue: '2'),
       PuzzleNode(id: 'r1c2', displayValue: '3'),
@@ -176,7 +198,9 @@ final List<LevelData> gameLevels = [
   const LevelData(
     levelNumber: 12,
     questionType: QuestionType.Geometry,
-    displayContent: 'Overlapping Circles',
+    category: 'Geometry: Intersecting Circles',
+    difficulty: 'Beginner',
+    displayContent: 'Circles: Left 47, Right 29 → Overlap [?]',
     nodes: [
       PuzzleNode(id: 'left', displayValue: '47'),
       PuzzleNode(id: 'center', displayValue: '?', isTarget: true),
@@ -191,6 +215,8 @@ final List<LevelData> gameLevels = [
   const LevelData(
     levelNumber: 13,
     questionType: QuestionType.Formula,
+    category: 'Mathematical Trick Riddles',
+    difficulty: 'Beginner',
     displayContent: '10 + 10 × 0 + 10 = ?',
     correctAnswer: '20',
     hint: '10 × 0 = 0. Then perform the additions.',
@@ -201,7 +227,9 @@ final List<LevelData> gameLevels = [
   const LevelData(
     levelNumber: 14,
     questionType: QuestionType.Geometry,
-    displayContent: 'Triangle Center Target',
+    category: 'Geometry: Triangles',
+    difficulty: 'Beginner',
+    displayContent: 'Triangle: Top 9, Left 4, Right 7 → Center [?]',
     nodes: [
       PuzzleNode(id: 'top', displayValue: '9'),
       PuzzleNode(id: 'left', displayValue: '4'),
@@ -217,7 +245,9 @@ final List<LevelData> gameLevels = [
   const LevelData(
     levelNumber: 15,
     questionType: QuestionType.Grid,
-    displayContent: 'Square Sequence Matrix',
+    category: 'Matrix & Numeric Grid Riddles',
+    difficulty: 'Beginner',
+    displayContent: '3×3 Grid: Perfect Squares Matrix (1..9)',
     nodes: [
       PuzzleNode(id: 'r1c1', displayValue: '1'),
       PuzzleNode(id: 'r1c2', displayValue: '4'),
@@ -238,7 +268,9 @@ final List<LevelData> gameLevels = [
   const LevelData(
     levelNumber: 16,
     questionType: QuestionType.Geometry,
-    displayContent: 'Overlapping Circles',
+    category: 'Geometry: Intersecting Circles',
+    difficulty: 'Beginner',
+    displayContent: 'Circles: Left 15, Right 8 → Overlap [?]',
     nodes: [
       PuzzleNode(id: 'left', displayValue: '15'),
       PuzzleNode(id: 'center', displayValue: '?', isTarget: true),
@@ -253,6 +285,8 @@ final List<LevelData> gameLevels = [
   const LevelData(
     levelNumber: 17,
     questionType: QuestionType.Formula,
+    category: 'Formula Precedence',
+    difficulty: 'Beginner',
     displayContent: '5 × 5 - 5 × 5 + 5 = ?',
     correctAnswer: '5',
     hint: 'Perform both multiplications first: 25 - 25 + 5.',
@@ -263,7 +297,9 @@ final List<LevelData> gameLevels = [
   const LevelData(
     levelNumber: 18,
     questionType: QuestionType.Geometry,
-    displayContent: 'Triangle Center Target',
+    category: 'Geometry: Triangles',
+    difficulty: 'Beginner',
+    displayContent: 'Triangle: Top 7, Left 3, Right 5 → Center [?]',
     nodes: [
       PuzzleNode(id: 'top', displayValue: '7'),
       PuzzleNode(id: 'left', displayValue: '3'),
@@ -279,7 +315,9 @@ final List<LevelData> gameLevels = [
   const LevelData(
     levelNumber: 19,
     questionType: QuestionType.Grid,
-    displayContent: 'Geometric Progression Grid',
+    category: 'Mathematical Sequence Puzzles',
+    difficulty: 'Beginner',
+    displayContent: '3×3 Grid: Doubling Progression Rows',
     nodes: [
       PuzzleNode(id: 'r1c1', displayValue: '3'),
       PuzzleNode(id: 'r1c2', displayValue: '6'),
@@ -300,6 +338,8 @@ final List<LevelData> gameLevels = [
   const LevelData(
     levelNumber: 20,
     questionType: QuestionType.Formula,
+    category: 'Formula Precedence',
+    difficulty: 'Beginner',
     displayContent: '7 + 7 ÷ 7 + 7 × 7 - 7 = ?',
     correctAnswer: '50',
     hint: 'Division (7 ÷ 7 = 1) and multiplication (7 × 7 = 49) first. Then add and subtract.',

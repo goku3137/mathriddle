@@ -23,3 +23,4 @@ class EnergyRules {
     return remaining.clamp(0, refillIntervalSeconds);
   }
 }
+

@@ -46,6 +46,8 @@ class PuzzleNode {
 class LevelData {
   final int levelNumber;
   final QuestionType questionType;
+  final String category;
+  final String difficulty;
   final String displayContent;
   final List<PuzzleNode>? nodes;
   final String correctAnswer;
@@ -55,6 +57,8 @@ class LevelData {
   const LevelData({
     required this.levelNumber,
     required this.questionType,
+    this.category = 'Formula Precedence',
+    this.difficulty = 'Beginner',
     required this.displayContent,
     this.nodes,
     required this.correctAnswer,
@@ -65,6 +69,8 @@ class LevelData {
   Map<String, dynamic> toJson() => {
     'levelNumber': levelNumber,
     'questionType': questionType.name,
+    'category': category,
+    'difficulty': difficulty,
     'displayContent': displayContent,
     if (nodes != null) 'nodes': nodes!.map((n) => n.toJson()).toList(),
     'correctAnswer': correctAnswer,
@@ -75,6 +81,8 @@ class LevelData {
   factory LevelData.fromJson(Map<String, dynamic> json) => LevelData(
     levelNumber: json['levelNumber'] as int,
     questionType: QuestionType.values.byName(json['questionType'] as String),
+    category: json['category'] as String? ?? 'Formula Precedence',
+    difficulty: json['difficulty'] as String? ?? 'Beginner',
     displayContent: json['displayContent'] as String,
     nodes: json['nodes'] != null
         ? (json['nodes'] as List<dynamic>)

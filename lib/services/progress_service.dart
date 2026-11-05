@@ -62,7 +62,24 @@ class ProgressService {
 
       if (!isValid) {
         _isTampered = true;
-        developer.log('SECURITY WARNING: Local storage signature mismatch detected! State may be tampered.', name: 'SMATH.Security');
+        developer.log('SECURITY WARNING: Local storage signature mismatch detected! Sanitizing state.', name: 'SMATH.Security');
+      }
+
+      // Verify deterministic score invariant: stored score can NEVER exceed max valid score
+      final completed = completedLevelsList;
+      final maxValidScore = SecurityService.computeMaximumValidScore(
+        completedLevels: completed,
+        completedLearnCount: completedLearnTopics.length,
+        completedChallengeCount: completedChallenges.length,
+      );
+
+      final currentScore = _safeGetInt(_keyTotalScore, 0);
+      if (currentScore > maxValidScore || !isValid) {
+        if (currentScore > maxValidScore) {
+          _isTampered = true;
+          developer.log('SECURITY WARNING: Impossible score ($currentScore > $maxValidScore) detected! Resetting to verified maximum.', name: 'SMATH.Security');
+        }
+        _prefs.setInt(_keyTotalScore, maxValidScore.clamp(0, currentScore));
       }
 
       // Initial heart sync & clock audit
@@ -120,7 +137,7 @@ class ProgressService {
   Set<int> get completedLevelsList {
     try {
       final list = _prefs.getStringList(_keyCompletedLevels) ?? [];
-      return list.map((e) => int.tryParse(e) ?? 1).toSet();
+      return list.map(int.tryParse).whereType<int>().toSet();
     } catch (_) {
       return <int>{};
     }

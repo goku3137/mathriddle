@@ -43,6 +43,10 @@ class _ChallengeScreenState extends ConsumerState<ChallengeScreen> {
 
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
       if (_secondsLeft > 0) {
         setState(() => _secondsLeft--);
       } else {
@@ -76,13 +80,16 @@ class _ChallengeScreenState extends ConsumerState<ChallengeScreen> {
       }
     } else {
       HapticFeedback.vibrate();
-      setState(() {
-        _input = '';
-      });
+      if (mounted) {
+        setState(() {
+          _input = '';
+        });
+      }
     }
   }
 
   void _showGameOverModal() {
+    if (!mounted) return;
     final totalScore = ref.read(gameControllerProvider).totalScore;
 
     showDialog(

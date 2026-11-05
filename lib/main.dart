@@ -18,6 +18,12 @@ void main() async {
     systemNavigationBarIconBrightness: Brightness.light,
   ));
 
+  // Lock to tactile, one-handed mobile portrait orientation
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
   // Initialize offline persistent progress service
   final progressService = await ProgressService.init();
 

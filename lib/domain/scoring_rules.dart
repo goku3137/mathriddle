@@ -20,3 +20,4 @@ class ScoringRules {
   /// Points awarded once upon completing a Speedrun Challenge.
   static const int pointsPerChallenge = 3;
 }
+

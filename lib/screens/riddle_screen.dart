@@ -23,6 +23,7 @@ class _RiddleScreenState extends ConsumerState<RiddleScreen>
     with TickerProviderStateMixin {
   late AnimationController _shakeController;
   late AnimationController _pulseController;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -54,19 +55,30 @@ class _RiddleScreenState extends ConsumerState<RiddleScreen>
   }
 
   Future<void> _handleSubmit() async {
+    if (_isSubmitting) return;
     final gameState = ref.read(gameControllerProvider);
+    if (gameState.isSolved) return;
     if (gameState.isOutOfHearts) {
       _showOutOfHeartsModal();
       return;
     }
 
-    final controller = ref.read(gameControllerProvider.notifier);
-    final isCorrect = await controller.validateAnswer();
+    _isSubmitting = true;
+    try {
+      final controller = ref.read(gameControllerProvider.notifier);
+      final isCorrect = await controller.validateAnswer();
 
-    if (isCorrect) {
-      _showLevelClearedModal();
-    } else {
-      _shakeController.forward(from: 0.0);
+      if (isCorrect) {
+        if (mounted) {
+          _showLevelClearedModal();
+        }
+      } else {
+        if (mounted) {
+          _shakeController.forward(from: 0.0);
+        }
+      }
+    } finally {
+      _isSubmitting = false;
     }
   }
 
@@ -339,79 +351,94 @@ class _RiddleScreenState extends ConsumerState<RiddleScreen>
     final isLowTime = gameState.remainingSeconds < 60;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Left: Back button returning to Riddle Grid
           IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: GameTheme.textWhite, size: 20),
+            padding: const EdgeInsets.all(6),
+            constraints: const BoxConstraints(),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: GameTheme.textWhite, size: 18),
             onPressed: () => Navigator.of(context).pop(),
           ),
+          const SizedBox(width: 6),
 
           // Center: LEVEL X indicator with active 5:00 countdown timer formatted as MM:SS
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'LEVEL ${gameState.currentLevel.levelNumber}',
-                style: const TextStyle(
-                  color: GameTheme.textWhite,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 2.0,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: isLowTime ? GameTheme.errorRed.withValues(alpha: 0.15) : GameTheme.surface,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: isLowTime ? GameTheme.errorRed : GameTheme.borderSubtle,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.timer_outlined,
-                      size: 14,
-                      color: isLowTime ? GameTheme.errorRed : GameTheme.amberAccent,
+          Expanded(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.center,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'LEVEL ${gameState.currentLevel.levelNumber}',
+                    style: const TextStyle(
+                      color: GameTheme.textWhite,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.5,
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      gameState.formattedTimer,
-                      style: TextStyle(
-                        color: isLowTime ? GameTheme.errorRed : GameTheme.textLight,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: isLowTime ? GameTheme.errorRed.withValues(alpha: 0.15) : GameTheme.surface,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: isLowTime ? GameTheme.errorRed : GameTheme.borderSubtle,
                       ),
                     ),
-                  ],
-                ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.timer_outlined,
+                          size: 13,
+                          color: isLowTime ? GameTheme.errorRed : GameTheme.amberAccent,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          gameState.formattedTimer,
+                          style: TextStyle(
+                            color: isLowTime ? GameTheme.errorRed : GameTheme.textLight,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
+          const SizedBox(width: 6),
 
           // Right: Heart Indicator, Score badge & Grid icon button
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const HeartIndicator(compact: true),
-              const SizedBox(width: 4),
-              const ScoreBadge(compact: true),
-              const SizedBox(width: 4),
-              IconButton(
-                icon: const Icon(Icons.grid_view_rounded, color: GameTheme.textWhite, size: 22),
-                onPressed: () {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (_) => const LevelsScreen()),
-                  );
-                },
-              ),
-            ],
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerRight,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const HeartIndicator(compact: true),
+                const SizedBox(width: 4),
+                const ScoreBadge(compact: true),
+                const SizedBox(width: 2),
+                IconButton(
+                  padding: const EdgeInsets.all(6),
+                  constraints: const BoxConstraints(),
+                  icon: const Icon(Icons.grid_view_rounded, color: GameTheme.textWhite, size: 20),
+                  onPressed: () {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (_) => const LevelsScreen()),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),

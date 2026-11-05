@@ -82,7 +82,7 @@ class ChallengeScreen extends ConsumerWidget {
                         ),
                         SizedBox(height: 4),
                         Text(
-                          'Continuous smart progression: starts with 1-digit calculations and scales to 2-digit and 3-digit every 20 streak. Runs continue indefinitely with instant feedback on incorrect answers.',
+                          'Continuous smart progression: starts with 1-digit calculations and scales to 2-digit and 3-digit after every 20 cumulative solved answers. Runs continue indefinitely with instant feedback on incorrect answers.',
                           style: TextStyle(
                             color: GameTheme.textLight,
                             fontSize: 12,

@@ -1,0 +1,25 @@
+<svg width="400" height="480" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark Background Canvas (#121418) -->
+  <rect width="400" height="480" rx="32" fill="#121418"/>
+  
+  <!-- Centered Icon Group -->
+  <g transform="translate(120, 70)">
+    <!-- Topological Outer Loop -->
+    <path d="M125 45C125 31.1929 113.807 20 100 20H55C41.1929 20 30 31.1929 30 45C30 58.8071 41.1929 70 55 70H105C118.807 70 130 81.1929 130 95C130 108.807 118.807 120 105 120H60C46.1929 120 35 108.807 35 95" 
+          stroke="#FFFFFF" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Mathematical Golden Fold -->
+    <path d="M55 20L95 70L55 120" stroke="#E5A93C" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- Solution Node -->
+    <circle cx="80" cy="70" r="6" fill="#F37A1F"/>
+    <circle cx="80" cy="70" r="10" stroke="#E5A93C" stroke-width="2" stroke-opacity="0.6"/>
+  </g>
+
+  <!-- Centered Typography Group -->
+  <g transform="translate(200, 310)" text-anchor="middle">
+    <!-- Primary Title: SMATH -->
+    <text x="0" y="0" font-family="'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif" font-size="64" font-weight="800" fill="#FFFFFF" letter-spacing="6">SMATH</text>
+    
+    <!-- Subtitle: MATH RIDDLE -->
+    <text x="0" y="36" font-family="'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif" font-size="16" font-weight="700" fill="#E5A93C" letter-spacing="8">MATH RIDDLE</text>
+  </g>
+</svg>

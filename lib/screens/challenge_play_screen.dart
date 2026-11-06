@@ -5,13 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/game_controller.dart';
 import '../data/challenge_data.dart';
 import '../features/challenges/widgets/challenge_feedback_card.dart';
+import '../features/challenges/widgets/challenge_play_app_bar.dart';
 import '../features/challenges/widgets/challenge_question_card.dart';
 import '../features/challenges/widgets/challenge_status_bar.dart';
 import '../features/challenges/widgets/challenge_timer_bar.dart';
 import '../services/sound_service.dart';
 import '../theme/game_theme.dart';
 import '../widgets/custom_keypad.dart';
-import '../widgets/score_badge.dart';
 
 
 class ChallengePlayScreen extends ConsumerStatefulWidget {
@@ -354,7 +354,6 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
   Widget build(BuildContext context) {
     final progressService = ref.watch(progressServiceProvider);
     final stats = progressService.getCategoryStats(widget.category.type);
-    final totalAttemptsForCategory = stats.attempts;
 
     return PopScope(
       canPop: false,
@@ -364,86 +363,14 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
       },
       child: Scaffold(
         backgroundColor: GameTheme.background,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: GameTheme.textWhite, size: 20),
-            onPressed: () {
-              ref.read(soundServiceProvider).playTap();
-              _handleExit();
-            },
-          ),
-        title: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Text(
-                    widget.category.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: GameTheme.textWhite,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: stats.badgeInfo.color.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: stats.badgeInfo.color.withValues(alpha: 0.4)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(stats.badgeInfo.icon, size: 10, color: stats.badgeInfo.color),
-                      const SizedBox(width: 3),
-                      Text(
-                        stats.badgeInfo.title,
-                        style: TextStyle(
-                          color: stats.badgeInfo.color,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 2),
-            Text(
-              'Played $totalAttemptsForCategory ${totalAttemptsForCategory == 1 ? 'time' : 'times'} • Best: ${stats.highestStreak} • ${stats.accuracyPercent}% ACC',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: GameTheme.textMuted,
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
-                letterSpacing: 0.4,
-              ),
-            ),
-          ],
+        appBar: ChallengePlayAppBar(
+          category: widget.category,
+          stats: stats,
+          onBack: () {
+            ref.read(soundServiceProvider).playTap();
+            _handleExit();
+          },
         ),
-        centerTitle: true,
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: Center(
-              child: ScoreBadge(compact: true),
-            ),
-          ),
-        ],
-      ),
       body: SafeArea(
         child: Column(
           children: [

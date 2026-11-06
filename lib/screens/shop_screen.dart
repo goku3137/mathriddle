@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/game_controller.dart';
+import '../features/shop/widgets/shop_tier_card.dart';
 import '../services/monetization_service.dart';
 import '../services/sound_service.dart';
 import '../theme/game_theme.dart';
@@ -90,8 +91,7 @@ class ShopScreen extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // Card 1: LIFETIME VIP (HERO / BEST VALUE TIER)
-            _buildTierCard(
-              context: context,
+            ShopTierCard(
               title: 'LIFETIME VIP PASS',
               subtitle: 'Pay Once • Unlimited Forever',
               originalPrice: '₹399 / \$9.99',
@@ -125,8 +125,7 @@ class ShopScreen extends ConsumerWidget {
             const SizedBox(height: 16),
 
             // Card 2: AD-FREE STARTER
-            _buildTierCard(
-              context: context,
+            ShopTierCard(
               title: 'AD-FREE STARTER',
               subtitle: 'Single Purchase • Lifetime Ad Removal',
               originalPrice: null,
@@ -158,8 +157,7 @@ class ShopScreen extends ConsumerWidget {
             const SizedBox(height: 16),
 
             // Card 3: 30-DAY PRO PASS (DECOY TIER)
-            _buildTierCard(
-              context: context,
+            ShopTierCard(
               title: '30-DAY PRO PASS',
               subtitle: '30 Days Full Access',
               originalPrice: null,
@@ -239,195 +237,6 @@ class ShopScreen extends ConsumerWidget {
             const SizedBox(height: 16),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildTierCard({
-    required BuildContext context,
-    required String title,
-    required String subtitle,
-    required String? originalPrice,
-    required String price,
-    required String badgeText,
-    required List<String> features,
-    required VoidCallback onPurchase,
-    required String ctaLabel,
-    bool isOwned = false,
-    bool isBestValue = false,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isBestValue ? const Color(0xFF1E212B) : GameTheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isBestValue ? GameTheme.amberAccent : GameTheme.borderCharcoal,
-          width: isBestValue ? 1.8 : 1.0,
-        ),
-        boxShadow: isBestValue
-            ? [
-                BoxShadow(
-                  color: GameTheme.amberAccent.withAlpha(25),
-                  blurRadius: 18,
-                  spreadRadius: 1,
-                  offset: const Offset(0, 4),
-                )
-              ]
-            : null,
-      ),
-      padding: const EdgeInsets.all(18),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Top Row: Title + Badge
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: isBestValue ? GameTheme.textWhite : GameTheme.textLight,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(
-                        color: GameTheme.textMuted,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: isBestValue
-                      ? GameTheme.amberAccent.withAlpha(35)
-                      : GameTheme.surfaceElevated,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: isBestValue
-                        ? GameTheme.amberAccent.withAlpha(140)
-                        : GameTheme.borderDivider,
-                  ),
-                ),
-                child: Text(
-                  badgeText,
-                  style: TextStyle(
-                    color: isBestValue ? GameTheme.amberAccent : GameTheme.primaryOrange,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.8,
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 14),
-
-          // Price Row with Strikethrough Anchor
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            children: [
-              Text(
-                price,
-                style: const TextStyle(
-                  color: GameTheme.textWhite,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0.5,
-                ),
-              ),
-              if (originalPrice != null) ...[
-                const SizedBox(width: 8),
-                Text(
-                  originalPrice,
-                  style: const TextStyle(
-                    color: GameTheme.textDim,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    decoration: TextDecoration.lineThrough,
-                    decorationColor: GameTheme.textDim,
-                  ),
-                ),
-              ],
-            ],
-          ),
-
-          const SizedBox(height: 14),
-          const Divider(color: GameTheme.borderDivider, height: 1),
-          const SizedBox(height: 14),
-
-          // Feature Checklist
-          ...features.map((feature) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.check_circle_rounded,
-                    size: 15,
-                    color: isBestValue ? GameTheme.amberAccent : GameTheme.primaryOrange,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      feature,
-                      style: const TextStyle(
-                        color: GameTheme.textLightGrey,
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w400,
-                        height: 1.3,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
-
-          const SizedBox(height: 12),
-
-          // CTA Button
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isOwned
-                    ? GameTheme.surfaceElevated
-                    : (isBestValue ? GameTheme.amberAccent : GameTheme.primaryOrange),
-                foregroundColor: isOwned
-                    ? GameTheme.textMuted
-                    : (isBestValue ? Colors.black : Colors.white),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                elevation: isBestValue ? 2 : 0,
-              ),
-              onPressed: isOwned ? null : onPurchase,
-              child: Text(
-                ctaLabel,
-                style: TextStyle(
-                  fontSize: 13.5,
-                  fontWeight: isBestValue ? FontWeight.w800 : FontWeight.w700,
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

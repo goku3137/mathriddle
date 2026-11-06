@@ -12,41 +12,34 @@ final List<Lesson> chapter4Geometry = [
     category: 'Geometry: Triangles',
     chapter: 'Chapter 4: Visual Geometry',
     chapterIndex: 4,
-    difficulty: 'Beginner to Extreme',
-    conceptSummary: 'Understand how vertex coordinates interact mathematically to produce the center target node.',
-    formula: 'Center = (Top × Left) + Right | Center = Top² + Left² - Right² | Cross: Top(Left+Right) - Left·Right',
+    difficulty: 'Intermediate',
+    conceptSummary: 'Discover how numbers at the 3 triangle corners work together to make the center number.',
+    formula: 'Corner Recipe: (Top × Left) + Right = Center | Or: Add all three corners = Center',
     whatItIs:
-        'Geometric triangle puzzles present three outer vertex nodes (Top, Bottom-Left, Bottom-Right) whose values algebraically determine the center target node according to a consistent geometric formula.',
+        'Triangle riddles show a triangle with numbers at its three corners (Top, Left, Right) and an empty box [?] in the center. Your goal is to find the rule connecting the corners to the center.',
     whyItWorks:
-        'By mapping 3 spatial inputs to a central scalar, these puzzles test spatial-relational reasoning and algebraic balance across symmetrical and asymmetrical geometric topologies.',
+        'Think of the three corners as three teammates. The puzzle combines their numbers—often multiplying the two left corners and adding the right corner—to produce the target goal in the middle.',
     howToSolveIt:
-        '1. Tier 0 (Beginner): (Top × Left) + Right = Center.\n'
-        '2. Tier 1 (Easy-Int): (Top + Right) × Left = Center.\n'
-        '3. Tier 2 (Intermediate): (Top² + Right) ÷ Left = Center.\n'
-        '4. Tier 3 (Advanced): Top² + Left² - Right² = Center (Pythagorean interaction).\n'
-        '5. Tier 4 (Expert): (Top × Left) + (Top × Right) - (Left × Right) = Center.\n'
-        '6. Tier 5 (Very Expert): (Top³ - Left²) ÷ Right = Center.\n'
-        '7. Tier 6 (Extreme Inverse): Center and Top/Right are given; isolate the missing Left vertex algebraically!',
+        '1. Step 1 (Try Adding): First, test if adding all 3 corners equals the center: Top + Left + Right.\n'
+        '2. Step 2 (Try Multiply & Add): If the center is larger, multiply Top by Left, then add Right: (Top × Left) + Right.\n'
+        '3. Step 3 (Try Squares): If the center is very large, square the corners: Top² + Left².',
     whenToUseIt:
-        'Whenever you see an equilateral triangle diagram with 3 corner numbers and a central missing number box "[?]".',
+        'Use whenever you see a triangle diagram with 3 corner numbers and a question mark in the center (from Level 151 onward in the campaign).',
     stepByStepExplanation:
-        'In SMATH geometric triangle puzzles, three outer vertex nodes (Top, Bottom-Left, Bottom-Right) determine the Center node:\n'
-        '1. Tier 0 (Beginner): (Top × Left) + Right = Center.\n'
-        '2. Tier 1 (Easy-Int): (Top + Right) × Left = Center.\n'
-        '3. Tier 2 (Intermediate): (Top² + Right) ÷ Left = Center.\n'
-        '4. Tier 3 (Advanced): Top² + Left² - Right² = Center (Pythagorean interaction).\n'
-        '5. Tier 4 (Expert): (Top × Left) + (Top × Right) - (Left × Right) = Center.\n'
-        '6. Tier 5 (Very Expert): (Top³ - Left²) ÷ Right = Center.\n'
-        '7. Tier 6 (Extreme): Inverse deduction — Center and Top/Right are given; isolate the missing Left vertex!',
+        'To crack any triangle riddle, try these 3 common corner patterns:\n'
+        '1. Add All Three: Center = Top + Left + Right.\n'
+        '2. Multiply Left Side, Add Right: Center = (Top × Left) + Right.\n'
+        '3. Divide Across: Center = (Top × Left) ÷ Right.\n\n'
+        'Tip: If the center is much bigger than the corners, multiplication or squaring is always involved!',
     workedExample:
-        'Example 1: Top=3, Left=5, Right=2 → Center [?]\n'
-        'Rule: (Top × Left) + Right = (3 × 5) + 2 = 15 + 2 = 17.\n\n'
-        'Example 2: Top=8, Left=6, Right=3 → Center [?]\n'
-        'Rule: (Top × Left) ÷ Right = (8 × 6) ÷ 3 = 48 ÷ 3 = 16.',
+        'Example: Top = 4, Left = 6, Right = 3. What is Center?\n'
+        '• Step 1: Multiply Top by Left: 4 × 6 = 24.\n'
+        '• Step 2: Add Right corner: 24 + 3 = 27.\n'
+        '• Center is 27.',
     gradedExamples: [
       WorkedExampleItem(
         difficultyLabel: 'Level 1: Beginner',
-        title: 'Mult-Add Vertex Rule',
+        title: 'Multiply Top-Left, Add Right',
         problem: 'Triangle has Top = 4, Left = 6, Right = 3. Using rule (Top × Left) + Right, Center = ?',
         stepByStepSolution:
             '• Multiply Top by Left: 4 × 6 = 24.\n'
@@ -55,17 +48,18 @@ final List<Lesson> chapter4Geometry = [
       ),
       WorkedExampleItem(
         difficultyLabel: 'Level 2: Standard',
-        title: 'Pythagorean Vertex Interaction',
-        problem: 'Top = 3, Left = 4, Right = 5. Rule is Top² + Left² - Right² + 50. Center = ?',
+        title: 'Pythagorean Triangle Legs',
+        problem: 'Right triangle with legs 3 and 4. What is the length of the hypotenuse?',
         stepByStepSolution:
-            '• 3² + 4² - 5² = 9 + 16 - 25 = 25 - 25 = 0.\n'
-            '• Center = 0 + 50 = 50.',
-        answer: '50',
+            '• Use Pythagorean theorem: a² + b² = c².\n'
+            '• 3² + 4² = 9 + 16 = 25.\n'
+            '• Take square root: √25 = 5.',
+        answer: '5',
       ),
       WorkedExampleItem(
         difficultyLabel: 'Level 3: Challenging Riddle',
-        title: 'Inverse Vertex Deduction',
-        problem: 'Top = 5, Right = 3, Center = 38. Rule: (Top × Left) + Right = Center. Find Left vertex.',
+        title: 'Finding the Missing Corner',
+        problem: 'Top = 5, Right = 3, Center = 38. Rule: (Top × Left) + Right = Center. Find Left.',
         stepByStepSolution:
             '• (5 × Left) + 3 = 38.\n'
             '• 5 × Left = 38 - 3 = 35.\n'
@@ -74,14 +68,14 @@ final List<Lesson> chapter4Geometry = [
       ),
     ],
     commonMistakes: [
-      'Assuming the operation between Top and vertices is always symmetrical addition.',
-      'Forgetting that when the target node is at a vertex (Tier 6), you must solve backward from Center.',
+      'Assuming all 3 corners are just added together. In advanced levels, check for multiplication!',
+      'When the question mark is at a corner instead of the center, remember to work backward.',
     ],
     shortcutsAndTricks: [
-      'Base Vertex Inspection: If Center is significantly larger than vertices, look for multiplication between the two largest numbers or square terms.',
+      'Corner Size Rule: If the center is big (over 20), multiply the two biggest corners first.',
     ],
     alternativeMethods: [
-      'Coordinate Equation Matrix: Write Center = a·T + b·L + c·R and solve coefficients.',
+      'Test the 4 Options: Put each multiple-choice answer into the missing box and see which one makes the arithmetic work.',
     ],
     sandboxType: SandboxDemoType.triangles,
     linkedLevels: [2, 6, 10, 14, 18, 32, 200, 312, 424],
@@ -93,18 +87,23 @@ final List<Lesson> chapter4Geometry = [
       options: ['24', '27', '30', '33'],
       stepByStepGuidance: 'Top × Left = 4 × 6 = 24. 24 + Right (3) = 27.',
       wrongOptionExplanations: {
-        '24': 'Incorrect. 24 is 4 × 6; you forgot to add the Right vertex (+3).',
-        '30': 'Incorrect. 24 + 3 is 27, not 30.',
-        '33': 'Incorrect. Check addition step.',
+        '24': 'You multiplied 4 × 6 = 24. Don\'t forget to add the Right corner (+3): 24 + 3 = 27.',
+        '30': 'Check the addition: 24 + 3 is 27, not 30.',
+        '33': 'Check the calculation: (4 × 6) = 24. 24 + 3 = 27.',
       },
     ),
     knowledgeTest: [
       PracticeQuestion(
         question: 'If Top = 5, Left = 4, Right = 2, and Center = (Top × Left) - Right, what is Center?',
         correctAnswer: '18',
-        hint: '5 × 4 = 20. 20 - 2 = ?',
-        explanation: '20 - 2 = 18.',
+        hint: 'Multiply Top and Left: 5 × 4 = 20. Then subtract Right: 20 - 2 = ?',
+        explanation: '5 × 4 = 20. 20 - 2 = 18.',
         options: ['16', '18', '20', '22'],
+        wrongOptionExplanations: {
+          '16': '5 × 4 = 20. 20 - 2 = 18.',
+          '20': 'You found 5 × 4 = 20. Now subtract Right (2): 20 - 2 = 18.',
+          '22': 'The formula says subtract Right (-2), not add it! 20 - 2 = 18.',
+        },
       ),
     ],
     icon: Icons.change_history_rounded,
@@ -117,41 +116,34 @@ final List<Lesson> chapter4Geometry = [
     category: 'Geometry: Intersecting Circles',
     chapter: 'Chapter 4: Visual Geometry',
     chapterIndex: 4,
-    difficulty: 'Beginner to Extreme',
-    conceptSummary: 'Understand arithmetic means, geometric roots, harmonic means, and GCD in overlapping circular regions.',
-    formula: 'Mean: (A + B)/2 | Geometric: √(A · B) | Harmonic: 2AB / (A + B) | Difference-Sq: (A - B)²',
+    difficulty: 'Intermediate',
+    conceptSummary: 'Understand how numbers in two overlapping circles combine into the shared center region.',
+    formula: 'Circle Overlap: Average = (Left + Right) ÷ 2 | Or Geometric: √(Left × Right)',
     whatItIs:
-        'Intersecting circle puzzles display two overlapping circular regions (Left and Right) sharing a central intersection area whose value is synthesized from both circles.',
+        'Intersecting circle riddles display two circles that overlap like a Venn diagram. Each outer circle has a number, and they share a common number in the middle overlap.',
     whyItWorks:
-        'Venn and Euler diagrams represent intersection as a shared set. In numeric circles, the overlap mathematically symbolizes shared properties (such as common divisors, geometric means, or arithmetic averages).',
+        'The overlap represents the bridge between both circles. In mathematical riddles, this bridge is usually the average of the two circles, the square root of their product, or the squared difference.',
     howToSolveIt:
-        '1. Arithmetic Mean: Center = (Left + Right) / 2.\n'
-        '2. Geometric Mean: Center = √(Left × Right).\n'
-        '3. Difference Squared: Center = (Left - Right)².\n'
-        '4. Product Minus Sum: Center = (Left × Right) - (Left + Right).\n'
-        '5. Harmonic Mean: Center = 2·Left·Right / (Left + Right).\n'
-        '6. Greatest Common Divisor: Center = gcd(Left, Right).',
+        '1. Step 1 (Check Average): Add both outer numbers and divide by 2: (Left + Right) ÷ 2.\n'
+        '2. Step 2 (Check Difference Squared): Subtract the two numbers, then square the result: (Left - Right)².\n'
+        '3. Step 3 (Check Square Root): Multiply both numbers, then take the square root: √(Left × Right).',
     whenToUseIt:
-        'Look for two overlapping circles drawn on screen with values in Left, Right, and "?" in the center overlap.',
+        'Use whenever you see two overlapping circles with a question mark in the center intersection.',
     stepByStepExplanation:
-        'In SMATH intersecting circle riddles, two outer circles (Left and Right) overlap to define the Center intersection:\n'
-        '1. Arithmetic Mean: Center = (Left + Right) / 2.\n'
-        '2. Geometric Mean: Center = √(Left × Right).\n'
-        '3. Difference Squared: Center = (Left - Right)².\n'
-        '4. Product Minus Sum: Center = (Left × Right) - (Left + Right).\n'
-        '5. Harmonic Mean: Center = (2 × Left × Right) / (Left + Right).\n'
-        '6. Greatest Common Divisor: Center = gcd(Left, Right).\n'
-        '7. Quadratic Symmetric Form: Center = Left² + Right² + (Left × Right).',
+        'Here are the 3 most common rules for overlapping circles:\n'
+        '1. Average Rule: Add them together and divide by 2: (12 + 18) ÷ 2 = 15.\n'
+        '2. Difference Squared: (15 - 8)² = 7² = 49.\n'
+        '3. Square Root of Product: If Left is 9 and Right is 16: 9 × 16 = 144. √144 = 12!',
     workedExample:
-        'Example 1: Left=9, Right=16 → Overlap [?]\n'
-        'Rule: √(Left × Right) = √(9 × 16) = √144 = 12.\n\n'
-        'Example 2: Left=15, Right=8 → Overlap [?]\n'
-        'Rule: (Left - Right)² = (15 - 8)² = 7² = 49.',
+        'Example: Left = 12, Right = 18. What is Center?\n'
+        '• Rule: Center is the average (mean) of the two circles.\n'
+        '• Add them: 12 + 18 = 30.\n'
+        '• Divide by 2: 30 ÷ 2 = 15.',
     gradedExamples: [
       WorkedExampleItem(
         difficultyLabel: 'Level 1: Beginner',
-        title: 'Arithmetic Mean Center',
-        problem: 'Circles have Left = 12, Right = 18. Center is arithmetic mean. Find Center.',
+        title: 'Average (Mean) Center',
+        problem: 'Circles have Left = 12, Right = 18. Center is the average. Find Center.',
         stepByStepSolution:
             '• Sum outer circles: 12 + 18 = 30.\n'
             '• Divide by 2: 30 ÷ 2 = 15.',
@@ -159,8 +151,8 @@ final List<Lesson> chapter4Geometry = [
       ),
       WorkedExampleItem(
         difficultyLabel: 'Level 2: Standard',
-        title: 'Geometric Mean Center',
-        problem: 'Circles have Left = 9, Right = 16. Center is geometric mean. Find Center.',
+        title: 'Square Root of Product (Geometric Mean)',
+        problem: 'Circles have Left = 9, Right = 16. Center is √(Left × Right). Find Center.',
         stepByStepSolution:
             '• Multiply outer circles: 9 × 16 = 144.\n'
             '• Take square root: √144 = 12.',
@@ -168,7 +160,7 @@ final List<Lesson> chapter4Geometry = [
       ),
       WorkedExampleItem(
         difficultyLabel: 'Level 3: Challenging Riddle',
-        title: 'Difference-Squared Center',
+        title: 'Difference Squared',
         problem: 'Circles have Left = 15, Right = 8. Center is (Left - Right)². Find Center.',
         stepByStepSolution:
             '• Subtract Right from Left: 15 - 8 = 7.\n'
@@ -177,13 +169,13 @@ final List<Lesson> chapter4Geometry = [
       ),
     ],
     commonMistakes: [
-      'Assuming overlap is always addition or subtraction without checking for roots or squares.',
+      'Assuming the overlap is always simple addition. If the middle number is smaller than both, look for subtraction or square roots!',
     ],
     shortcutsAndTricks: [
-      'Square Clue: If the center value is a perfect square (e.g. 16, 25, 49, 64), immediately test (Left - Right)²!',
+      'Square Clue: If the center is a square number like 25, 36, or 49, subtract the outer numbers and square the result!',
     ],
     alternativeMethods: [
-      'Test Integer Square Roots: If Left and Right are themselves perfect squares (e.g. 9 and 16), then √(L × R) = √L × √R = 3 × 4 = 12.',
+      'Quick Bounds: The average of 12 and 18 must be right in the middle (15), exactly 3 away from each number.',
     ],
     sandboxType: SandboxDemoType.circles,
     linkedLevels: [4, 8, 12, 16, 24, 38, 150, 290],
@@ -195,18 +187,23 @@ final List<Lesson> chapter4Geometry = [
       options: ['14', '15', '16', '18'],
       stepByStepGuidance: '(12 + 18) / 2 = 30 / 2 = 15.',
       wrongOptionExplanations: {
-        '14': 'Incorrect. 30 ÷ 2 = 15, not 14.',
-        '16': 'Incorrect. Off by one.',
-        '18': 'Incorrect. 18 is the right circle value, not the average.',
+        '14': '30 ÷ 2 = 15, not 14.',
+        '16': 'Close! 12 + 18 = 30. 30 ÷ 2 is 15.',
+        '18': '18 is the value of the right circle. The average is (12 + 18) ÷ 2 = 15.',
       },
     ),
     knowledgeTest: [
       PracticeQuestion(
         question: 'Left = 4, Right = 9. If Center is the geometric mean √(L × R), Center = ?',
         correctAnswer: '6',
-        hint: '4 × 9 = 36. √36 = ?',
+        hint: 'Multiply 4 × 9 = 36. What is the square root of 36?',
         explanation: '√(4 × 9) = √36 = 6.',
         options: ['4', '5', '6', '7'],
+        wrongOptionExplanations: {
+          '4': '4 × 9 = 36. The square root of 36 is 6 (since 6 × 6 = 36).',
+          '5': '5 × 5 = 25, but 4 × 9 = 36.',
+          '7': '7 × 7 = 49. We need √36 = 6.',
+        },
       ),
     ],
     icon: Icons.donut_large_rounded,

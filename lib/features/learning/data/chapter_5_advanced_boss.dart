@@ -12,37 +12,34 @@ final List<Lesson> chapter5AdvancedBoss = [
     category: 'Matrices & Grids',
     chapter: 'Chapter 5: Advanced Synthesis & Boss Mastery',
     chapterIndex: 5,
-    difficulty: 'Beginner to Extreme',
-    conceptSummary: 'Master 3×3 grid patterns including row/column products, magic sums, and 2×2 determinant kernels.',
-    formula: 'Row_Product: Col1 × Col2 = Col3 | Diagonal: a11 × a22 × a33 | Kernel: det = ad - bc',
+    difficulty: 'Intermediate',
+    conceptSummary: 'Crack 3×3 grid puzzles by checking row rules, column rules, and magic square sums.',
+    formula: 'Grid Rule: Check Row 1: Col 1 × Col 2 = Col 3 | Or check if all rows sum to the same number!',
     whatItIs:
-        'Matrix and 3×3 grid riddles structure numbers into rows, columns, and diagonals where consistent algebraic transformations govern transitions across dimensions.',
+        'A matrix puzzle is a 3×3 grid of 9 boxes. Eight boxes contain numbers, and one box has a question mark [?]. Your goal is to spot the pattern across the rows or columns to find the missing number.',
     whyItWorks:
-        'Linear algebra organizes simultaneous data into rows and columns. Relationships like row products, constant trace sums, and 2×2 sub-determinants allow multiple verification paths.',
+        'In a grid, numbers connect in straight lines. If Row 1 multiplies (3 × 4 = 12) and Row 2 multiplies (5 × 6 = 30), then Row 3 is guaranteed to follow the exact same rule (7 × 8 = 56)!',
     howToSolveIt:
-        '1. Check Horizontal Rows: Col 1 × Col 2 = Col 3 or Col 1 + Col 2 = Col 3.\n'
-        '2. Check Vertical Columns: Row 1 × Row 2 = Row 3.\n'
-        '3. Check Magic Constant Sum: Do all rows and columns add up to the same number?\n'
-        '4. Check Main Diagonal: Look along top-left to bottom-right diagonal.',
+        '1. Step 1 (Check Rows): Look across Row 1 from left to right. Do the first two boxes add or multiply to make the third box?\n'
+        '2. Step 2 (Check Columns): If rows don\'t show a rule, look down each column from top to bottom.\n'
+        '3. Step 3 (Check Magic Sums): Do all three numbers in each row add up to the same target (like 15)?\n'
+        '4. Step 4 (Apply to Row 3): Once you confirm the rule in both Row 1 and Row 2, apply it to find [?].',
     whenToUseIt:
-        'Whenever a 3×3 grid of 9 cells is displayed with numbers in 8 cells and a "?" in the remaining cell.',
+        'Use whenever you see a 3×3 square grid of numbers with an empty box.',
     stepByStepExplanation:
-        'A 3×3 matrix puzzle can embed patterns across rows, columns, or diagonals:\n'
-        '1. Horizontal Row Product: In each row, Column 1 × Column 2 = Column 3.\n'
-        '2. Magic Constant Sum: All rows and columns sum to a constant target S.\n'
-        '3. Sum & Double: (Col 1 + Col 2) × 2 = Col 3.\n'
-        '4. Vertical Column Multipliers: Row 1 × Row 2 = Row 3 in each column.\n'
-        '5. Diagonal Product: Multiply the three elements along the main diagonal from top-left to bottom-right: a₁₁ × a₂₂ × a₃₃.\n'
-        '6. Determinant Kernel: Upper-left 2×2 kernel determinant: (a·d) - (b·c).',
+        'To solve any 3×3 grid puzzle, test these 3 simple possibilities:\n'
+        '1. Row Multipliers: Column 1 × Column 2 = Column 3 (e.g. 2 × 5 = 10).\n'
+        '2. Magic Constant Sum: Every row adds up to 15 (e.g. 8 + 1 + 6 = 15).\n'
+        '3. Sum & Double: Add the first two boxes, then double the answer: (Col 1 + Col 2) × 2 = Col 3.',
     workedExample:
-        'Example: 3×3 Grid with Row 1 = [3, 4, 12], Row 2 = [5, 6, 30], Row 3 = [7, 8, ?]\n'
-        'Row 1: 3 × 4 = 12.\n'
-        'Row 2: 5 × 6 = 30.\n'
-        'Row 3: 7 × 8 = 56.',
+        'Example: Row 1 = [3, 4, 12], Row 2 = [5, 6, 30], Row 3 = [7, 8, ?]\n'
+        '• Look across Row 1: 3 × 4 = 12.\n'
+        '• Check Row 2: 5 × 6 = 30. The rule is confirmed!\n'
+        '• Apply to Row 3: 7 × 8 = 56.',
     gradedExamples: [
       WorkedExampleItem(
         difficultyLabel: 'Level 1: Beginner',
-        title: 'Row Product Rule',
+        title: 'Row Multiplication Rule',
         problem: 'Row 1 = [2, 5, 10], Row 2 = [3, 4, 12], Row 3 = [4, 6, ?]. Find ?.',
         stepByStepSolution:
             '• Row 1: 2 × 5 = 10.\n'
@@ -52,33 +49,34 @@ final List<Lesson> chapter5AdvancedBoss = [
       ),
       WorkedExampleItem(
         difficultyLabel: 'Level 2: Standard',
-        title: 'Magic Matrix Sum 15',
+        title: 'Magic Sum of 15',
         problem: 'Row 1 = [8, 1, 6], Row 2 = [3, 5, 7], Row 3 = [4, 9, ?]. All rows sum to 15. Find ?.',
         stepByStepSolution:
-            '• Row 3 sum: 4 + 9 + ? = 15.\n'
-            '• 13 + ? = 15 ⇒ ? = 2.\n'
-            '• Verify Column 3: 6 + 7 + 2 = 15 (Consistent!).',
+            '• Row 3 sum must equal 15:\n'
+            '• 4 + 9 + ? = 15\n'
+            '• 13 + ? = 15 ⇒ ? = 2.',
         answer: '2',
       ),
       WorkedExampleItem(
         difficultyLabel: 'Level 3: Challenging Riddle',
-        title: '2×2 Determinant Kernel',
-        problem: '2×2 matrix kernel [a, b; c, d] has a=5, b=2, c=7, d=4. det = ad - bc = ?',
+        title: '2×2 Cross Multiplication (Determinant)',
+        problem: 'In a 2×2 box [a, b; c, d] where a=5, b=2, c=7, d=4, rule is (a × d) - (b × c). Value = ?',
         stepByStepSolution:
-            '• Cross multiply main diagonal: 5 × 4 = 20.\n'
-            '• Cross multiply off diagonal: 2 × 7 = 14.\n'
-            '• Determinant: 20 - 14 = 6.',
+            '• Multiply diagonal 1: 5 × 4 = 20.\n'
+            '• Multiply diagonal 2: 2 × 7 = 14.\n'
+            '• Subtract: 20 - 14 = 6.',
         answer: '6',
       ),
     ],
     commonMistakes: [
-      'Assuming patterns must only be horizontal; check vertical columns if rows show no consistent rule.',
+      'Checking only Row 1 and guessing: always make sure the rule works in BOTH Row 1 and Row 2 before solving Row 3.',
+      'Only looking horizontally: sometimes numbers connect vertically in columns!',
     ],
     shortcutsAndTricks: [
-      'Row 1 / Row 2 Verification: Always verify your suspected rule on BOTH Row 1 and Row 2 before applying to Row 3.',
+      'Two-Row Verification: If a rule works in Row 1 AND Row 2, it is 100% the intended answer for Row 3.',
     ],
     alternativeMethods: [
-      'Transpose Inspection: Look at the grid with rows as columns if you are stuck.',
+      'Turn it into an equation: Write Col 1 [op] Col 2 = Col 3 and find the operation that fits.',
     ],
     sandboxType: SandboxDemoType.matrices,
     linkedLevels: [3, 11, 15, 35, 49, 105, 399, 497],
@@ -90,18 +88,23 @@ final List<Lesson> chapter5AdvancedBoss = [
       options: ['20', '22', '24', '26'],
       stepByStepGuidance: 'In each row, Col 1 × Col 2 = Col 3. Row 3 has Col 1 = 4 and Col 2 = 6. 4 × 6 = 24.',
       wrongOptionExplanations: {
-        '20': 'Incorrect. 4 × 6 = 24, not 20.',
-        '22': 'Incorrect. Check multiplication table for 4 × 6.',
-        '26': 'Incorrect. Did you add 4 + 6 and multiply by something?',
+        '20': '4 × 6 = 24, not 20.',
+        '22': 'Check your 4 times table: 4 × 6 = 24.',
+        '26': '4 × 6 = 24.',
       },
     ),
     knowledgeTest: [
       PracticeQuestion(
         question: 'Row 1 = [3, 3, 9], Row 2 = [4, 4, 16], Row 3 = [5, 5, ?]. What is ?',
         correctAnswer: '25',
-        hint: 'Column 1 × Column 2 = Column 3.',
+        hint: 'Multiply Column 1 by Column 2: 5 × 5 = ?',
         explanation: '5 × 5 = 25.',
         options: ['15', '20', '25', '30'],
+        wrongOptionExplanations: {
+          '15': '5 × 5 = 25 (not 5 + 5 + 5).',
+          '20': '5 × 5 = 25.',
+          '30': '5 × 5 = 25.',
+        },
       ),
     ],
     icon: Icons.grid_3x3_rounded,
@@ -114,73 +117,69 @@ final List<Lesson> chapter5AdvancedBoss = [
     category: 'Money & Shopping',
     chapter: 'Chapter 5: Advanced Synthesis & Boss Mastery',
     chapterIndex: 5,
-    difficulty: 'Beginner to Extreme',
-    conceptSummary: 'Solve unit pricing, percentage discounts, coin exchanges, profit margins, and promotional bundles.',
-    formula: 'Discount = Price × (1 - d%) | Cost = Sell / (1 + p%) | Bundles: Paid = Total - ⌊Total / Bundle⌋',
+    difficulty: 'Easy–Intermediate',
+    conceptSummary: 'Master discounts, sales tax, unit pricing, and "Buy 2 Get 1 Free" store deals.',
+    formula: 'Discount Shortcut: 20% off means you pay 80% | 10% off is just moving the decimal point one spot left!',
     whatItIs:
-        'Commercial mathematics applies proportional reasoning, percentage discounts, simultaneous pricing, and promotional bundles to real-world consumer scenarios.',
+        'Shopping riddles test practical math you use every day in stores: calculating discounts, comparing prices, and working out special promotions like "Buy 2 Get 1 Free".',
     whyItWorks:
-        'Percentages represent fractions of 100. A discount of d% leaves (100 - d)% of the price to be paid, allowing direct single-multiplier calculation: Final = Price × (1 - d/100).',
+        'A discount is money you get to keep in your pocket! If a store gives 25% off an \$80 jacket, they are taking off one-quarter (\$20), meaning you only pay \$60.',
     howToSolveIt:
-        '1. Percentage Discount: \$P with d% off = \$P × (1 - d/100).\n'
-        '2. Buy N Get 1 Free: In every group of (N + 1) items, 1 item is free. Free items = ⌊Total / (N + 1)⌋.\n'
-        '3. Simultaneous Orders: If 1 Coffee + 1 Donut = \$C1 and 2 Coffees + 1 Donut = \$C2, subtract to isolate 1 Coffee = \$C2 - \$C1.',
+        '1. Step 1 (Find 10% Fast): Move the decimal point one place left (10% of \$80 is \$8). For 20%, double it (\$16)!\n'
+        '2. Step 2 (25% Shortcut): 25% is just dividing by 4. So 25% off \$80 is \$80 ÷ 4 = \$20 off.\n'
+        '3. Step 3 (Buy N Get 1 Free): Group items into bundles. In "Buy 2 Get 1 Free", every 3 items gives 1 free item.',
     whenToUseIt:
-        'Look for dollar/cent signs, shopping items, discounts, or promotional deals ("Buy 3 Get 1 Free").',
+        'Use whenever riddles mention dollars, discounts, shopping carts, or special bundle offers.',
     stepByStepExplanation:
-        'Shopping riddles test practical commercial reasoning:\n'
-        '1. Unit Price Scaling: Find the cost of 1 unit first by dividing total cost by quantity. Multiply by target quantity.\n'
-        '2. Percentage Discount: A 25% discount means paying (100% - 25%) = 75% of original price.\n'
-        '3. Simultaneous Pricing: 1 Coffee + 1 Donut = \$C1, 2 Coffees + 1 Donut = \$C2. The difference (\$C2 - \$C1) is the price of 1 Coffee!\n'
-        '4. Coin Denominations: Dimes (10¢) and Nickels (5¢). If all were nickels, they would total Coins × 5¢. Any excess cents must come from dimes (+5¢ each).\n'
-        '5. Buy N Get 1 Free: For every (N + 1) items, 1 item is free. Quantity paid = Total - ⌊Total / (N + 1)⌋.',
+        'Practical shopping math shortcuts:\n'
+        '1. 10% Shortcut: Shift decimal left once: 10% of \$60 = \$6.\n'
+        '2. 20% Shortcut: Double the 10%: \$6 × 2 = \$12 discount. Final price = \$60 - \$12 = \$48.\n'
+        '3. Buy 2 Get 1 Free: For 6 items, you get two sets of 3. In each set of 3, you only pay for 2. Total paid = 4 items!',
     workedExample:
-        'Example: Buy 3 get 1 free at \$10 each. What is the minimum cost for 11 items?\n'
-        'Every 4 items gives 1 free. For 11 items:\n'
-        '• 11 ÷ 4 = 2 free items (with 3 remaining).\n'
-        '• Paid items = 11 - 2 = 9 items.\n'
-        '• Total cost = 9 × \$10 = \$90.',
+        'Example: A jacket originally costs \$80 and has a 25% discount. What is the final price?\n'
+        '• 25% means one-quarter (1/4).\n'
+        '• Discount = \$80 ÷ 4 = \$20.\n'
+        '• Final price = \$80 - \$20 = \$60.',
     gradedExamples: [
       WorkedExampleItem(
         difficultyLabel: 'Level 1: Beginner',
-        title: 'Percentage Discount Calculation',
+        title: 'Percentage Discount',
         problem: 'A \$80 jacket has a 25% discount. What is the final price?',
         stepByStepSolution:
-            '• 25% = 1/4. Discount amount: \$80 × 0.25 = \$20.\n'
+            '• 25% = 1/4 of \$80 = \$20 discount.\n'
             '• Final price: \$80 - \$20 = \$60.',
         answer: '60',
       ),
       WorkedExampleItem(
         difficultyLabel: 'Level 2: Standard',
-        title: 'Promotional Bundle Logic',
-        problem: 'Books cost \$10 each. Special deal: Buy 3 Get 1 Free! What is cost for 11 books?',
+        title: 'Buy 3 Get 1 Free Bundle',
+        problem: 'Books cost \$10 each. Deal: Buy 3 Get 1 Free! What is the cost for 11 books?',
         stepByStepSolution:
             '• Every 4 books includes 1 free book.\n'
-            '• 11 ÷ 4 = 2 sets of 4 books (2 free books), plus 3 extra books.\n'
-            '• Total paid books = 11 - 2 = 9 books.\n'
+            '• 11 ÷ 4 = 2 groups of 4 (so 2 free books), plus 3 extra books.\n'
+            '• Paid books = 11 - 2 = 9 books.\n'
             '• Total cost = 9 × \$10 = \$90.',
         answer: '90',
       ),
       WorkedExampleItem(
         difficultyLabel: 'Level 3: Challenging Riddle',
-        title: 'Simultaneous Item Pricing',
-        problem: '2 coffees and 3 muffins cost \$24. 2 coffees and 1 muffin cost \$16. Find price of 1 coffee.',
+        title: 'Comparing Two Store Orders',
+        problem: '2 coffees and 3 muffins cost \$24. 2 coffees and 1 muffin cost \$16. How much is 1 coffee?',
         stepByStepSolution:
-            '• Subtract equations: 2 muffins = \$24 - \$16 = \$8.\n'
+            '• Compare orders: the first order has 2 extra muffins for \$24 - \$16 = \$8.\n'
             '• 1 muffin = \$4.\n'
-            '• Substitute into second equation: 2 coffees + \$4 = \$16 ⇒ 2 coffees = \$12 ⇒ 1 coffee = \$6.',
+            '• Now find coffee: 2 coffees + \$4 = \$16 ⇒ 2 coffees = \$12 ⇒ 1 coffee = \$6.',
         answer: '6',
       ),
     ],
     commonMistakes: [
-      'Applying two successive discounts (e.g. 20% off, then 10% off) by adding them as 30%—they must be multiplied successively: (0.80 × 0.90 = 0.72 = 28% off).',
+      'Adding two discounts together: A 20% discount followed by a 10% discount is NOT 30% off! The second discount is calculated on the already reduced price.',
     ],
     shortcutsAndTricks: [
-      '25% is 1/4: Divide price by 4 to get discount, or multiply by 0.75 for final price.',
-      '10% Rule: Shift decimal left by 1 digit for 10%, then double for 20% or halve for 5%.',
+      'The 10% Rule: To find 10% of anything, just drop the last zero or move the decimal point!',
     ],
     alternativeMethods: [
-      'Fraction Multiplier: \$80 × (3/4) = \$60 in one mental step.',
+      'Multiply by remaining percent: 25% off means you pay 75%. \$80 × 0.75 = \$60.',
     ],
     sandboxType: SandboxDemoType.money,
     linkedLevels: [22, 36, 50, 64, 106, 204, 400],
@@ -192,9 +191,9 @@ final List<Lesson> chapter5AdvancedBoss = [
       options: ['55', '60', '65', '70'],
       stepByStepGuidance: 'Find 25% of 80: 80 / 4 = 20. Subtract discount: 80 - 20 = 60.',
       wrongOptionExplanations: {
-        '55': 'Incorrect. 80 - 20 = 60, not 55.',
-        '65': 'Incorrect. Off by five.',
-        '70': 'Incorrect. Did you deduct only 10 dollars?',
+        '55': 'Check your subtraction: 80 - 20 = 60, not 55.',
+        '65': '80 - 20 = 60.',
+        '70': 'You only deducted \$10! A 25% discount is \$20 off: 80 - 20 = 60.',
       },
     ),
     knowledgeTest: [
@@ -204,6 +203,11 @@ final List<Lesson> chapter5AdvancedBoss = [
         hint: 'Every 3 items gives 1 free. For 6 items, 2 are free. You pay for 4 items.',
         explanation: '4 paid items × \$5 = \$20.',
         options: ['15', '20', '25', '30'],
+        wrongOptionExplanations: {
+          '15': 'For 6 items, 2 are free, so 4 are paid: 4 × \$5 = \$20.',
+          '25': 'You pay for 4 items: 4 × \$5 = \$20.',
+          '30': '30 would be paying for all 6 items without using the discount!',
+        },
       ),
     ],
     icon: Icons.monetization_on_rounded,
@@ -216,39 +220,35 @@ final List<Lesson> chapter5AdvancedBoss = [
     category: 'Final Boss',
     chapter: 'Chapter 5: Advanced Synthesis & Boss Mastery',
     chapterIndex: 5,
-    difficulty: 'Final Boss (Ultimate)',
-    conceptSummary: 'Synthesize geometry, matrix diagonals, Fibonacci recurrences, and lateral operators into one equation.',
-    formula: 'Singularity: (Δ[v1, v2, v3] × ⊞[Diagonal_Sum]) - F(10) = 575',
+    difficulty: 'Advanced',
+    conceptSummary: 'Learn how to conquer the final boss puzzle by breaking it down into 3 easy pieces.',
+    formula: 'Boss Strategy: Break the giant puzzle into 3 small steps, solve each one, then combine them!',
     whatItIs:
-        'Level 500 represents the Grand Singularity boss puzzle of SMATH, which unifies geometry, linear algebra, recurrences, and precedence into a single interconnected mathematical engine.',
+        'Level 500 is the grand finale of SMATH! It combines shapes, grid diagonals, and sequences into one thrilling ultimate riddle.',
     whyItWorks:
-        'Complex engineering systems are networks of mathematical components. The Grand Singularity tests whether you can decompose a multi-layered composite equation into its constituent modules and execute them flawlessly.',
+        'Big, intimidating puzzles are just small, easy puzzles glued together! By solving one piece at a time, what looks impossible becomes simple.',
     howToSolveIt:
-        '1. Stage 1 (Triangle Vertex Engine): The notation Δ[7, 8, 4] instructs: multiply the base vertices and divide by the top vertex: (7 × 8) ÷ 4 = 56 ÷ 4 = 14.\n'
-        '2. Stage 2 (Matrix Kernel Diagonal): The notation ⊞[Diag 12, 15, 18] instructs: sum the main diagonal of the 3×3 matrix: 12 + 15 + 18 = 45.\n'
-        '3. Stage 3 (Fibonacci Harmonic): F(10) represents the 10th Fibonacci number: 1, 1, 2, 3, 5, 8, 13, 21, 34, 55. F(10) = 55.\n'
-        '4. Final Synthesis: Combine all stages following BODMAS precedence:\n'
-        '   (14 × 45) - 55 = 630 - 55 = 575.',
+        '1. Step 1 (Triangle Piece): Multiply the bottom numbers and divide by the top number: (7 × 8) ÷ 4 = 56 ÷ 4 = 14.\n'
+        '2. Step 2 (Grid Diagonal Piece): Add the diagonal numbers: 12 + 15 + 18 = 45.\n'
+        '3. Step 3 (Combine with Precedence): Multiply Piece 1 by Piece 2, then subtract the Fibonacci number 55:\n'
+        '   (14 × 45) - 55 = 630 - 55 = 575!',
     whenToUseIt:
-        'Reserved exclusively for the Ultimate Boss Level 500.',
+        'Use when facing Level 500 or any multi-step challenge riddle.',
     stepByStepExplanation:
-        'Level 500 represents the culmination of all puzzle concepts in SMATH. To defeat the Final Boss:\n'
-        '1. Stage 1 (Triangle Vertex Engine): The notation Δ[7, 8, 4] instructs: multiply the base vertices and divide by the top vertex: (7 × 8) ÷ 4 = 56 ÷ 4 = 14.\n'
-        '2. Stage 2 (Matrix Kernel Diagonal): The notation ⊞[Diag 12, 15, 18] instructs: sum the main diagonal of the 3×3 matrix: 12 + 15 + 18 = 45.\n'
-        '3. Stage 3 (Fibonacci Harmonic): F(10) represents the 10th Fibonacci number: 1, 1, 2, 3, 5, 8, 13, 21, 34, 55. F(10) = 55.\n'
-        '4. Final Synthesis: Combine all stages following BODMAS precedence:\n'
-        '   (14 × 45) - 55 = 630 - 55 = 575.',
+        'Here is the complete blueprint to defeat the Final Boss:\n'
+        '• Piece 1 (Triangle): (7 × 8) ÷ 4 = 14.\n'
+        '• Piece 2 (Grid Trace): 12 + 15 + 18 = 45.\n'
+        '• Piece 3 (Fibonacci): The 10th number in the sequence 1, 1, 2, 3, 5, 8, 13, 21, 34, 55 is 55.\n'
+        '• Combine: (14 × 45) - 55 = 630 - 55 = 575.',
     workedExample:
-        'BOSS Equation: (Δ[7,8,4] × ⊞[Diag 12,15,18]) - F(10) = ?\n'
-        '• Stage 1 (Δ): (7 × 8) ÷ 4 = 14\n'
-        '• Stage 2 (⊞): 12 + 15 + 18 = 45\n'
-        '• Stage 3 (F): F(10) = 55\n'
-        '• Grand Singularity: 14 × 45 = 630. 630 - 55 = 575.',
+        'Example: Solve (14 × 45) - 55 = ?\n'
+        '• Step 1: Multiply first: 14 × 45 = 630.\n'
+        '• Step 2: Subtract: 630 - 55 = 575.',
     gradedExamples: [
       WorkedExampleItem(
         difficultyLabel: 'Level 1: Beginner',
-        title: 'Component 1 (Triangle Kernel)',
-        problem: 'Evaluate Δ[7, 8, 4] = (7 × 8) ÷ 4.',
+        title: 'Piece 1 (Triangle Corner Math)',
+        problem: 'Evaluate (7 × 8) ÷ 4.',
         stepByStepSolution:
             '• 7 × 8 = 56.\n'
             '• 56 ÷ 4 = 14.',
@@ -256,32 +256,31 @@ final List<Lesson> chapter5AdvancedBoss = [
       ),
       WorkedExampleItem(
         difficultyLabel: 'Level 2: Standard',
-        title: 'Component 2 & 3 (Matrix Trace & Fibonacci)',
-        problem: 'Evaluate Trace 12 + 15 + 18 and 10th Fibonacci number F(10).',
+        title: 'Piece 2 (Diagonal Addition)',
+        problem: 'Add the three diagonal numbers: 12 + 15 + 18.',
         stepByStepSolution:
-            '• Trace: 12 + 15 + 18 = 45.\n'
-            '• F(10) = 55 (from sequence 1, 1, 2, 3, 5, 8, 13, 21, 34, 55).',
-        answer: '45 and 55',
+            '• 12 + 15 = 27.\n'
+            '• 27 + 18 = 45.',
+        answer: '45',
       ),
       WorkedExampleItem(
         difficultyLabel: 'Level 3: Challenging Riddle',
-        title: 'Full Grand Singularity Synthesis',
+        title: 'Final Boss Synthesis',
         problem: '(14 × 45) - 55 = ?',
         stepByStepSolution:
             '• Multiplication first: 14 × 45 = 630.\n'
-            '• Subtraction: 630 - 55 = 575.',
+            '• Subtract 55: 630 - 55 = 575.',
         answer: '575',
       ),
     ],
     commonMistakes: [
-      'Subtracting 55 from 45 before multiplying by 14 (severe BODMAS violation!).',
-      'Miscounting the Fibonacci sequence terms (F(1)=1, F(2)=1, F(3)=2... F(10)=55).',
+      'Subtracting 55 from 45 before multiplying by 14: Remember BODMAS! Always multiply 14 × 45 first.',
     ],
     shortcutsAndTricks: [
-      'Mental Multiplication of 14 × 45: Halve and double! 14 × 45 = 7 × 90 = 630 in 2 seconds flat.',
+      'Fast Mental Multiplication: 14 × 45 is the same as 7 × 90 = 630!',
     ],
     alternativeMethods: [
-      'Modular Arithmetic: Compute (14 × 45 - 55) mod 10 = (4 × 5 - 5) mod 10 = 0 - 5 = 5. The answer must end in 5!',
+      'Solve in bite-sized chunks: Write down the answer to each piece, then do the final line.',
     ],
     sandboxType: SandboxDemoType.finalBoss,
     linkedLevels: [500],
@@ -293,18 +292,23 @@ final List<Lesson> chapter5AdvancedBoss = [
       options: ['525', '565', '575', '600'],
       stepByStepGuidance: '14 × 45 = 630. 630 - 55 = 575.',
       wrongOptionExplanations: {
-        '525': 'Incorrect. 630 - 55 = 575.',
-        '565': 'Incorrect. Off by ten.',
-        '600': 'Incorrect. Check arithmetic 630 - 55 = 575.',
+        '525': '14 × 45 = 630. 630 - 55 = 575.',
+        '565': 'Close! 630 - 55 = 575.',
+        '600': '630 - 55 = 575. Check the subtraction.',
       },
     ),
     knowledgeTest: [
       PracticeQuestion(
         question: 'What is 14 × 45?',
         correctAnswer: '630',
-        hint: 'Use the trick: 7 × 90 = ?',
+        hint: 'Use the doubling trick: 7 × 90 = ?',
         explanation: '7 × 90 = 630.',
         options: ['580', '610', '630', '650'],
+        wrongOptionExplanations: {
+          '580': '7 × 90 = 630.',
+          '610': '7 × 90 = 630.',
+          '650': '7 × 90 = 630.',
+        },
       ),
     ],
     icon: Icons.military_tech_rounded,

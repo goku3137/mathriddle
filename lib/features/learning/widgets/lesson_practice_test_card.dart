@@ -159,11 +159,11 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
                           setState(() => _selectedOption = option);
                         },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
                       color: bgColor,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: borderColor),
+                      border: Border.all(color: borderColor, width: isSelected ? 1.5 : 1.0),
                     ),
                     child: Row(
                       children: [
@@ -174,15 +174,15 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
                                   : Icons.radio_button_checked_rounded)
                               : Icons.radio_button_off_rounded,
                           color: textColor,
-                          size: 18,
+                          size: 20,
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             option,
                             style: TextStyle(
                               color: textColor,
-                              fontSize: 14,
+                              fontSize: 15,
                               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                             ),
                           ),
@@ -204,11 +204,11 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
                   style: ElevatedButton.styleFrom(
                     backgroundColor: GameTheme.amberAccent,
                     foregroundColor: Colors.black87,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     disabledBackgroundColor: GameTheme.surfaceElevated,
                   ),
-                  onPressed: _selectedOption != null ? _checkAnswer : null,
+                  onPressed: (_selectedOption != null && !_isAnswerChecked) ? _checkAnswer : null,
                   child: const Text(
                     'SUBMIT ANSWER',
                     style: TextStyle(
@@ -223,7 +223,7 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: GameTheme.borderSubtle),
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 onPressed: () {
@@ -334,6 +334,32 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
                     Text(
                       'Guided Step: ${widget.lesson.practiceQuestion.stepByStepGuidance!}',
                       style: const TextStyle(color: GameTheme.textMuted, fontSize: 11, fontStyle: FontStyle.italic),
+                    ),
+                  ],
+                  if (!_isCorrect) ...[
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: GameTheme.amberAccent,
+                          foregroundColor: Colors.black87,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        onPressed: () {
+                          ref.read(soundServiceProvider).playTap();
+                          setState(() {
+                            _isAnswerChecked = false;
+                            _selectedOption = null;
+                          });
+                        },
+                        icon: const Icon(Icons.refresh_rounded, size: 16),
+                        label: const Text(
+                          'TRY AGAIN',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 0.5),
+                        ),
+                      ),
                     ),
                   ],
                 ],

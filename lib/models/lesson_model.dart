@@ -17,6 +17,7 @@ enum SandboxDemoType {
   tricks,
   mazes,
   finalBoss,
+  general,
 }
 
 /// A graded worked example illustrating progressive difficulty
@@ -62,8 +63,10 @@ class Lesson {
   final String id;
   final String title;
   final String category;
-  final String chapter;
-  final int chapterIndex;
+  final String stage; // 'Stage 1 – Absolute Beginner', 'Stage 2 – Basic Mathematics', etc.
+  final int stageIndex; // 1 to 6
+  final String chapter; // Backward-compatibility alias for stage
+  final int chapterIndex; // Backward-compatibility alias for stageIndex
   final String difficulty;
   final String conceptSummary;
   final String formula;
@@ -76,6 +79,7 @@ class Lesson {
 
   final String stepByStepExplanation;
   final String workedExample;
+  final String takeaway; // Key takeaway rule / shortcut
 
   // Progressive Walkthroughs & Deep Insights
   final List<WorkedExampleItem> gradedExamples;
@@ -96,8 +100,10 @@ class Lesson {
     required this.id,
     required this.title,
     required this.category,
-    this.chapter = 'Foundational Academy',
-    this.chapterIndex = 1,
+    this.stage = 'Stage 1 – Absolute Beginner',
+    this.stageIndex = 1,
+    String? chapter,
+    int? chapterIndex,
     required this.difficulty,
     required this.conceptSummary,
     required this.formula,
@@ -107,14 +113,16 @@ class Lesson {
     this.whenToUseIt = '',
     required this.stepByStepExplanation,
     required this.workedExample,
+    this.takeaway = '',
     this.gradedExamples = const [],
     this.commonMistakes = const [],
     this.shortcutsAndTricks = const [],
     this.alternativeMethods = const [],
-    this.sandboxType = SandboxDemoType.bodmas,
+    this.sandboxType = SandboxDemoType.general,
     required this.linkedLevels,
     required this.practiceQuestion,
     this.knowledgeTest = const [],
     required this.icon,
-  });
+  })  : chapter = chapter ?? stage,
+        chapterIndex = chapterIndex ?? stageIndex;
 }

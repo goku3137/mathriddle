@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/game_controller.dart';
 import '../data/learning_curriculum.dart';
 import '../features/learning/widgets/lesson_category_card.dart';
-import '../models/lesson_model.dart';
 import '../services/sound_service.dart';
 import '../theme/game_theme.dart';
 import '../widgets/score_badge.dart';
@@ -16,65 +15,16 @@ class LearnScreen extends ConsumerStatefulWidget {
 }
 
 class _LearnScreenState extends ConsumerState<LearnScreen> {
-  String _selectedCategory = 'All';
   int _selectedChapter = 0; // 0: All Chapters, 1..5: Specific Chapters
 
-  final List<String> _chapters = [
-    'All Chapters',
-    'Ch 1: Foundational Arithmetic',
-    'Ch 2: Sequences & Patterns',
-    'Ch 3: Equations & Logic',
-    'Ch 4: Visual Geometry',
-    'Ch 5: Advanced & Boss',
+  final List<String> _chapters = const [
+    'All Lessons',
+    'Ch 1: Basics',
+    'Ch 2: Patterns',
+    'Ch 3: Equations',
+    'Ch 4: Geometry',
+    'Ch 5: Mastery',
   ];
-
-  final List<String> _categories = [
-    'All',
-    'Arithmetic & Precedence',
-    'Patterns & Sequences',
-    'Algebra & Equations',
-    'Geometry',
-    'Matrices & Grids',
-    'Logic & Tricks',
-    'Commercial & Word Problems',
-    'Final Boss',
-  ];
-
-  bool _matchesFilter(Lesson lesson) {
-    if (_selectedChapter > 0 && lesson.chapterIndex != _selectedChapter) {
-      return false;
-    }
-
-    if (_selectedCategory == 'All') return true;
-    switch (_selectedCategory) {
-      case 'Arithmetic & Precedence':
-        return lesson.category == 'Formula Precedence' || lesson.category == 'Lateral Operators';
-      case 'Patterns & Sequences':
-        return lesson.category == 'Number Patterns' || lesson.category == 'Sequences';
-      case 'Algebra & Equations':
-        return lesson.category == 'Equation Riddles' || lesson.category == 'Missing Numbers';
-      case 'Geometry':
-        return lesson.category == 'Geometry: Triangles' || lesson.category == 'Geometry: Intersecting Circles';
-      case 'Matrices & Grids':
-        return lesson.category == 'Matrices & Grids';
-      case 'Logic & Tricks':
-        return lesson.category == 'Logic Numbers' || lesson.category == 'Mathematical Tricks';
-      case 'Commercial & Word Problems':
-        return lesson.category == 'Money & Shopping' || lesson.category == 'Age Riddles' || lesson.category == 'Number Mazes';
-      case 'Final Boss':
-        return lesson.category == 'Final Boss';
-      default:
-        return true;
-    }
-  }
-
-  String _getAcademyRank(int completedCount) {
-    if (completedCount >= 15) return 'Grand Singularity Master';
-    if (completedCount >= 10) return 'Mathematical Specialist';
-    if (completedCount >= 5) return 'Pattern Adept';
-    if (completedCount >= 1) return 'Logic Novice';
-    return 'Academy Apprentice';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,17 +33,17 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
     final progress = ref.watch(progressServiceProvider);
     final completedTopics = progress.completedLearnTopics;
 
-    final filteredLessons = learningCurriculum
-        .where((lesson) => _matchesFilter(lesson))
-        .toList();
-
     final totalCompleted = learningCurriculum
         .where((lesson) => completedTopics.contains(lesson.id))
         .length;
     final totalLessons = learningCurriculum.length;
     final progressFraction = totalLessons > 0 ? (totalCompleted / totalLessons) : 0.0;
     final pointsEarned = totalCompleted * 50;
-    final academyRank = _getAcademyRank(totalCompleted);
+
+    // Filter by selected chapter
+    final filteredLessons = _selectedChapter == 0
+        ? learningCurriculum
+        : learningCurriculum.where((l) => l.chapterIndex == _selectedChapter).toList();
 
     return Scaffold(
       backgroundColor: GameTheme.background,
@@ -113,7 +63,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
             color: GameTheme.textWhite,
             fontSize: 16,
             fontWeight: FontWeight.w800,
-            letterSpacing: 2.5,
+            letterSpacing: 2.0,
           ),
         ),
         centerTitle: true,
@@ -129,7 +79,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // 1. Learning Progress Summary Banner
+            // 1. Simplified Learning Progress Banner
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               child: Container(
@@ -140,6 +90,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                   border: Border.all(color: GameTheme.borderSubtle),
                 ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -147,9 +98,9 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              academyRank.toUpperCase(),
-                              style: const TextStyle(
+                            const Text(
+                              'LEARNING PATH',
+                              style: TextStyle(
                                 color: GameTheme.amberAccent,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w800,
@@ -200,9 +151,9 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
               ),
             ),
 
-            // 2. Chapter Path Filter Chips
+            // 2. Single Chapter Path Filter Chips
             SizedBox(
-              height: 40,
+              height: 38,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -216,7 +167,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                     selected: isSelected,
                     labelStyle: TextStyle(
                       color: isSelected ? Colors.black87 : GameTheme.textLight,
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                     ),
                     backgroundColor: GameTheme.surfaceElevated,
@@ -236,59 +187,32 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                 },
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
 
-            // 3. Category Filter Chips
-            SizedBox(
-              height: 38,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                itemCount: _categories.length,
-                separatorBuilder: (context, index) => const SizedBox(width: 8),
-                itemBuilder: (context, index) {
-                  final cat = _categories[index];
-                  final isSelected = _selectedCategory == cat;
-                  return ChoiceChip(
-                    label: Text(cat),
-                    selected: isSelected,
-                    labelStyle: TextStyle(
-                      color: isSelected ? Colors.black87 : GameTheme.textLight,
-                      fontSize: 11,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    ),
-                    backgroundColor: GameTheme.surfaceElevated,
-                    selectedColor: GameTheme.amberAccent,
-                    side: BorderSide(
-                      color: isSelected ? GameTheme.amberAccent : GameTheme.borderSubtle,
-                    ),
-                    onSelected: (selected) {
-                      if (selected) {
-                        ref.read(soundServiceProvider).playTap();
-                        setState(() {
-                          _selectedCategory = cat;
-                        });
-                      }
-                    },
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // 4. Lessons List
+            // 3. Simplified Lessons List with Clear Progression
             Expanded(
               child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                 itemCount: filteredLessons.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 14),
+                separatorBuilder: (context, index) => const SizedBox(height: 12),
                 itemBuilder: (context, index) {
                   final lesson = filteredLessons[index];
                   final isCompleted = completedTopics.contains(lesson.id);
 
+                  // Find global index in learningCurriculum for linear progression
+                  final globalIndex = learningCurriculum.indexOf(lesson);
+                  final isLocked = globalIndex > 0 &&
+                      !completedTopics.contains(learningCurriculum[globalIndex - 1].id) &&
+                      !isCompleted;
+
+                  // Find if this is the next unlocked lesson
+                  final isCurrent = !isCompleted && !isLocked;
+
                   return LessonCategoryCard(
                     lesson: lesson,
                     isCompleted: isCompleted,
+                    isLocked: isLocked,
+                    isCurrent: isCurrent,
                   );
                 },
               ),

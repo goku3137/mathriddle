@@ -44,3 +44,4 @@ class HandcraftedLevelsCatalog {
   /// Full map of handcrafted levels by levelNumber.
   static Map<int, LevelData> get allLevels => Map.unmodifiable(_catalog);
 }
+

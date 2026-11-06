@@ -1,0 +1,28 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark Background Canvas (#121418) -->
+  <rect width="512" height="512" rx="96" fill="#121418"/>
+  
+  <!-- Subtle Amber Radial Ambient Glow -->
+  <circle cx="256" cy="230" r="180" fill="url(#ambient_glow)" opacity="0.3"/>
+  
+  <!-- 1. The Outer White Topological Stroke -->
+  <path d="M370 160C370 121.34 338.66 90 300 90H190C151.34 90 120 121.34 120 160C120 198.66 151.34 230 190 230H322C360.66 230 392 261.34 392 300C392 338.66 360.66 370 322 370H200C161.34 370 130 338.66 130 300" 
+        stroke="#FFFFFF" stroke-width="38" stroke-linecap="round" stroke-linejoin="round"/>
+        
+  <!-- 2. The Internal Mathematical Golden Fold (Sigma & Vector Transform) -->
+  <path d="M190 90L290 230L190 370" 
+        stroke="#E5A93C" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+        
+  <!-- 3. The Focal Solution Spark (Amber Node) -->
+  <circle cx="256" cy="230" r="16" fill="#F37A1F"/>
+  <circle cx="256" cy="230" r="26" stroke="#E5A93C" stroke-width="5" stroke-opacity="0.6"/>
+
+  <!-- Gradients -->
+  <defs>
+    <radialGradient id="ambient_glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(256 230) rotate(90) scale(180)">
+      <stop stop-color="#E5A93C"/>
+      <stop offset="1" stop-color="#E5A93C" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+</svg>
+

@@ -27,6 +27,34 @@ void main() async {
   // Initialize offline persistent progress service
   final progressService = await ProgressService.init();
 
+  // Production-grade error boundary fallback: prevents blank or grey screen on unexpected render glitches
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    return Material(
+      color: GameTheme.background,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              Icon(Icons.refresh_rounded, color: GameTheme.amberAccent, size: 36),
+              SizedBox(height: 12),
+              Text(
+                'Something went wrong',
+                style: TextStyle(color: GameTheme.textWhite, fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              SizedBox(height: 6),
+              Text(
+                'Your progress is safely preserved.',
+                style: TextStyle(color: GameTheme.textMuted, fontSize: 13),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  };
+
   runApp(
     ProviderScope(
       overrides: [

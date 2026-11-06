@@ -241,7 +241,11 @@ class GameController extends Notifier<GameState> with WidgetsBindingObserver {
       }
 
       final trimmedSolution = state.currentLevel.correctAnswer.trim();
-      final isCorrect = sanitizedInput == trimmedSolution;
+      final parsedInput = int.tryParse(sanitizedInput);
+      final parsedSolution = int.tryParse(trimmedSolution);
+      final isCorrect = (parsedInput != null && parsedSolution != null)
+          ? parsedInput == parsedSolution
+          : sanitizedInput == trimmedSolution;
 
       if (isCorrect) {
         _sound.playCorrect();

@@ -57,7 +57,7 @@ void main() {
 
     // Verify Top-Right Crown PRO Badge & Rate Us Footer
     expect(find.text('PRO'), findsOneWidget);
-    expect(find.text('Rate Us ★★★★★'), findsOneWidget);
+    expect(find.text('Rate Math Riddles'), findsOneWidget);
 
     // Tap RIDDLE button to navigate to Level Select
     await tester.tap(find.text('RIDDLE'));

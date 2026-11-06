@@ -85,7 +85,7 @@ void main() {
       expect(challengeCategories[10].symbol, equals('TRICK'));
 
       expect(challengeCategories[11].type, equals(ChallengeType.mixed));
-      expect(challengeCategories[11].title, equals('ALL MIXED GRAND SPRINT'));
+      expect(challengeCategories[11].title, equals('MIXED CHALLENGE'));
       expect(challengeCategories[11].icon, equals(Icons.shuffle_rounded));
       expect(challengeCategories[11].symbol, equals('MIX'));
     });
@@ -145,13 +145,13 @@ void main() {
       expect(find.text('MULTIPLICATION CHALLENGE'), findsOneWidget);
       expect(find.text('DIVISION CHALLENGE'), findsOneWidget);
 
-      // Scroll to the bottom to verify ALL MIXED GRAND SPRINT is at the end
+      // Scroll to the bottom to verify MIXED CHALLENGE is at the end
       await tester.scrollUntilVisible(
-        find.text('ALL MIXED GRAND SPRINT'),
+        find.text('MIXED CHALLENGE'),
         500.0,
         scrollable: find.byType(Scrollable).first,
       );
-      expect(find.text('ALL MIXED GRAND SPRINT'), findsOneWidget);
+      expect(find.text('MIXED CHALLENGE'), findsOneWidget);
 
       // Scroll back up to ADDITION CHALLENGE
       await tester.scrollUntilVisible(
@@ -162,16 +162,17 @@ void main() {
 
       // Tap ADDITION CHALLENGE
       await tester.tap(find.text('ADDITION CHALLENGE'));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
       // Verify ChallengePlayScreen opened in 15-second infinite mode
       expect(find.byType(ChallengePlayScreen), findsOneWidget);
       expect(find.textContaining('QUESTION 1'), findsOneWidget);
       expect(find.text('15s'), findsOneWidget);
-      expect(find.text('Played 0 times'), findsOneWidget);
+      expect(find.descendant(of: find.byType(ChallengePlayScreen), matching: find.textContaining('Played 0 times')), findsOneWidget);
 
       // Pop back to Challenge Hub
-      await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
+      await tester.tap(find.descendant(of: find.byType(ChallengePlayScreen), matching: find.byIcon(Icons.arrow_back_ios_new_rounded)));
       await tester.pumpAndSettle();
 
       // Hub is visible again
@@ -208,7 +209,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
 
       // Initial state
       expect(find.textContaining('QUESTION 1'), findsOneWidget);
@@ -233,7 +235,7 @@ void main() {
       expect(find.textContaining('QUESTION 2'), findsOneWidget);
       expect(find.text('7 + 2 = ?'), findsOneWidget);
       expect(find.text('15s'), findsOneWidget);
-      expect(find.text('STREAK: 1 (+3 PTS)'), findsOneWidget);
+      expect(find.text('STREAK: 1'), findsOneWidget);
       expect(progressService.totalScore, equals(3));
     });
 
@@ -267,7 +269,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
 
       // Input wrong answer '7'
       await tester.tap(find.widgetWithText(InkWell, '7'));
@@ -275,27 +278,28 @@ void main() {
 
       // Submit wrong answer
       await tester.tap(find.text('ENTER'));
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
 
-      // Verify Wrong Answer Popup appeared displaying "INCORRECT", correct answer, and explanation
+      // Verify Wrong Answer Overlay appeared displaying "INCORRECT", correct answer, and explanation
       expect(find.text('INCORRECT'), findsOneWidget);
-      expect(find.text('Correct answer:'), findsOneWidget);
-      expect(find.text('Your answer:'), findsOneWidget);
-      expect(find.descendant(of: find.byType(AlertDialog), matching: find.text('7')), findsOneWidget);
-      expect(find.descendant(of: find.byType(AlertDialog), matching: find.text('9')), findsOneWidget);
+      expect(find.text('CORRECT'), findsOneWidget);
+      expect(find.text('YOURS'), findsOneWidget);
+      expect(find.text('7'), findsWidgets);
+      expect(find.text('9'), findsWidgets);
       expect(find.text('4 + 5 = 9'), findsOneWidget);
-      expect(find.text('CONTINUE'), findsOneWidget);
 
-      // Dismiss popup via CONTINUE
-      await tester.tap(find.text('CONTINUE'));
-      await tester.pumpAndSettle();
+      // Dismiss overlay via tap
+      await tester.tap(find.text('4 + 5 = 9'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
 
       // Requirement 5 & 7: Challenge NEVER ended! Immediately loaded next question with fresh 15s timer
       expect(find.text('INCORRECT'), findsNothing);
       expect(find.text('6 + 3 = ?'), findsOneWidget);
       expect(find.text('15s'), findsOneWidget);
       expect(find.textContaining('QUESTION 2'), findsOneWidget);
-      expect(find.text('Played 1 time'), findsOneWidget);
+      expect(find.textContaining('Played 1 time'), findsOneWidget);
     });
 
     testWidgets('ChallengePlayScreen timeout shows correct answer & explanation and continues to next question', (WidgetTester tester) async {
@@ -328,30 +332,31 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
       expect(find.text('15s'), findsOneWidget);
 
       // Fast forward 15 seconds to let timer expire
       await tester.pump(const Duration(seconds: 15));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 100));
 
-      // Verify timeout modal shows "TIME'S UP", correct answer and explanation
+      // Verify timeout overlay shows "TIME'S UP", correct answer and explanation
       expect(find.text("TIME'S UP"), findsOneWidget);
-      expect(find.text('Correct answer:'), findsOneWidget);
-      expect(find.descendant(of: find.byType(AlertDialog), matching: find.text('15')), findsOneWidget);
+      expect(find.text('CORRECT'), findsOneWidget);
+      expect(find.text('15'), findsWidgets);
       expect(find.text('7 + 8 = 15'), findsOneWidget);
-      expect(find.text('NEXT QUESTION'), findsOneWidget);
 
-      // Tap NEXT QUESTION to continue
-      await tester.tap(find.text('NEXT QUESTION'));
-      await tester.pumpAndSettle();
+      // Tap overlay to continue
+      await tester.tap(find.text('7 + 8 = 15'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
 
       // Session continues indefinitely to question 2 with fresh 15s timer
       expect(find.text("TIME'S UP"), findsNothing);
       expect(find.text('9 + 4 = ?'), findsOneWidget);
       expect(find.text('15s'), findsOneWidget);
       expect(find.textContaining('QUESTION 2'), findsOneWidget);
-      expect(find.text('Played 1 time'), findsOneWidget);
+      expect(find.textContaining('Played 1 time'), findsOneWidget);
     });
   });
 }

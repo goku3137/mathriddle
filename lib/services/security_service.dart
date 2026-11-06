@@ -13,11 +13,24 @@ enum SecurityViolation {
 /// Security & anti-tamper service for local storage validation,
 /// integrity checksums, and device clock manipulation detection.
 class SecurityService {
-  // Application internal HMAC salt (used to sign state to prevent arbitrary XML/prefs editing)
-  static const String _appSalt = 'smath_runtime_integrity_salt_v2_2026';
+  // Application internal multi-component HMAC salt derivation
+  // Combines package identifier and static runtime integrity pepper
+  static const String _appId = 'com.valcire.mathriddle';
+  static const String _pepper = 'smath_runtime_integrity_salt_v2_2026';
+  static String get _appSalt => '$_appId:$_pepper';
 
   // Tolerance for minor clock drift (e.g. NTP sync) in seconds
   static const int _clockDriftToleranceSeconds = 60;
+
+  /// Constant-time string comparison to prevent timing side-channel attacks.
+  static bool _constantTimeEquals(String a, String b) {
+    if (a.length != b.length) return false;
+    int result = 0;
+    for (int i = 0; i < a.length; i++) {
+      result |= a.codeUnitAt(i) ^ b.codeUnitAt(i);
+    }
+    return result == 0;
+  }
 
   /// Generates an HMAC-SHA256 signature over critical game progression variables.
   static String generateStateSignature({
@@ -36,7 +49,7 @@ class SecurityService {
     return digest.toString();
   }
 
-  /// Verifies if the stored state matches its cryptographic signature.
+  /// Verifies if the stored state matches its cryptographic signature using constant-time equality.
   static bool verifyStateSignature({
     required int highestUnlockedLevel,
     required List<String> completedLevels,
@@ -50,6 +63,11 @@ class SecurityService {
       return true;
     }
 
+    // Defensive bounds validation
+    if (highestUnlockedLevel < 1 || totalScore < 0 || currentHearts < 0 || premiumTierIndex < 0) {
+      return false;
+    }
+
     final expectedSignature = generateStateSignature(
       highestUnlockedLevel: highestUnlockedLevel,
       completedLevels: completedLevels,
@@ -58,7 +76,7 @@ class SecurityService {
       premiumTierIndex: premiumTierIndex,
     );
 
-    return expectedSignature == storedSignature;
+    return _constantTimeEquals(expectedSignature, storedSignature);
   }
 
   /// Computes the absolute mathematical upper bound for total score

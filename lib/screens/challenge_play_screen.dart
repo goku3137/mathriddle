@@ -4,24 +4,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/game_controller.dart';
 import '../data/challenge_data.dart';
+import '../features/challenges/widgets/challenge_feedback_card.dart';
+import '../features/challenges/widgets/challenge_question_card.dart';
+import '../features/challenges/widgets/challenge_status_bar.dart';
+import '../features/challenges/widgets/challenge_timer_bar.dart';
 import '../services/sound_service.dart';
 import '../theme/game_theme.dart';
 import '../widgets/custom_keypad.dart';
 import '../widgets/score_badge.dart';
 
-class FeedbackOverlayData {
-  final String wrongInput;
-  final String correctAnswer;
-  final String explanation;
-  final bool isTimeout;
-
-  const FeedbackOverlayData({
-    required this.wrongInput,
-    required this.correctAnswer,
-    required this.explanation,
-    this.isTimeout = false,
-  });
-}
 
 class ChallengePlayScreen extends ConsumerStatefulWidget {
   final ChallengeCategoryInfo category;
@@ -52,6 +43,7 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
   String _input = '';
   late ChallengeItem _currentQuestion;
   bool _isShowingPopup = false;
+  bool _isSubmitting = false;
   FeedbackOverlayData? _feedbackData;
 
   @override
@@ -63,7 +55,7 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
       vsync: this,
       duration: const Duration(milliseconds: questionDurationMs),
     )..addStatusListener((status) {
-        if (status == AnimationStatus.dismissed && !_isShowingPopup) {
+        if ((status == AnimationStatus.dismissed || (status == AnimationStatus.completed && _timerController.value <= 0.01)) && !_isShowingPopup) {
           _handleTimeout();
         }
       });
@@ -93,12 +85,7 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
       } else {
         final remainingFraction = (1.0 - (elapsed / questionDurationMs)).clamp(0.0, 1.0);
         _timerController.value = remainingFraction;
-        final remainingMs = questionDurationMs - elapsed;
-        _timerController.animateTo(
-          0.0,
-          duration: Duration(milliseconds: remainingMs),
-          curve: Curves.linear,
-        );
+        _timerController.reverse(from: remainingFraction);
       }
     } else if (state == AppLifecycleState.paused) {
       _timerController.stop();
@@ -117,12 +104,7 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
     if (!mounted || _isShowingPopup) return;
     _questionStartTime = DateTime.now();
     _timerController.stop();
-    _timerController.value = 1.0;
-    _timerController.animateTo(
-      0.0,
-      duration: const Duration(milliseconds: questionDurationMs),
-      curve: Curves.linear,
-    );
+    _timerController.reverse(from: 1.0);
   }
 
   void _stopTimer() {
@@ -137,124 +119,123 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
     super.dispose();
   }
 
-  String _tierLabel(int tier) {
-    switch (tier) {
-      case 0:
-        return '1-Digit';
-      case 1:
-        return '2-Digit';
-      case 2:
-      default:
-        return '3-Digit';
-    }
-  }
-
   Future<void> _submit() async {
-    if (_isShowingPopup) return;
+    if (_isSubmitting || _isShowingPopup) return;
     final trimmed = _input.trim();
     if (trimmed.isEmpty) return;
 
-    if (trimmed == _currentQuestion.answer) {
-      // Correct answer!
-      ref.read(soundServiceProvider).playCorrect();
-      unawaited(HapticFeedback.mediumImpact());
+    _isSubmitting = true;
+    try {
+      final parsedInput = int.tryParse(trimmed);
+      final parsedExpected = int.tryParse(_currentQuestion.answer.trim());
+      final isCorrect = (parsedInput != null && parsedExpected != null)
+          ? parsedInput == parsedExpected
+          : trimmed == _currentQuestion.answer;
 
-      _sessionAttempts++;
-      _sessionCorrect++;
-      _consecutiveCorrect++;
+      if (isCorrect) {
+        // Correct answer!
+        ref.read(soundServiceProvider).playCorrect();
+        unawaited(HapticFeedback.mediumImpact());
 
-      // Persist attempt, streak, and tier independently for this category.
-      // Difficulty advances based on cumulative correct answers (every 20) with accuracy check.
-      final progress = ref.read(progressServiceProvider);
-      final beforeStats = progress.getCategoryStats(widget.category.type);
-      final oldBadge = beforeStats.badge;
-      final oldTier = beforeStats.tier;
+        _sessionAttempts++;
+        _sessionCorrect++;
+        _consecutiveCorrect++;
 
-      await progress.recordChallengeAttempt(
-        type: widget.category.type,
-        isCorrect: true,
-        currentStreak: _consecutiveCorrect,
-      );
+        // Persist attempt, streak, and tier independently for this category.
+        // Difficulty advances based on cumulative correct answers (every 20) with accuracy check.
+        final progress = ref.read(progressServiceProvider);
+        final beforeStats = progress.getCategoryStats(widget.category.type);
+        final oldBadge = beforeStats.badge;
+        final oldTier = beforeStats.tier;
 
-      final afterStats = progress.getCategoryStats(widget.category.type);
-      final newBadge = afterStats.badge;
-      final bool badgeAdvanced = newBadge.index > oldBadge.index;
-      final bool tierAdvanced = afterStats.tier > oldTier;
-      if (tierAdvanced) {
-        _currentTier = afterStats.tier;
-      }
+        await progress.recordChallengeAttempt(
+          type: widget.category.type,
+          isCorrect: true,
+          currentStreak: _consecutiveCorrect,
+        );
 
-      await ref.read(gameControllerProvider.notifier).completeChallenge(_currentQuestion.id);
-
-      if (mounted) {
-        if (badgeAdvanced) {
-          ref.read(soundServiceProvider).playReward();
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: GameTheme.surfaceElevated,
-              duration: const Duration(seconds: 3),
-              content: Row(
-                children: [
-                  Icon(afterStats.badgeInfo.icon, color: afterStats.badgeInfo.color, size: 22),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'RANK UNLOCKED: ${afterStats.badgeInfo.title}!',
-                          style: TextStyle(
-                            color: afterStats.badgeInfo.color,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.8,
-                          ),
-                        ),
-                        Text(
-                          '${afterStats.correctAnswers} solved in ${widget.category.title}',
-                          style: const TextStyle(
-                            color: GameTheme.textMuted,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        } else if (tierAdvanced) {
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: GameTheme.surfaceElevated,
-              duration: const Duration(seconds: 2),
-              content: Row(
-                children: [
-                  const Icon(Icons.arrow_upward_rounded, color: GameTheme.amberAccent, size: 18),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Level Up! Introduced ${_tierLabel(_currentTier)} Calculations!',
-                    style: const TextStyle(color: GameTheme.textWhite, fontWeight: FontWeight.w700),
-                  ),
-                ],
-              ),
-            ),
-          );
+        final afterStats = progress.getCategoryStats(widget.category.type);
+        final newBadge = afterStats.badge;
+        final bool badgeAdvanced = newBadge.index > oldBadge.index;
+        final bool tierAdvanced = afterStats.tier > oldTier;
+        if (tierAdvanced) {
+          _currentTier = afterStats.tier;
         }
 
-        setState(() {
-          _input = '';
-          _currentQuestion = _getNextQuestion();
-        });
-        _startTimer();
+        await ref.read(gameControllerProvider.notifier).completeChallenge(_currentQuestion.id);
+
+        if (mounted) {
+          if (badgeAdvanced) {
+            ref.read(soundServiceProvider).playReward();
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: GameTheme.surfaceElevated,
+                duration: const Duration(seconds: 3),
+                content: Row(
+                  children: [
+                    Icon(afterStats.badgeInfo.icon, color: afterStats.badgeInfo.color, size: 22),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'RANK UNLOCKED: ${afterStats.badgeInfo.title}!',
+                            style: TextStyle(
+                              color: afterStats.badgeInfo.color,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 0.8,
+                            ),
+                          ),
+                          Text(
+                            '${afterStats.correctAnswers} solved in ${widget.category.title}',
+                            style: const TextStyle(
+                              color: GameTheme.textMuted,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          } else if (tierAdvanced) {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: GameTheme.surfaceElevated,
+                duration: const Duration(seconds: 2),
+                content: Row(
+                  children: [
+                    const Icon(Icons.arrow_upward_rounded, color: GameTheme.amberAccent, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Level Up! Introduced ${ChallengeStatusBar.getTierLabel(_currentTier)} Calculations!',
+                      style: const TextStyle(color: GameTheme.textWhite, fontWeight: FontWeight.w700),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          setState(() {
+            _input = '';
+            _currentQuestion = _getNextQuestion();
+          });
+          _startTimer();
+        }
+      } else {
+        // Incorrect answer: challenge NEVER ends! Show wrong answer popup with calculation explanation.
+        unawaited(HapticFeedback.vibrate());
+        await _handleWrongAnswer(trimmed);
       }
-    } else {
-      // Incorrect answer: challenge NEVER ends! Show wrong answer popup with calculation explanation.
-      unawaited(HapticFeedback.vibrate());
-      await _handleWrongAnswer(trimmed);
+    } finally {
+      _isSubmitting = false;
     }
   }
 
@@ -439,148 +420,14 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
         child: Column(
           children: [
             // 1. Hardware-accelerated smooth elapsed-time countdown bar (driven by VSync AnimationController)
-            AnimatedBuilder(
-              animation: _timerController,
-              builder: (context, _) {
-                final progress = _timerController.value.clamp(0.0, 1.0);
-                final secondsLeft = (progress * 15).ceil();
-                final isCriticalTime = secondsLeft <= 5;
-                final timerColor = isCriticalTime ? GameTheme.errorRed : GameTheme.amberAccent;
-
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: Container(
-                      height: 5,
-                      width: double.infinity,
-                      color: GameTheme.surface,
-                      child: FractionallySizedBox(
-                        alignment: Alignment.centerLeft,
-                        widthFactor: progress,
-                        child: Container(
-                          height: 5,
-                          decoration: BoxDecoration(
-                            color: timerColor,
-                            borderRadius: BorderRadius.circular(4),
-                            boxShadow: isCriticalTime
-                                ? [
-                                    BoxShadow(
-                                      color: GameTheme.errorRed.withValues(alpha: 0.5),
-                                      blurRadius: 4,
-                                      spreadRadius: 0.5,
-                                    ),
-                                  ]
-                                : null,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
+            ChallengeTimerBar(animation: _timerController),
             const SizedBox(height: 8),
 
             // 2. Progressive Indicators: Current Streak, Tier Badge, and 15s Timer
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Current Streak
-                  Flexible(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: GameTheme.surface,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: GameTheme.borderSubtle),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.bolt_rounded, color: GameTheme.amberAccent, size: 16),
-                          const SizedBox(width: 4),
-                          Flexible(
-                            child: Text(
-                              'STREAK: $_consecutiveCorrect',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: GameTheme.amberAccent,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-
-                  // Progressive Difficulty Tier Pill
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: GameTheme.surfaceElevated,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: GameTheme.borderSubtle),
-                    ),
-                    child: Text(
-                      _tierLabel(_currentTier),
-                      style: const TextStyle(
-                        color: GameTheme.textLight,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-
-                  // 15s Timer Badge
-                  AnimatedBuilder(
-                    animation: _timerController,
-                    builder: (context, _) {
-                      final secondsLeft = (_timerController.value * 15).ceil();
-                      final isCriticalTime = secondsLeft <= 5;
-
-                      return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: isCriticalTime
-                              ? GameTheme.errorRed.withValues(alpha: 0.15)
-                              : GameTheme.surface,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: isCriticalTime ? GameTheme.errorRed : GameTheme.borderSubtle,
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.timer_outlined,
-                              size: 15,
-                              color: isCriticalTime ? GameTheme.errorRed : GameTheme.amberAccent,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '${secondsLeft}s',
-                              style: TextStyle(
-                                color: isCriticalTime ? GameTheme.errorRed : GameTheme.textWhite,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
+            ChallengeStatusBar(
+              consecutiveCorrect: _consecutiveCorrect,
+              currentTier: _currentTier,
+              timerController: _timerController,
             ),
 
             // 3. Question Display Box or Compact Feedback Overlay
@@ -589,8 +436,16 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: _feedbackData != null
-                      ? _buildCompactFeedbackCard(_feedbackData!)
-                      : _buildQuestionCard(),
+                      ? ChallengeFeedbackCard(
+                          data: _feedbackData!,
+                          questionText: _currentQuestion.question,
+                          onTap: _dismissFeedbackAndContinue,
+                        )
+                      : ChallengeQuestionCard(
+                          questionNumber: _sessionAttempts + 1,
+                          sessionSolved: _sessionCorrect,
+                          questionText: _currentQuestion.question,
+                        ),
                 ),
               ),
             ),
@@ -630,182 +485,4 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
     );
   }
 
-  /// Compact feedback overlay replacing large modal dialogs.
-  /// Displays incorrect answer, correct answer, and one-line explanation.
-  /// Automatically continues after ~1.6s, or immediately when the player taps.
-  Widget _buildCompactFeedbackCard(FeedbackOverlayData data) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: _dismissFeedbackAndContinue,
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 20),
-          decoration: BoxDecoration(
-            color: GameTheme.surface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: data.isTimeout
-                  ? GameTheme.amberAccent.withValues(alpha: 0.6)
-                  : GameTheme.errorRed.withValues(alpha: 0.7),
-              width: 1.2,
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Header Badge
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    data.isTimeout ? Icons.timer_off_rounded : Icons.close_rounded,
-                    color: data.isTimeout ? GameTheme.amberAccent : GameTheme.errorRed,
-                    size: 16,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    data.isTimeout ? "TIME'S UP" : 'INCORRECT',
-                    style: TextStyle(
-                      color: data.isTimeout ? GameTheme.amberAccent : GameTheme.errorRed,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.4,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-
-              // Question Statement
-              Text(
-                _currentQuestion.question,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: GameTheme.textWhite,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // Compact Comparison Pill: Incorrect vs Correct
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: GameTheme.background,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: GameTheme.borderSubtle),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (!data.isTimeout) ...[
-                      Column(
-                        children: [
-                          const Text(
-                            'YOURS',
-                            style: TextStyle(color: GameTheme.textMuted, fontSize: 10, fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            data.wrongInput.isEmpty ? '-' : data.wrongInput,
-                            style: const TextStyle(color: GameTheme.errorRed, fontSize: 14, fontWeight: FontWeight.w700),
-                          ),
-                        ],
-                      ),
-                      Container(
-                        height: 24,
-                        width: 1,
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
-                        color: GameTheme.borderSubtle,
-                      ),
-                    ],
-                    Column(
-                      children: [
-                        const Text(
-                          'CORRECT',
-                          style: TextStyle(color: GameTheme.textMuted, fontSize: 10, fontWeight: FontWeight.w600),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          data.correctAnswer,
-                          style: const TextStyle(color: GameTheme.amberAccent, fontSize: 14, fontWeight: FontWeight.w800),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              // One-line explanation
-              if (data.explanation.isNotEmpty) ...[
-                const SizedBox(height: 10),
-                Text(
-                  data.explanation,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: GameTheme.textLight,
-                    fontSize: 11,
-                    height: 1.35,
-                  ),
-                ),
-              ],
-              const SizedBox(height: 12),
-
-              // Tap hint
-              const Text(
-                'Tap anywhere to continue',
-                style: TextStyle(
-                  color: GameTheme.textDim,
-                  fontSize: 10,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQuestionCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 20),
-      decoration: BoxDecoration(
-        color: GameTheme.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: GameTheme.borderSubtle),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'QUESTION ${_sessionAttempts + 1} • SOLVED: $_sessionCorrect',
-            style: const TextStyle(
-              color: GameTheme.textMuted,
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.5,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            _currentQuestion.question,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: GameTheme.textWhite,
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 2.0,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

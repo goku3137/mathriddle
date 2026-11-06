@@ -188,7 +188,7 @@ void main() {
       expect(find.textContaining('You need at least 1 heart to submit an answer'), findsOneWidget);
 
       // Verify all 4 required choices are present
-      expect(find.text('Watch an Ad to Refill Hearts'), findsOneWidget);
+      expect(find.text('Watch an Ad for 5 Hearts (Full Refill)'), findsOneWidget);
       expect(find.text('Buy Premium for Unlimited Hearts'), findsOneWidget);
       expect(find.text('Wait for Hearts to Refill'), findsOneWidget);
       expect(find.text('No Thanks'), findsOneWidget);
@@ -218,19 +218,19 @@ void main() {
       expect(find.text('Out of Hearts'), findsNothing);
       expect(find.text('LEVEL 1'), findsOneWidget);
 
-      // Open popup again and test "Watch an Ad to Refill Hearts"
+      // Open popup again and test "Watch an Ad for 5 Hearts (Full Refill)"
       await tester.tap(find.text('ENTER'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
       expect(find.text('Out of Hearts'), findsOneWidget);
 
-      await tester.tap(find.text('Watch an Ad to Refill Hearts'));
+      await tester.tap(find.text('Watch an Ad for 5 Hearts (Full Refill)'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
 
-      // Ad reward granted +1 heart
+      // Ad reward granted full 5 hearts
       expect(mockAds.rewardedAdCount, equals(1));
-      expect(progressService.currentHearts, equals(1));
+      expect(progressService.currentHearts, equals(5));
       expect(find.text('Out of Hearts'), findsNothing);
     });
 
@@ -275,7 +275,7 @@ void main() {
 
       // Navigated to ShopScreen
       expect(find.byType(ShopScreen), findsOneWidget);
-      expect(find.text('SHOP'), findsOneWidget);
+      expect(find.text('UPGRADE ACCESS'), findsOneWidget);
 
       // Close ShopScreen to return to RiddleScreen
       await tester.tap(find.byIcon(Icons.close_rounded));

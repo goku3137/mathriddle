@@ -321,10 +321,10 @@ class GameController extends Notifier<GameState> with WidgetsBindingObserver {
     await _ads.showRewardedAd(
       onRewardEarned: () async {
         _sound.playReward();
-        await _progress.addHearts(1);
+        await _progress.refillAllHearts();
         state = state.copyWith(
           hearts: _progress.currentHearts,
-          secondsUntilNextHeart: _progress.secondsUntilNextHeart,
+          secondsUntilNextHeart: 0,
         );
       },
     );

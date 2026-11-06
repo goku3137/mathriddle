@@ -132,9 +132,9 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Tap REMOVE ADS purchase
-      expect(find.text('REMOVE ADS'), findsOneWidget);
-      await tester.tap(find.text('₹49 / \$0.99'));
+      // Tap REMOVE ALL ADS purchase
+      expect(find.text('REMOVE ALL ADS'), findsOneWidget);
+      await tester.tap(find.text('REMOVE ALL ADS'));
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
       await tester.pumpAndSettle();

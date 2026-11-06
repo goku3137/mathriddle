@@ -82,7 +82,7 @@ The core gameplay centers on 500 handcrafted and procedurally generated mathemat
 * **Consumption:** Incorrect submissions in Riddle gameplay consume 1 heart. Correct answers consume 0 hearts.
 * **Refill Mechanism:** Automatically regenerates 1 heart every **20 minutes** (1200 seconds).
 * **Offline Delta Calculation:** Heart recovery accurately accounts for background time elapsed between app launches.
-* **Out of Hearts State:** Submissions pause at 0 hearts. Players can wait for the timer, watch a rewarded ad (+1 heart), or upgrade to Premium for **Unlimited Hearts ($\infty$)**.
+* **Out of Hearts State:** Submissions pause at 0 hearts. Players can wait for the timer, watch a rewarded ad (full 5 hearts refill), or upgrade to Premium for **Unlimited Hearts ($\infty$)**.
 
 ### 3.5 Scoring Engine & Point Economy
 * **Riddle Campaign:** +5 PTS base for early levels, escalating by +10 PTS for every 10 levels completed (e.g., +15 PTS for Levels 11–20, +25 PTS for Levels 21–30).

@@ -152,7 +152,7 @@ class HeartIndicator extends ConsumerWidget {
                         },
                         icon: const Icon(Icons.play_circle_outline_rounded, color: GameTheme.amberAccent, size: 20),
                         label: const Text(
-                          'WATCH AD FOR +1 HEART',
+                          'WATCH AD FOR 5 HEARTS (FULL REFILL)',
                           style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 1.0),
                         ),
                       ),

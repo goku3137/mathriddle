@@ -259,3 +259,4 @@ class _MazesDemoWidgetState extends State<MazesDemoWidget> {
     );
   }
 }
+

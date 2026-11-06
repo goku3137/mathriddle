@@ -212,3 +212,4 @@ class _TricksDemoWidgetState extends State<TricksDemoWidget> {
     );
   }
 }
+

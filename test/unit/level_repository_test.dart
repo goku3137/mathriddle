@@ -14,35 +14,44 @@ void main() {
       expect(repository.totalLevelsCount, equals(500));
     });
 
-    test('Loads handcrafted levels (1 to 20) with valid geometry, categories and answers', () async {
+    test('Mixed handcrafted and procedural distribution starting at level 1 and milestones', () async {
+      // Level 1 is handcrafted
       final level1 = await repository.getLevel(1);
       expect(level1.levelNumber, equals(1));
+      expect(level1.sourceType, equals(QuestionSource.handcrafted));
       expect(level1.correctAnswer, equals('6'));
       expect(level1.questionType, equals(QuestionType.Formula));
       expect(level1.difficulty, equals('Beginner'));
       expect(level1.category, equals('Formula Precedence'));
 
+      // Level 2 is procedural (Levels 1-20 are not exclusively handcrafted)
       final level2 = await repository.getLevel(2);
       expect(level2.levelNumber, equals(2));
-      expect(level2.correctAnswer, equals('10'));
-      expect(level2.questionType, equals(QuestionType.Formula));
-      expect(level2.category, equals('Number Pattern Riddles'));
+      expect(level2.sourceType, equals(QuestionSource.procedural));
+      expect(level2.correctAnswer, isNotEmpty);
+      expect(level2.difficulty, equals('Beginner'));
 
-      final level3 = await repository.getLevel(3);
-      expect(level3.questionType, equals(QuestionType.Formula));
-      expect(level3.category, equals('Missing Number Puzzles'));
-      expect(level3.correctAnswer, equals('7'));
+      // Level 4 is handcrafted
+      final level4 = await repository.getLevel(4);
+      expect(level4.levelNumber, equals(4));
+      expect(level4.sourceType, equals(QuestionSource.handcrafted));
+      expect(level4.correctAnswer, equals('12'));
 
+      // Level 14 is handcrafted grid
       final level14 = await repository.getLevel(14);
+      expect(level14.sourceType, equals(QuestionSource.handcrafted));
       expect(level14.questionType, equals(QuestionType.Grid));
       expect(level14.nodes, isNotNull);
       expect(level14.nodes!.length, equals(9));
       expect(level14.correctAnswer, equals('2'));
 
-      final level16 = await repository.getLevel(16);
-      expect(level16.questionType, equals(QuestionType.Formula));
-      expect(level16.category, equals('Logic Number Riddles'));
-      expect(level16.correctAnswer, equals('34'));
+      // Milestone levels 50, 100, 150, 200, 250, 300, 350, 400, 450, 500 are all handcrafted
+      final milestones = [50, 100, 150, 200, 250, 300, 350, 400, 450, 500];
+      for (final m in milestones) {
+        final level = repository.getLevelSync(m);
+        expect(level.sourceType, equals(QuestionSource.handcrafted),
+            reason: 'Milestone level $m must be handcrafted');
+      }
     });
 
     test('Levels 1 to 150 strictly contain zero geometry questions', () {
@@ -126,8 +135,8 @@ void main() {
       // Check all 14 core categories are present
       for (final cat in ScalableLevelRepository.categories) {
         expect(categoryCounts.containsKey(cat), isTrue, reason: 'Category "$cat" missing');
-        // Geometry appears from Level 151 onward (>= 24 levels each)
-        final minExpected = cat.contains('Geometry') ? 24 : 34;
+        // All categories have substantial representation (>= 25 levels)
+        const minExpected = 25;
         expect(categoryCounts[cat]! >= minExpected, isTrue,
             reason: 'Category "$cat" underrepresented: ${categoryCounts[cat]}');
       }

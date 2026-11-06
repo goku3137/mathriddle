@@ -1,5 +1,6 @@
 import 'dart:collection';
 import '../data/game_levels.dart';
+import '../data/handcrafted_levels/handcrafted_levels_catalog.dart';
 import '../features/riddles/data/procedural_level_generator.dart';
 import '../models/level_model.dart';
 
@@ -10,6 +11,7 @@ class LevelHeader {
   final String category;
   final String difficulty;
   final String title;
+  final QuestionSource sourceType;
 
   const LevelHeader({
     required this.levelNumber,
@@ -17,6 +19,7 @@ class LevelHeader {
     required this.category,
     required this.difficulty,
     required this.title,
+    this.sourceType = QuestionSource.procedural,
   });
 }
 
@@ -93,24 +96,15 @@ class ScalableLevelRepository implements ILevelRepository {
   LevelHeader getLevelHeader(int levelNumber) {
     final clampedLevel = levelNumber.clamp(1, _totalLevels);
 
-    if (clampedLevel <= gameLevels.length) {
-      final lvl = gameLevels[clampedLevel - 1];
+    final handcrafted = HandcraftedLevelsCatalog.getLevel(clampedLevel);
+    if (handcrafted != null) {
       return LevelHeader(
-        levelNumber: lvl.levelNumber,
-        questionType: lvl.questionType,
-        category: lvl.category,
-        difficulty: lvl.difficulty,
+        levelNumber: handcrafted.levelNumber,
+        questionType: handcrafted.questionType,
+        category: handcrafted.category,
+        difficulty: handcrafted.difficulty,
         title: 'Level $clampedLevel',
-      );
-    }
-
-    if (clampedLevel == 500) {
-      return const LevelHeader(
-        levelNumber: 500,
-        questionType: QuestionType.Formula,
-        category: 'Final Boss: Grand Singularity',
-        difficulty: 'Final Boss',
-        title: 'Level 500: Boss',
+        sourceType: QuestionSource.handcrafted,
       );
     }
 
@@ -131,6 +125,7 @@ class ScalableLevelRepository implements ILevelRepository {
       category: category,
       difficulty: difficulty,
       title: 'Level $clampedLevel',
+      sourceType: QuestionSource.procedural,
     );
   }
 

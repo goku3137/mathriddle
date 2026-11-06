@@ -46,10 +46,7 @@ class GameState {
   });
 
   LevelData get currentLevel =>
-      loadedLevel ??
-      (activeLevelNumber <= gameLevels.length
-          ? gameLevels[activeLevelNumber - 1]
-          : gameLevels.first);
+      loadedLevel ?? ScalableLevelRepository.generateLevel(activeLevelNumber);
 
   String get formattedTimer {
     final m = (remainingSeconds ~/ 60).toString().padLeft(2, '0');

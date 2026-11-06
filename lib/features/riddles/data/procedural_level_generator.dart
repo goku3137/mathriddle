@@ -1,11 +1,13 @@
-import '../../../data/game_levels.dart';
+import '../../../data/handcrafted_levels/handcrafted_levels_catalog.dart';
 import '../../../models/level_model.dart';
 import 'generators/algebra_word_generator.dart';
 import 'generators/arithmetic_riddle_generator.dart';
 import 'generators/geometry_riddle_generator.dart';
 import 'generators/pattern_sequence_generator.dart';
 
-/// Pure procedural math puzzle generation engine for levels 21 to 500 across 14 categories.
+/// Pure procedural math puzzle generation engine for levels 1 to 500 across 14 categories.
+/// Seamlessly coordinates with HandcraftedLevelsCatalog so both handcrafted and procedural
+/// riddles appear naturally mixed across all 10 packs of 50.
 class ProceduralLevelGenerator {
   ProceduralLevelGenerator._();
 
@@ -48,25 +50,16 @@ class ProceduralLevelGenerator {
     return 7;
   }
 
-  /// Master level generation factory for all 500 levels
+  /// Master level generation factory for all 500 levels.
+  /// Combines handcrafted and procedural questions naturally throughout the campaign.
   static LevelData generateLevel(int level) {
-    if (level <= gameLevels.length) {
-      return gameLevels[level - 1];
+    // 1. Check if this level is handcrafted
+    final handcrafted = HandcraftedLevelsCatalog.getLevel(level);
+    if (handcrafted != null) {
+      return handcrafted;
     }
 
-    if (level == 500) {
-      return const LevelData(
-        levelNumber: 500,
-        questionType: QuestionType.Formula,
-        category: 'Final Boss: Grand Singularity',
-        difficulty: 'Final Boss',
-        displayContent: 'BOSS: (Δ[7,8,4] × ⊞[Diag 12,15,18]) - F(10) = ?',
-        correctAnswer: '575',
-        hint: 'Solve Stage 1 (Triangle vertex: 7×8÷4), Stage 2 (Matrix diagonal sum), and subtract the 10th Fibonacci number.',
-        solution: 'Stage 1 (Triangle): (7 × 8) ÷ 4 = 14. Stage 2 (Matrix): 12 + 15 + 18 = 45. Stage 3 (Fibonacci): F(10) = 55. Final Singularity: (14 × 45) - 55 = 630 - 55 = 575.',
-      );
-    }
-
+    // 2. Procedural generation for remaining levels
     final catIndex = (level - 1) % 14;
     final category = (level <= 150 && catIndex == 1)
         ? 'Balance & Scale Riddles'
@@ -77,42 +70,75 @@ class ProceduralLevelGenerator {
     final tier = getTier(level);
     final k = (level - 1) ~/ 14;
 
+    final LevelData raw;
     switch (catIndex) {
       case 0:
-        return ArithmeticRiddleGenerator.generateFormula(level, category, difficulty, tier, k);
+        raw = ArithmeticRiddleGenerator.generateFormula(level, category, difficulty, tier, k);
+        break;
       case 1:
         if (level <= 150) {
-          return GeometryRiddleGenerator.generateBalanceRiddle(level, category, difficulty, tier, k);
+          raw = GeometryRiddleGenerator.generateBalanceRiddle(level, category, difficulty, tier, k);
+        } else {
+          raw = GeometryRiddleGenerator.generateTriangle(level, category, difficulty, tier, k);
         }
-        return GeometryRiddleGenerator.generateTriangle(level, category, difficulty, tier, k);
+        break;
       case 2:
-        return PatternSequenceGenerator.generatePattern(level, category, difficulty, tier, k);
+        raw = PatternSequenceGenerator.generatePattern(level, category, difficulty, tier, k);
+        break;
       case 3:
-        return ArithmeticRiddleGenerator.generateMissing(level, category, difficulty, tier, k);
+        raw = ArithmeticRiddleGenerator.generateMissing(level, category, difficulty, tier, k);
+        break;
       case 4:
-        return AlgebraWordGenerator.generateEquation(level, category, difficulty, tier, k);
+        raw = AlgebraWordGenerator.generateEquation(level, category, difficulty, tier, k);
+        break;
       case 5:
-        return PatternSequenceGenerator.generateSequence(level, category, difficulty, tier, k);
+        raw = PatternSequenceGenerator.generateSequence(level, category, difficulty, tier, k);
+        break;
       case 6:
-        return PatternSequenceGenerator.generateGrid(level, category, difficulty, tier, k);
+        raw = PatternSequenceGenerator.generateGrid(level, category, difficulty, tier, k);
+        break;
       case 7:
-        return AlgebraWordGenerator.generateMoney(level, category, difficulty, tier, k);
+        raw = AlgebraWordGenerator.generateMoney(level, category, difficulty, tier, k);
+        break;
       case 8:
-        return AlgebraWordGenerator.generateLogic(level, category, difficulty, tier, k);
+        raw = AlgebraWordGenerator.generateLogic(level, category, difficulty, tier, k);
+        break;
       case 9:
         if (level <= 150) {
-          return GeometryRiddleGenerator.generateAverageRiddle(level, category, difficulty, tier, k);
+          raw = GeometryRiddleGenerator.generateAverageRiddle(level, category, difficulty, tier, k);
+        } else {
+          raw = GeometryRiddleGenerator.generateCircles(level, category, difficulty, tier, k);
         }
-        return GeometryRiddleGenerator.generateCircles(level, category, difficulty, tier, k);
+        break;
       case 10:
-        return ArithmeticRiddleGenerator.generateOperator(level, category, difficulty, tier, k);
+        raw = ArithmeticRiddleGenerator.generateOperator(level, category, difficulty, tier, k);
+        break;
       case 11:
-        return AlgebraWordGenerator.generateAge(level, category, difficulty, tier, k);
+        raw = AlgebraWordGenerator.generateAge(level, category, difficulty, tier, k);
+        break;
       case 12:
-        return ArithmeticRiddleGenerator.generateTrick(level, category, difficulty, tier, k);
+        raw = ArithmeticRiddleGenerator.generateTrick(level, category, difficulty, tier, k);
+        break;
       case 13:
       default:
-        return PatternSequenceGenerator.generateMaze(level, category, difficulty, tier, k);
+        raw = PatternSequenceGenerator.generateMaze(level, category, difficulty, tier, k);
+        break;
     }
+
+    return LevelData(
+      id: 'proc_$level',
+      levelNumber: level,
+      questionType: raw.questionType,
+      category: raw.category,
+      difficulty: raw.difficulty,
+      displayContent: raw.displayContent,
+      nodes: raw.nodes,
+      correctAnswer: raw.correctAnswer,
+      hint: raw.hint,
+      solution: raw.solution,
+      sourceType: QuestionSource.procedural,
+      generationVersion: 1,
+      seed: level,
+    );
   }
 }

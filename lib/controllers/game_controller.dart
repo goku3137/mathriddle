@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../data/game_levels.dart';
 import '../domain/energy_rules.dart';
 import '../domain/scoring_rules.dart';
 import '../models/level_model.dart';

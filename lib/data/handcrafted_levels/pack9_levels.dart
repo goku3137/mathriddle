@@ -63,14 +63,14 @@ const List<LevelData> pack9HandcraftedLevels = [
     sourceType: QuestionSource.handcrafted,
   ),
 
-  // Level 435: Matrix Diagonal Trace
+  // Level 435: Matrix Diagonal Trace Target
   LevelData(
     id: 'hc_435',
     levelNumber: 435,
     questionType: QuestionType.Grid,
     category: 'Matrix & Numeric Grid Riddles',
     difficulty: 'Extreme',
-    displayContent: '3×3 Grid: Matrix Trace Diagonal (27, 39, 44)',
+    displayContent: '3×3 Grid: Matrix Trace is 110. Find missing diagonal element ?',
     nodes: [
       PuzzleNode(id: 'r1c1', displayValue: '27'),
       PuzzleNode(id: 'r1c2', displayValue: '14'),
@@ -80,11 +80,11 @@ const List<LevelData> pack9HandcraftedLevels = [
       PuzzleNode(id: 'r2c3', displayValue: '19'),
       PuzzleNode(id: 'r3c1', displayValue: '21'),
       PuzzleNode(id: 'r3c2', displayValue: '16'),
-      PuzzleNode(id: 'r3c3', displayValue: '44'),
+      PuzzleNode(id: 'r3c3', displayValue: '?', isTarget: true),
     ],
-    correctAnswer: '110',
-    hint: 'Trace = sum of main diagonal elements: 27 + 39 + 44.',
-    solution: '27 + 39 + 44 = 110.',
+    correctAnswer: '44',
+    hint: 'Sum of the main diagonal is 110: 27 + 39 + ? = 110.',
+    solution: '110 - (27 + 39) = 110 - 66 = 44.',
     sourceType: QuestionSource.handcrafted,
   ),
 

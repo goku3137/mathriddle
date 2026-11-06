@@ -1,5 +1,4 @@
 import 'dart:collection';
-import '../data/game_levels.dart';
 import '../data/handcrafted_levels/handcrafted_levels_catalog.dart';
 import '../features/riddles/data/procedural_level_generator.dart';
 import '../models/level_model.dart';

@@ -229,12 +229,12 @@ void main() {
 
     // Verify Learn Screen UI elements
     expect(find.text('LEARNING CURRICULUM'), findsOneWidget);
-    expect(find.text('0 of 15 Concepts Mastered'), findsOneWidget);
+    expect(find.text('0 of 36 Concepts Mastered'), findsOneWidget);
     expect(find.text('+0 PTS'), findsOneWidget);
-    expect(find.text('1. Order of Operations (BODMAS / PEMDAS)'), findsOneWidget);
+    expect(find.text('1. Understanding Numbers & Place Values'), findsOneWidget);
 
     // Tap first lesson
-    await tester.tap(find.text('1. Order of Operations (BODMAS / PEMDAS)'));
+    await tester.tap(find.text('1. Understanding Numbers & Place Values'));
     await tester.pumpAndSettle();
 
     // Verify Lesson Detail Screen
@@ -246,10 +246,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('INTERACTIVE PRACTICE TEST'), findsOneWidget);
-    expect(find.text('Evaluate: 8 + 8 ÷ 4 + 8 × 2 - 4 = ?'), findsOneWidget);
+    expect(find.text('In the number 752, what is the value of the digit 5?'), findsOneWidget);
 
-    // Select correct option '22'
-    await tester.tap(find.text('22'));
+    // Select correct option '50'
+    await tester.tap(find.text('50'));
     await tester.pump();
 
     // Tap SUBMIT ANSWER
@@ -260,14 +260,14 @@ void main() {
     // Verify success feedback and score update
     expect(find.text('EXCELLENT! ANSWER CORRECT'), findsOneWidget);
     expect(progressService.totalScore, equals(50));
-    expect(progressService.isLearnTopicCompleted('topic_pemdas'), isTrue);
+    expect(progressService.isLearnTopicCompleted('stage1_lesson1_place_values'), isTrue);
 
     // Return back to Learn Screen
     await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
     await tester.pumpAndSettle();
 
     // Verify progress card now reflects 1 mastered and +50 PTS
-    expect(find.text('1 of 15 Concepts Mastered'), findsOneWidget);
+    expect(find.text('1 of 36 Concepts Mastered'), findsOneWidget);
     expect(find.text('+50 PTS'), findsOneWidget);
   });
 }

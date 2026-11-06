@@ -115,6 +115,8 @@ class InteractiveLessonSandbox extends StatelessWidget {
         return const MazesDemoWidget();
       case SandboxDemoType.finalBoss:
         return const FinalBossDemoWidget();
+      case SandboxDemoType.general:
+        return const BodmasDemoWidget();
     }
   }
 }

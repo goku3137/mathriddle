@@ -157,7 +157,7 @@ final List<Lesson> stage2BasicMathematics = [
         '35': 'Check the multiplication: 3 × 10 = 30, not 35.',
       },
     ),
-    icon: Icons.fraction_rounded,
+    icon: Icons.pie_chart_rounded,
   ),
 
   // Lesson 10

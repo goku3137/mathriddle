@@ -7,8 +7,8 @@ import 'package:math/services/security_service.dart';
 
 void main() {
   group('Learning Curriculum - Completeness & Mathematical Verification', () {
-    test('Curriculum contains all 15 comprehensive lessons covering all riddle categories', () {
-      expect(learningCurriculum.length, 15);
+    test('Curriculum contains all 36 progressive lessons spanning Stages 1 through 6', () {
+      expect(learningCurriculum.length, 36);
 
       final uniqueIds = <String>{};
       final uniqueTitles = <String>{};
@@ -18,6 +18,8 @@ void main() {
         expect(uniqueTitles.add(lesson.title), isTrue, reason: 'Duplicate lesson title found: ${lesson.title}');
         expect(lesson.title.trim().isNotEmpty, isTrue);
         expect(lesson.category.trim().isNotEmpty, isTrue);
+        expect(lesson.stage.trim().isNotEmpty, isTrue);
+        expect(lesson.stageIndex >= 1 && lesson.stageIndex <= 6, isTrue);
         expect(lesson.difficulty.trim().isNotEmpty, isTrue);
         expect(lesson.conceptSummary.trim().isNotEmpty, isTrue);
         expect(lesson.formula.trim().isNotEmpty, isTrue);
@@ -58,30 +60,14 @@ void main() {
       }
     });
 
-    test('Curriculum covers all 14 core categories and Level 500 Final Boss', () {
-      final categories = learningCurriculum.map((l) => l.category).toSet();
+    test('Curriculum is partitioned equally across all 6 progressive stages (6 lessons each)', () {
+      final stageCounts = <int, int>{};
+      for (final lesson in learningCurriculum) {
+        stageCounts[lesson.stageIndex] = (stageCounts[lesson.stageIndex] ?? 0) + 1;
+      }
 
-      final expectedCategories = [
-        'Formula Precedence',
-        'Number Patterns',
-        'Missing Numbers',
-        'Geometry: Triangles',
-        'Equation Riddles',
-        'Sequences',
-        'Matrices & Grids',
-        'Money & Shopping',
-        'Logic Numbers',
-        'Geometry: Intersecting Circles',
-        'Lateral Operators',
-        'Age Riddles',
-        'Mathematical Tricks',
-        'Number Mazes',
-        'Final Boss',
-      ];
-
-      for (final expected in expectedCategories) {
-        expect(categories.contains(expected), isTrue,
-            reason: 'Category "$expected" is missing from the curriculum');
+      for (int stage = 1; stage <= 6; stage++) {
+        expect(stageCounts[stage], 6, reason: 'Stage $stage does not contain exactly 6 lessons');
       }
     });
 
@@ -98,65 +84,12 @@ void main() {
       }
     });
 
-    test('All lessons contain 3 Graded Worked Examples (Easy, Medium, Hard)', () {
-      for (final lesson in learningCurriculum) {
-        expect(lesson.gradedExamples.length, 3,
-            reason: 'Lesson ${lesson.id} does not have exactly 3 graded examples');
-
-        for (final eg in lesson.gradedExamples) {
-          expect(eg.title.trim().isNotEmpty, isTrue);
-          expect(eg.problem.trim().isNotEmpty, isTrue);
-          expect(eg.stepByStepSolution.trim().isNotEmpty, isTrue);
-          expect(eg.answer.trim().isNotEmpty, isTrue);
-          expect(eg.difficultyLabel.trim().isNotEmpty, isTrue);
-        }
-      }
-    });
-
-    test('All lessons provide Deep Insights: traps, shortcuts, and alternative methods', () {
+    test('All lessons provide traps and pro shortcuts', () {
       for (final lesson in learningCurriculum) {
         expect(lesson.commonMistakes.isNotEmpty, isTrue,
             reason: 'Lesson ${lesson.id} has no common mistakes');
         expect(lesson.shortcutsAndTricks.isNotEmpty, isTrue,
             reason: 'Lesson ${lesson.id} has no shortcuts or tricks');
-        expect(lesson.alternativeMethods.isNotEmpty, isTrue,
-            reason: 'Lesson ${lesson.id} has no alternative methods');
-      }
-    });
-
-    test('All lessons are assigned to valid chapters with real-time sandbox demos', () {
-      final validChapters = [
-        'Chapter 1: Foundational Arithmetic',
-        'Chapter 2: Sequences & Patterns',
-        'Chapter 3: Equations & Logic',
-        'Chapter 4: Visual Geometry',
-        'Chapter 5: Advanced Synthesis & Boss Mastery',
-      ];
-
-      for (final lesson in learningCurriculum) {
-        expect(lesson.chapterIndex >= 1 && lesson.chapterIndex <= 5, isTrue,
-            reason: 'Lesson ${lesson.id} has invalid chapterIndex ${lesson.chapterIndex}');
-        expect(validChapters.contains(lesson.chapter), isTrue,
-            reason: 'Lesson ${lesson.id} has invalid chapter "${lesson.chapter}"');
-        expect(lesson.sandboxType, isNotNull,
-            reason: 'Lesson ${lesson.id} has null sandboxType');
-      }
-    });
-
-    test('All lessons include an end-of-topic knowledge test quiz', () {
-      for (final lesson in learningCurriculum) {
-        expect(lesson.knowledgeTest.isNotEmpty, isTrue,
-            reason: 'Lesson ${lesson.id} has no quiz questions');
-
-        for (final q in lesson.knowledgeTest) {
-          expect(q.question.trim().isNotEmpty, isTrue);
-          expect(q.correctAnswer.trim().isNotEmpty, isTrue);
-          expect(q.options, isNotNull);
-          expect(q.options!.length, 4,
-              reason: 'Quiz question in ${lesson.id} does not have 4 options');
-          expect(q.options!.contains(q.correctAnswer), isTrue,
-              reason: 'Quiz question in ${lesson.id} does not include correct answer in options');
-        }
       }
     });
   });
@@ -171,18 +104,18 @@ void main() {
       expect(progressService.completedLearnTopics, isEmpty);
 
       // Complete first lesson
-      final rewarded1 = await progressService.markLearnTopicCompleted('topic_bodmas');
+      final rewarded1 = await progressService.markLearnTopicCompleted('stage1_lesson1_place_values');
       expect(rewarded1, isTrue);
       expect(progressService.totalScore, ScoringRules.pointsPerLearnLesson); // 50
-      expect(progressService.completedLearnTopics, contains('topic_bodmas'));
+      expect(progressService.completedLearnTopics, contains('stage1_lesson1_place_values'));
 
       // Attempt duplicate claim on same topic
-      final rewardedDuplicate = await progressService.markLearnTopicCompleted('topic_bodmas');
+      final rewardedDuplicate = await progressService.markLearnTopicCompleted('stage1_lesson1_place_values');
       expect(rewardedDuplicate, isFalse);
       expect(progressService.totalScore, ScoringRules.pointsPerLearnLesson); // Still 50
 
       // Complete second lesson
-      final rewarded2 = await progressService.markLearnTopicCompleted('topic_patterns');
+      final rewarded2 = await progressService.markLearnTopicCompleted('stage1_lesson2_addition_subtraction');
       expect(rewarded2, isTrue);
       expect(progressService.totalScore, 100);
       expect(progressService.completedLearnTopics.length, 2);

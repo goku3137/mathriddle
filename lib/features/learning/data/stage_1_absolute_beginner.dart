@@ -319,3 +319,4 @@ final List<Lesson> stage1AbsoluteBeginner = [
     icon: Icons.pie_chart_outline_rounded,
   ),
 ];
+

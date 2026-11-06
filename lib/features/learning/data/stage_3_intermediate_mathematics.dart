@@ -316,3 +316,4 @@ final List<Lesson> stage3IntermediateMathematics = [
     icon: Icons.speed_rounded,
   ),
 ];
+

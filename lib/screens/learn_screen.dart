@@ -15,15 +15,16 @@ class LearnScreen extends ConsumerStatefulWidget {
 }
 
 class _LearnScreenState extends ConsumerState<LearnScreen> {
-  int _selectedChapter = 0; // 0: All Chapters, 1..5: Specific Chapters
+  int _selectedStage = 0; // 0: All Stages, 1..6: Specific Stages
 
-  final List<String> _chapters = const [
-    'All Lessons',
-    'Ch 1: Basics',
-    'Ch 2: Patterns',
-    'Ch 3: Equations',
-    'Ch 4: Geometry',
-    'Ch 5: Mastery',
+  final List<String> _stages = const [
+    'All Stages',
+    'Stage 1: Beginner',
+    'Stage 2: Basic',
+    'Stage 3: Intermediate',
+    'Stage 4: Advanced',
+    'Stage 5: Expert',
+    'Stage 6: Extreme',
   ];
 
   @override
@@ -40,10 +41,17 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
     final progressFraction = totalLessons > 0 ? (totalCompleted / totalLessons) : 0.0;
     final pointsEarned = totalCompleted * 50;
 
-    // Filter by selected chapter
-    final filteredLessons = _selectedChapter == 0
+    // Determine learner's current active stage
+    final currentLesson = learningCurriculum.firstWhere(
+      (l) => !completedTopics.contains(l.id),
+      orElse: () => learningCurriculum.last,
+    );
+    final currentStageLabel = currentLesson.stage;
+
+    // Filter by selected stage
+    final filteredLessons = _selectedStage == 0
         ? learningCurriculum
-        : learningCurriculum.where((l) => l.chapterIndex == _selectedChapter).toList();
+        : learningCurriculum.where((l) => l.stageIndex == _selectedStage).toList();
 
     return Scaffold(
       backgroundColor: GameTheme.background,
@@ -79,7 +87,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // 1. Simplified Learning Progress Banner
+            // 1. Learning Progress Banner
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               child: Container(
@@ -98,11 +106,11 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'LEARNING PATH',
-                              style: TextStyle(
+                            Text(
+                              currentStageLabel.toUpperCase(),
+                              style: const TextStyle(
                                 color: GameTheme.amberAccent,
-                                fontSize: 11,
+                                fontSize: 10,
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 1.0,
                               ),
@@ -151,19 +159,19 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
               ),
             ),
 
-            // 2. Single Chapter Path Filter Chips
+            // 2. Stage Filter Chips
             SizedBox(
               height: 38,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                itemCount: _chapters.length,
+                itemCount: _stages.length,
                 separatorBuilder: (context, index) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
-                  final chName = _chapters[index];
-                  final isSelected = _selectedChapter == index;
+                  final stageName = _stages[index];
+                  final isSelected = _selectedStage == index;
                   return ChoiceChip(
-                    label: Text(chName),
+                    label: Text(stageName),
                     selected: isSelected,
                     labelStyle: TextStyle(
                       color: isSelected ? Colors.black87 : GameTheme.textLight,
@@ -179,7 +187,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                       if (selected) {
                         ref.read(soundServiceProvider).playTap();
                         setState(() {
-                          _selectedChapter = index;
+                          _selectedStage = index;
                         });
                       }
                     },
@@ -189,7 +197,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
             ),
             const SizedBox(height: 10),
 
-            // 3. Simplified Lessons List with Clear Progression
+            // 3. Sequential Lessons List
             Expanded(
               child: ListView.separated(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -199,7 +207,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                   final lesson = filteredLessons[index];
                   final isCompleted = completedTopics.contains(lesson.id);
 
-                  // Find global index in learningCurriculum for linear progression
+                  // Find global position in learningCurriculum for linear progression
                   final globalIndex = learningCurriculum.indexOf(lesson);
                   final isLocked = globalIndex > 0 &&
                       !completedTopics.contains(learningCurriculum[globalIndex - 1].id) &&
@@ -213,6 +221,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
                     isCompleted: isCompleted,
                     isLocked: isLocked,
                     isCurrent: isCurrent,
+                    globalIndex: globalIndex + 1,
                   );
                 },
               ),

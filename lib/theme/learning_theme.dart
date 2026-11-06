@@ -37,3 +37,4 @@ class LearningTheme {
   static const Color borderActive = Color(0xFF94A3B8); // Focused border
   static const Color divider = Color(0xFFE2E8F0); // Subtle hairline separator
 }
+

@@ -6,12 +6,13 @@ import '../../../screens/lesson_detail_screen.dart';
 import '../../../services/sound_service.dart';
 import '../../../theme/game_theme.dart';
 
-/// Clean, pedagogical lesson card displaying title, friendly summary, and clear status.
+/// Clean, pedagogical lesson card displaying stage, title, friendly summary, and clear status.
 class LessonCategoryCard extends ConsumerWidget {
   final Lesson lesson;
   final bool isCompleted;
   final bool isLocked;
   final bool isCurrent;
+  final int globalIndex;
 
   const LessonCategoryCard({
     super.key,
@@ -19,6 +20,7 @@ class LessonCategoryCard extends ConsumerWidget {
     required this.isCompleted,
     this.isLocked = false,
     this.isCurrent = false,
+    this.globalIndex = 0,
   });
 
   @override
@@ -136,12 +138,12 @@ class LessonCategoryCard extends ConsumerWidget {
             ref.read(soundServiceProvider).playTap();
             if (isLocked) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
+                SnackBar(
                   backgroundColor: GameTheme.surfaceElevated,
-                  duration: Duration(seconds: 2),
+                  duration: const Duration(seconds: 2),
                   content: Text(
-                    'Complete earlier lessons to unlock this topic!',
-                    style: TextStyle(color: GameTheme.textWhite, fontSize: 13),
+                    'Complete Lesson $globalIndex to unlock this topic!',
+                    style: const TextStyle(color: GameTheme.textWhite, fontSize: 13),
                   ),
                 ),
               );
@@ -158,7 +160,7 @@ class LessonCategoryCard extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Top Row: Category + Status Badge
+                // Top Row: Stage & Category + Status Badge
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -178,7 +180,7 @@ class LessonCategoryCard extends ConsumerWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          lesson.category.toUpperCase(),
+                          'STAGE ${lesson.stageIndex} • ${lesson.category.toUpperCase()}',
                           style: TextStyle(
                             color: isLocked ? GameTheme.textMuted : GameTheme.amberAccent,
                             fontSize: 10,

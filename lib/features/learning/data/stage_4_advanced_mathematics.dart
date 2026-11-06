@@ -316,3 +316,4 @@ final List<Lesson> stage4AdvancedMathematics = [
     icon: Icons.casino_rounded,
   ),
 ];
+

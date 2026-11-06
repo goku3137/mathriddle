@@ -170,11 +170,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   GestureDetector(
-                    onTap: () => SettingsDialogs.showLegalDialog(
-                      context,
-                      'Privacy Policy',
-                      'Math Riddles operates with an offline-first privacy standard. No user tracking or behavioral telemetry is transmitted. All game progress and settings remain local on this device.',
-                    ),
+                    onTap: () => SettingsDialogs.showPrivacyPolicy(context),
                     child: const Text(
                       'Privacy Policy',
                       style: TextStyle(
@@ -191,11 +187,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     child: Text('|', style: TextStyle(color: GameTheme.textDim, fontSize: 12)),
                   ),
                   GestureDetector(
-                    onTap: () => SettingsDialogs.showLegalDialog(
-                      context,
-                      'Terms of Services',
-                      'By playing Math Riddles, you agree to fair use for personal cognitive exercise. All mathematical puzzles and vector geometry are protected intellectual properties of the publisher.',
-                    ),
+                    onTap: () => SettingsDialogs.showTermsAndConditions(context),
                     child: const Text(
                       'Terms of Services',
                       style: TextStyle(

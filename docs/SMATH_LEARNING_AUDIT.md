@@ -16,15 +16,16 @@ A comprehensive content audit, pedagogical simplification, and UI/UX overhaul of
 
 | Metric | Pre-Audit Value | Post-Audit Value | Improvement / Status |
 | :--- | :---: | :---: | :---: |
-| **Total Comprehensive Lessons** | 15 | **15** | **100% Complete Learning Path** |
-| **Learning Path Chapters** | 5 | **5** | **Structured Beginner to Advanced** |
+| **Total Comprehensive Lessons** | 15 (Initial) | **36 Lessons** | **Full 6-Stage Curriculum** (See [SMATH_LEARNING_CURRICULUM.md](SMATH_LEARNING_CURRICULUM.md)) |
+| **Learning Path Stages** | 5 Chapters | **6 Progressive Stages** | **Absolute Beginner to Olympiad** |
+| **Progression Map Style** | List / Grid | **Candy Crush Adventure Map** | **Winding Vertical Bézier Path** (See [SMATH_LEARNING_UI_REPORT.md](SMATH_LEARNING_UI_REPORT.md)) |
 | **Language & Pedagogy Tone** | Dense academic jargon | **Warm, everyday English** | **100% Beginner Accessible** |
-| **Home Screen Filter Complexity** | Dual scrolling chip rows | **Single clean chapter bar** | **50% Reduced Visual Noise** |
-| **Lesson Progression States** | Uniform appearance | **Completed / Next Up / Locked** | **Structured Linear Guidance** |
+| **Home Screen Filter Complexity** | Dual scrolling chip rows | **Continuous Adventure Map** | **Immersive progression without chip filters** |
+| **Lesson Progression States** | Uniform appearance | **Completed / Active / Locked** | **Visual clarity with pulsing next node** |
 | **Quiz Retry Capability** | Locked on wrong answer | **Instant "Try Again" Button** | **Encouraging Growth Mindset** |
 | **Quiz Option Touch Target Size** | ~36px height | **≥48px comfortable touch** | **Mobile Accessibility Compliant** |
 | **Reward Security Deduplication** | Enforced (50 PTS) | **Enforced (50 PTS)** | **Tamper-Proof & Non-Duplicable** |
-| **Full Flutter Test Suite Pass Rate**| 107/107 | **107/107 (100%)** | **All Tests Green** |
+| **Full Flutter Test Suite Pass Rate**| 104/104 | **105/105 (100%)** | **All Tests Green** |
 | **Static Analysis (`flutter analyze`)** | 1 warning | **0 warnings, 0 errors** | **Immaculate Code Quality** |
 
 ---

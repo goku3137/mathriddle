@@ -71,7 +71,7 @@ flowchart TD
 |:---|:---:|:---:|:---:|:---:|
 | **All 500 Riddles Access** | Yes | Yes | Yes | Yes |
 | **12 Progressive Challenges** | Yes | Yes | Yes | Yes |
-| **14 Academy Lessons & Sandboxes** | Yes | Yes | Yes | Yes |
+| **36 Academy Lessons Across 6 Stages** | Yes | Yes | Yes | Yes |
 | **Unlimited Hearts (No 20m Wait)** | No | No | **Active** | **Active (Lifetime)** |
 | **Interstitial Ads (Every 9 Levels / Session Exit)** | Active | **Disabled** | **Disabled** | **Disabled** |
 | **Hint Access** | Watch Ad | Watch Ad | **Instant / Ad-Free** | **Instant / Ad-Free** |

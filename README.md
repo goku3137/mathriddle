@@ -18,24 +18,28 @@ The application operates on an **offline-first** privacy standard with zero tele
 
 ## Key Features
 
-1. **500 Mathematical Riddles:**
-   - Handcrafted levels 1–20 covering formula precedence, triangle geometry, and sequence riddles.
-   - 480 procedural levels (21–500) spanning 14 mathematical categories with LRU memory caching and lazy loading.
-   - Grand Singularity Final Boss at Level 500.
+1. **500 Mathematical Riddles (Hybrid Campaign):**
+   - 80 handcrafted milestone levels distributed across all 10 progression packs.
+   - 420 deterministic procedural levels spanning 14 mathematical categories with LRU memory caching and zero duplicate questions.
+   - Strict progressive difficulty with 0 geometry in Levels 1–150 and Grand Singularity finale at Level 500.
 
-2. **Smart Progressive Challenges:**
+2. **Smart Progressive Challenges (12 Categories):**
    - 12 arithmetic and lateral categories (Addition, Subtraction, Multiplication, Division, Powers, Percentages, Sequences, Missing Numbers, BODMAS, Lateral Operators, Math Tricks, Mixed Challenge).
    - Dynamic 3-tier difficulty progression (1-digit → 2-digit → 3-digit) unlocking after cumulative correct answers.
    - Non-terminating continuous sessions with compact inline feedback overlays.
    - Dynamic Achievement Badges: Newbie → Beginner → Skilled → Expert → Master → Grandmaster.
+   - Clean UTF-8 math typography and universal geometric symbols for custom operators.
 
-3. **Interactive Math Academy:**
-   - 14 comprehensive curriculum lessons across 3 chapters (Foundational Arithmetic, Pattern Recognition, Advanced Geometry & Lateral Logic).
-   - Interactive sandboxes: Fraction visualizer, Algebraic balance scale, Grid visualizer, Binary bit flips, Clock modular arithmetic, and Function machines.
-   - Graded practice questions awarding +50 points upon mastery.
+3. **Interactive Math Academy (Candy Crush-Inspired Adventure):**
+   - 36 comprehensive curriculum lessons across 6 progressive stages (Absolute Beginner → Basic Math → Intermediate Math → Advanced Thinking → Mathematical Logic & Cryptarithms → Master Competition Math).
+   - Vertically scrolling adventure progression map with smooth winding Bézier paths, milestone stage portals, and pulsing active nodes.
+   - 8-step readability-first pedagogical breakdown inside lessons with real-world examples and common mistake alerts.
+   - Graded 4-option practice quizzes awarding +50 points upon mastery with step-by-step feedback and retry mechanism.
 
 4. **Robust Economy & Audio System:**
    - 5-heart energy system refilling every 20 minutes (with optional Unlimited Hearts via Shop).
+   - Granular scoring system: +5 PTS (1–10), +15 PTS (+10 per 10 levels), +50 PTS (Learn Mode), +3 PTS (Challenge).
+   - Responsive scoring rules modal with two-tier non-overflowing cards.
    - Audio feedback suite powered by `audioplayers` with granular volume control and instant mute toggle in Settings.
    - Google Play Store in-app rating flow for `com.valcire.mathriddle`.
 
@@ -92,6 +96,11 @@ For comprehensive specifications, design guidelines, and architectural deep-dive
 - [Design System & UI Standards](docs/design_system.md)
 - [Screen Architecture & Puzzle Engine](docs/architecture.md)
 - [Monetization & In-App Purchases](docs/monetization.md)
+- [Learning Academy Curriculum & Syllabus](docs/SMATH_LEARNING_CURRICULUM.md)
+- [Learning Section Adventure UI Report](docs/SMATH_LEARNING_UI_REPORT.md)
+- [500 Riddle Campaign Audit Report](docs/SMATH_RIDDLE_CONTENT_AUDIT.md)
+- [Code Quality & Architecture Audit](docs/SMATH_CODE_QUALITY_REPORT.md)
+- [Comprehensive Application Audit Report](docs/SMATH_FULL_AUDIT_REPORT.md)
 
 ---
 

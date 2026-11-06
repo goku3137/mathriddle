@@ -139,6 +139,15 @@ void main() {
 
       await tester.pumpAndSettle();
 
+      // Verify minimal info icon opens how challenges work dialog
+      expect(find.byIcon(Icons.info_outline_rounded), findsOneWidget);
+      await tester.tap(find.byIcon(Icons.info_outline_rounded));
+      await tester.pumpAndSettle();
+      expect(find.text('HOW CHALLENGES WORK'), findsOneWidget);
+      expect(find.text('15-Second Rounds'), findsOneWidget);
+      await tester.tap(find.text('GOT IT'));
+      await tester.pumpAndSettle();
+
       // Verify initial categories are displayed in strict order
       expect(find.text('ADDITION CHALLENGE'), findsOneWidget);
       expect(find.text('SUBTRACTION CHALLENGE'), findsOneWidget);

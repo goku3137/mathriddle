@@ -22,6 +22,9 @@ class MockAdService implements IAdService {
   Future<bool> showInterstitialAd() async => true;
 
   @override
+  Future<bool> showChallengeExitInterstitial() async => true;
+
+  @override
   Future<bool> showRewardedAd({
     required VoidCallback onRewardEarned,
     VoidCallback? onFailed,

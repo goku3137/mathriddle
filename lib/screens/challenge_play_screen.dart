@@ -45,6 +45,7 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
   bool _isShowingPopup = false;
   bool _isSubmitting = false;
   FeedbackOverlayData? _feedbackData;
+  bool _isExiting = false;
 
   @override
   void initState() {
@@ -328,24 +329,51 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
     _startTimer();
   }
 
+  Future<void> _handleExit() async {
+    if (_isExiting) return;
+    _isExiting = true;
+    _stopTimer();
+    _autoAdvanceTimer?.cancel();
+
+    final progress = ref.read(progressServiceProvider);
+    final adService = ref.read(adServiceProvider);
+
+    // Polite SMath rule: Show interstitial ad ONLY when exiting/finishing a challenge
+    // (if the user actually participated: at least 2 attempts or 1 correct answer)
+    // NEVER interrupt during the active 15s timer rounds!
+    if (!progress.isAdsRemoved && (_sessionAttempts >= 2 || _sessionCorrect >= 1)) {
+      await adService.showChallengeExitInterstitial();
+    }
+
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final progressService = ref.watch(progressServiceProvider);
     final stats = progressService.getCategoryStats(widget.category.type);
     final totalAttemptsForCategory = stats.attempts;
 
-    return Scaffold(
-      backgroundColor: GameTheme.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: GameTheme.textWhite, size: 20),
-          onPressed: () {
-            ref.read(soundServiceProvider).playTap();
-            Navigator.of(context).pop();
-          },
-        ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        await _handleExit();
+      },
+      child: Scaffold(
+        backgroundColor: GameTheme.background,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: GameTheme.textWhite, size: 20),
+            onPressed: () {
+              ref.read(soundServiceProvider).playTap();
+              _handleExit();
+            },
+          ),
         title: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -492,7 +520,8 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 
 }

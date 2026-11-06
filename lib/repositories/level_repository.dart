@@ -92,14 +92,45 @@ class ScalableLevelRepository implements ILevelRepository {
   @override
   LevelHeader getLevelHeader(int levelNumber) {
     final clampedLevel = levelNumber.clamp(1, _totalLevels);
-    final lvl = getLevelSync(clampedLevel);
+
+    if (clampedLevel <= gameLevels.length) {
+      final lvl = gameLevels[clampedLevel - 1];
+      return LevelHeader(
+        levelNumber: lvl.levelNumber,
+        questionType: lvl.questionType,
+        category: lvl.category,
+        difficulty: lvl.difficulty,
+        title: 'Level $clampedLevel',
+      );
+    }
+
+    if (clampedLevel == 500) {
+      return const LevelHeader(
+        levelNumber: 500,
+        questionType: QuestionType.Formula,
+        category: 'Final Boss: Grand Singularity',
+        difficulty: 'Final Boss',
+        title: 'Level 500: Boss',
+      );
+    }
+
+    final catIndex = (clampedLevel - 1) % 14;
+    final category = (clampedLevel <= 150 && catIndex == 1)
+        ? 'Balance & Scale Riddles'
+        : (clampedLevel <= 150 && catIndex == 9)
+            ? 'Proportion & Average Riddles'
+            : categories[catIndex];
+    final difficulty = getDifficulty(clampedLevel);
+    final qType = (clampedLevel <= 150 && (catIndex == 1 || catIndex == 9))
+        ? QuestionType.Formula
+        : _questionTypeForCategory(catIndex);
 
     return LevelHeader(
-      levelNumber: lvl.levelNumber,
-      questionType: lvl.questionType,
-      category: lvl.category,
-      difficulty: lvl.difficulty,
-      title: clampedLevel == 500 ? 'Level 500: Boss' : 'Level $clampedLevel',
+      levelNumber: clampedLevel,
+      questionType: qType,
+      category: category,
+      difficulty: difficulty,
+      title: 'Level $clampedLevel',
     );
   }
 

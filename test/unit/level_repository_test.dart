@@ -40,10 +40,19 @@ void main() {
       expect(level14.correctAnswer, equals('2'));
 
       final level16 = await repository.getLevel(16);
-      expect(level16.questionType, equals(QuestionType.Geometry));
-      expect(level16.nodes, isNotNull);
-      expect(level16.nodes!.length, equals(4));
-      expect(level16.correctAnswer, equals('10'));
+      expect(level16.questionType, equals(QuestionType.Formula));
+      expect(level16.category, equals('Logic Number Riddles'));
+      expect(level16.correctAnswer, equals('34'));
+    });
+
+    test('Levels 1 to 150 strictly contain zero geometry questions', () {
+      for (int i = 1; i <= 150; i++) {
+        final level = repository.getLevelSync(i);
+        expect(level.questionType != QuestionType.Geometry, isTrue,
+            reason: 'Level $i must not be Geometry');
+        expect(level.category.toLowerCase().contains('geometry'), isFalse,
+            reason: 'Level $i category ${level.category} must not contain geometry');
+      }
     });
 
     test('All 500 levels have strictly valid, non-negative integer answers matching 0-9 keypad', () {
@@ -117,7 +126,10 @@ void main() {
       // Check all 14 core categories are present
       for (final cat in ScalableLevelRepository.categories) {
         expect(categoryCounts.containsKey(cat), isTrue, reason: 'Category "$cat" missing');
-        expect(categoryCounts[cat]! >= 30, isTrue, reason: 'Category "$cat" underrepresented: ${categoryCounts[cat]}');
+        // Geometry appears from Level 151 onward (>= 24 levels each)
+        final minExpected = cat.contains('Geometry') ? 24 : 34;
+        expect(categoryCounts[cat]! >= minExpected, isTrue,
+            reason: 'Category "$cat" underrepresented: ${categoryCounts[cat]}');
       }
 
       // Final Boss is its own special category

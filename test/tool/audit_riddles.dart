@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_print, avoid_function_literals_in_foreach_calls
 import 'package:math/models/level_model.dart';
 import 'package:math/repositories/level_repository.dart';
 

@@ -63,7 +63,11 @@ class ProceduralLevelGenerator {
     }
 
     final catIndex = (level - 1) % 14;
-    final category = categories[catIndex];
+    final category = (level <= 150 && catIndex == 1)
+        ? 'Balance & Scale Riddles'
+        : (level <= 150 && catIndex == 9)
+            ? 'Proportion & Average Riddles'
+            : categories[catIndex];
     final difficulty = getDifficulty(level);
     final tier = getTier(level);
     final k = (level - 1) ~/ 14;
@@ -72,6 +76,9 @@ class ProceduralLevelGenerator {
       case 0:
         return _generateFormula(level, category, difficulty, tier, k);
       case 1:
+        if (level <= 150) {
+          return _generateBalanceRiddle(level, category, difficulty, tier, k);
+        }
         return _generateTriangle(level, category, difficulty, tier, k);
       case 2:
         return _generatePattern(level, category, difficulty, tier, k);
@@ -88,6 +95,9 @@ class ProceduralLevelGenerator {
       case 8:
         return _generateLogic(level, category, difficulty, tier, k);
       case 9:
+        if (level <= 150) {
+          return _generateAverageRiddle(level, category, difficulty, tier, k);
+        }
         return _generateCircles(level, category, difficulty, tier, k);
       case 10:
         return _generateOperator(level, category, difficulty, tier, k);
@@ -98,6 +108,183 @@ class ProceduralLevelGenerator {
       case 13:
       default:
         return _generateMaze(level, category, difficulty, tier, k);
+    }
+  }
+
+  // --- Non-Geometry Replacement for catIndex 1 (Levels 1-150): Balance & Scale Riddles ---
+  static LevelData _generateBalanceRiddle(int level, String category, String difficulty, int tier, int k) {
+    if (tier <= 0) {
+      // Levels 30, 44 (Tier 0)
+      final boxes = (k % 2) + 3; // 3 or 4
+      final unitWeight = (k * 3 % 4) + 6; // 6..9
+      final extra = (k % 3) + 5; // 5..7
+      final total = boxes * unitWeight + extra;
+      return LevelData(
+        levelNumber: level,
+        questionType: QuestionType.Formula,
+        category: category,
+        difficulty: difficulty,
+        displayContent: 'On a balance scale, $boxes identical boxes plus a $extra kg weight balance a $total kg weight. What is the weight of one box in kg?',
+        correctAnswer: '$unitWeight',
+        hint: 'Subtract the extra $extra kg from $total kg, then divide by $boxes boxes.',
+        solution: '$total - $extra = ${total - extra} kg. ${total - extra} ÷ $boxes = $unitWeight kg.',
+      );
+    } else if (tier <= 1) {
+      // Levels 58, 72, 86, 100 (Tier 1)
+      final leftBoxes = (k % 3) + 2; // 2..4
+      final diffBoxes = (k % 3) + 3; // 3..5
+      final rightBoxes = leftBoxes + diffBoxes;
+      final unitWeight = (k % 4) + 5; // 5..8
+      final weightAdded = diffBoxes * unitWeight;
+      return LevelData(
+        levelNumber: level,
+        questionType: QuestionType.Formula,
+        category: category,
+        difficulty: difficulty,
+        displayContent: 'On a balance scale, $leftBoxes blocks and a $weightAdded kg weight balance $rightBoxes identical blocks. What is the weight of one block in kg?',
+        correctAnswer: '$unitWeight',
+        hint: 'Remove $leftBoxes blocks from both sides: $diffBoxes blocks balance $weightAdded kg.',
+        solution: '$rightBoxes - $leftBoxes = $diffBoxes blocks. $weightAdded ÷ $diffBoxes = $unitWeight kg.',
+      );
+    } else {
+      // Levels 114, 128, 142 (Tier 2)
+      final leftSpheres = (k % 3) + 5; // 5..7
+      const rightSpheres = 2;
+      final diffSpheres = leftSpheres - rightSpheres; // 3..5
+      final unitWeight = (k % 4) + 12; // 12..15
+      final leftWeight = (k % 5) + 10; // 10..14
+      final rightWeight = leftWeight + diffSpheres * unitWeight;
+      return LevelData(
+        levelNumber: level,
+        questionType: QuestionType.Formula,
+        category: category,
+        difficulty: difficulty,
+        displayContent: 'On a balance scale, $leftSpheres spheres plus a $leftWeight kg weight balance $rightSpheres spheres plus a $rightWeight kg weight. What is the weight of one sphere in kg?',
+        correctAnswer: '$unitWeight',
+        hint: 'Subtract $rightSpheres spheres and $leftWeight kg from both sides to isolate the remaining spheres.',
+        solution: '$leftSpheres - $rightSpheres = $diffSpheres spheres. $rightWeight - $leftWeight = ${rightWeight - leftWeight} kg. ${rightWeight - leftWeight} ÷ $diffSpheres = $unitWeight kg.',
+      );
+    }
+  }
+
+  // --- Non-Geometry Replacement for catIndex 9 (Levels 1-150): Proportion & Average Riddles ---
+  static LevelData _generateAverageRiddle(int level, String category, String difficulty, int tier, int k) {
+    if (tier <= 0) {
+      // Levels 24, 38 (Tier 0)
+      final avg = 15 + (k % 3) * 5; // 20 or 25
+      final n1 = avg - (k % 4 + 3);
+      final n2 = avg + (k % 3 + 2);
+      final target = 3 * avg - (n1 + n2);
+      return LevelData(
+        levelNumber: level,
+        questionType: QuestionType.Formula,
+        category: category,
+        difficulty: difficulty,
+        displayContent: 'The average of three numbers is $avg. If two of the numbers are $n1 and $n2, what is the third number?',
+        correctAnswer: '$target',
+        hint: 'The sum of all three numbers is 3 × $avg = ${3 * avg}. Subtract $n1 and $n2.',
+        solution: 'Total sum = 3 × $avg = ${3 * avg}. Third number = ${3 * avg} - ($n1 + $n2) = $target.',
+      );
+    } else if (tier <= 1) {
+      // Levels 52, 66, 80, 94 (Tier 1)
+      if (k % 2 == 0) {
+        // Average test score
+        const targetAvg = 85;
+        final t1 = 78 + (k % 3) * 2;
+        final t2 = 82 + (k % 4) * 2;
+        final t3 = 88 + (k % 3) * 2;
+        final target = 4 * targetAvg - (t1 + t2 + t3);
+        return LevelData(
+          levelNumber: level,
+          questionType: QuestionType.Formula,
+          category: category,
+          difficulty: difficulty,
+          displayContent: 'A student scored $t1, $t2, and $t3 on three tests. What score is needed on the fourth test to average $targetAvg overall?',
+          correctAnswer: '$target',
+          hint: 'To average $targetAvg across 4 tests, total score needed is 4 × $targetAvg = ${4 * targetAvg}.',
+          solution: 'Total needed = 4 × $targetAvg = ${4 * targetAvg}. Fourth test = ${4 * targetAvg} - ($t1 + $t2 + $t3) = $target.',
+        );
+      } else {
+        // Ratio problem
+        final ratioA = (k % 3) + 3; // 3, 4, 5
+        final ratioB = ratioA + (k % 2) + 2; // ratioA + 2 or 3
+        final mult = (k % 4) + 7; // 7..10
+        final countA = ratioA * mult;
+        final countB = ratioB * mult;
+        return LevelData(
+          levelNumber: level,
+          questionType: QuestionType.Formula,
+          category: category,
+          difficulty: difficulty,
+          displayContent: 'The ratio of blue marbles to red marbles in a bag is $ratioA to $ratioB. If there are $countA blue marbles, how many red marbles are there?',
+          correctAnswer: '$countB',
+          hint: 'Find the value of 1 ratio part: $countA ÷ $ratioA.',
+          solution: '1 part = $countA ÷ $ratioA = $mult. Red marbles = $ratioB × $mult = $countB.',
+        );
+      }
+    } else {
+      // Levels 108, 122, 136, 150 (Tier 2)
+      if (k == 7) {
+        // Consecutive integers average
+        const avg = 30;
+        const largest = 32;
+        return LevelData(
+          levelNumber: level,
+          questionType: QuestionType.Formula,
+          category: category,
+          difficulty: difficulty,
+          displayContent: 'The average of 5 consecutive integers is $avg. What is the largest of these integers?',
+          correctAnswer: '$largest',
+          hint: 'In 5 consecutive integers, the middle integer equals their average ($avg).',
+          solution: 'The 5 consecutive integers are 28, 29, 30, 31, 32. The largest is 32.',
+        );
+      } else if (k == 8) {
+        // Consecutive even integers average
+        const avg = 44;
+        const largest = 48;
+        return LevelData(
+          levelNumber: level,
+          questionType: QuestionType.Formula,
+          category: category,
+          difficulty: difficulty,
+          displayContent: 'The average of 5 consecutive even integers is $avg. What is the largest of these integers?',
+          correctAnswer: '$largest',
+          hint: 'The middle even integer is $avg. The integers are $avg - 4, $avg - 2, $avg, $avg + 2, $avg + 4.',
+          solution: 'The integers are 40, 42, 44, 46, 48. The largest is 48.',
+        );
+      } else if (k == 9) {
+        // Average with removed element
+        const count = 6;
+        const oldAvg = 18;
+        const newAvg = 16;
+        const removed = (count * oldAvg) - ((count - 1) * newAvg); // 108 - 80 = 28
+        return LevelData(
+          levelNumber: level,
+          questionType: QuestionType.Formula,
+          category: category,
+          difficulty: difficulty,
+          displayContent: 'The average of $count numbers is $oldAvg. When one number is removed, the average of the remaining ${count - 1} numbers becomes $newAvg. What was the removed number?',
+          correctAnswer: '$removed',
+          hint: 'Subtract the new sum (${count - 1} × $newAvg) from the original sum ($count × $oldAvg).',
+          solution: 'Original sum = $count × $oldAvg = ${count * oldAvg}. New sum = ${count - 1} × $newAvg = ${(count - 1) * newAvg}. Removed number = ${count * oldAvg} - ${(count - 1) * newAvg} = $removed.',
+        );
+      } else {
+        // Level 150: Average with added element
+        const count = 5;
+        const oldAvg = 24;
+        const added = 36;
+        const newAvg = ((count * oldAvg) + added) ~/ (count + 1); // (120 + 36) / 6 = 26
+        return LevelData(
+          levelNumber: level,
+          questionType: QuestionType.Formula,
+          category: category,
+          difficulty: difficulty,
+          displayContent: 'The average of $count numbers is $oldAvg. If a 6th number with value $added is added, what is the new average of all 6 numbers?',
+          correctAnswer: '$newAvg',
+          hint: 'Find the total sum of all 6 numbers, then divide by 6.',
+          solution: 'Sum of 5 numbers = $count × $oldAvg = ${count * oldAvg}. Total with 6th number = ${count * oldAvg} + $added = ${(count * oldAvg) + added}. New average = ${(count * oldAvg) + added} ÷ 6 = $newAvg.',
+        );
+      }
     }
   }
 
@@ -162,10 +349,10 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: '$aÂ³ - $b × $c + $d = ?',
+        displayContent: '$a³ - $b × $c + $d = ?',
         correctAnswer: '$ans',
-        hint: 'Calculate cube $aÂ³ first, then multiplication $b × $c.',
-        solution: '$aÂ³ = ${a * a * a}. $b × $c = ${b * c}. ${a * a * a} - ${b * c} + $d = $ans.',
+        hint: 'Calculate cube $a³ first, then multiplication $b × $c.',
+        solution: '$a³ = ${a * a * a}. $b × $c = ${b * c}. ${a * a * a} - ${b * c} + $d = $ans.',
       );
     } else if (tier <= 4) {
       final a = (k % 4) + 4;
@@ -214,10 +401,10 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: '[($aÂ³ - $bÂ³) ÷ ($a - $b) - ($a × $b)] + ($c × $d) = ?',
+        displayContent: '[($a³ - $b³) ÷ ($a - $b) - ($a × $b)] + ($c × $d) = ?',
         correctAnswer: '$ans',
-        hint: 'Algebraic identity: (aÂ³ - bÂ³)/(a - b) = a² + ab + b². Subtracting ab leaves a² + b².',
-        solution: '(aÂ³ - bÂ³)/(a - b) - ab = a² + b² = ${a * a + b * b}. Adding $c × $d (${c * d}) yields $ans.',
+        hint: 'Algebraic identity: (a³ - b³) ÷ (a - b) = a² + ab + b². Subtracting ab leaves a² + b².',
+        solution: '(a³ - b³) ÷ (a - b) - ab = a² + b² = ${a * a + b * b}. Adding $c × $d (${c * d}) yields $ans.',
       );
     }
   }
@@ -298,8 +485,8 @@ class ProceduralLevelGenerator {
         difficulty: difficulty,
         displayContent: '$t1, $t2, $t3, $t4, ?',
         correctAnswer: '$ans',
-        hint: 'Look at how much is added each time: 1, 8, 27... think cubes (1Â³, 2Â³, 3Â³).',
-        solution: 'Differences are 1Â³, 2Â³, 3Â³. Next difference is 4Â³ (64): $t4 + 64 = $ans.',
+        hint: 'Look at how much is added each time: 1, 8, 27... think cubes (1³, 2³, 3³).',
+        solution: 'Differences are 1³, 2³, 3³. Next difference is 4³ (64): $t4 + 64 = $ans.',
       );
     } else if (tier <= 5) {
       final a = (k * 2 % 11) + 3;
@@ -347,7 +534,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: '$a + [?] = $sum',
+        displayContent: '$a + ? = $sum',
         correctAnswer: '$b',
         hint: 'Subtract $a from $sum.',
         solution: '$sum - $a = $b.',
@@ -359,7 +546,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: '([?] × $m) + $add = $total',
+        displayContent: '(? × $m) + $add = $total',
         correctAnswer: '$x',
         hint: 'Subtract $add first, then divide by $m.',
         solution: '$total - $add = ${total - add}. Then ${total - add} ÷ $m = $x.',
@@ -384,7 +571,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Row: $r1 + ? + $r2 = $rowSum. Col: $c1 + ? + $c2 = $colSum. ? = ?',
+        displayContent: 'Row: $r1 + ? + $r2 = $rowSum\nColumn: $c1 + ? + $c2 = $colSum\n? = ?',
         correctAnswer: '$target',
         hint: 'Solve either row or column equation for the missing common value.',
         solution: 'From row: ? = $rowSum - ($r1 + $r2) = $target. Verified in col: $c1 + $target + $c2 = $colSum.',
@@ -396,7 +583,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: '$a × [?] × $b = $rowProd. [?] = ?',
+        displayContent: '$a × ? × $b = $rowProd\n? = ?',
         correctAnswer: '$target',
         hint: 'Divide $rowProd by the product of $a and $b (${a * b}).',
         solution: '$a × $b = ${a * b}. $rowProd ÷ ${a * b} = $target.',
@@ -420,7 +607,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'A+B+C=$sum, A×B=$p1, B×C=$p2. A×B×C = ?',
+        displayContent: 'A + B + C = $sum, A × B = $p1, B × C = $p2. A × B × C = ?',
         correctAnswer: '$ans',
         hint: 'Find B by factoring common elements of $p1 and $p2.',
         solution: 'Common factor B = $b gives A = $a and C = $c. A+B+C = $sum. A×B×C = $ans.',
@@ -439,7 +626,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Geometry,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Triangle [Vertex-Sum]: Top $top, Left $left, Right $right → Center [?]',
+        displayContent: 'Triangle: Top $top, Left $left, Right $right → Center = ?',
         nodes: [
           PuzzleNode(id: 'top', displayValue: '$top', relX: 0.5, relY: 0.16),
           PuzzleNode(id: 'left', displayValue: '$left', relX: 0.15, relY: 0.82),
@@ -457,7 +644,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Geometry,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Triangle [Sum-Mult]: Top $top, Left $left, Right $right → Center [?]',
+        displayContent: 'Triangle: Top $top, Left $left, Right $right → Center = ?',
         nodes: [
           PuzzleNode(id: 'top', displayValue: '$top', relX: 0.5, relY: 0.16),
           PuzzleNode(id: 'left', displayValue: '$left', relX: 0.15, relY: 0.82),
@@ -475,7 +662,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Geometry,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Triangle [Square-Div]: Top $t, Left $l, Right $r → Center [?]',
+        displayContent: 'Triangle: Top $t, Left $l, Right $r → Center = ?',
         nodes: [
           PuzzleNode(id: 'top', displayValue: '$t', relX: 0.5, relY: 0.16),
           PuzzleNode(id: 'left', displayValue: '$l', relX: 0.15, relY: 0.82),
@@ -493,7 +680,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Geometry,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Triangle [Pythagorean]: Top $t, Left $l, Right $r → Center [?]',
+        displayContent: 'Triangle: Top $t, Left $l, Right $r → Center = ?',
         nodes: [
           PuzzleNode(id: 'top', displayValue: '$t', relX: 0.5, relY: 0.16),
           PuzzleNode(id: 'left', displayValue: '$l', relX: 0.15, relY: 0.82),
@@ -505,22 +692,25 @@ class ProceduralLevelGenerator {
         solution: '$t² + $l² - $r² = ${t * t} + ${l * l} - ${r * r} = $ans.',
       );
     } else if (tier <= 4) {
-      final ans = (top * left) + (top * right) - (left * right);
+      final t = k - 11;
+      final l = (k % 4) + 3;
+      final r = (k % 3) + 2;
+      final ans = (t * l) + (t * r) - (l * r);
       return LevelData(
         levelNumber: level,
         questionType: QuestionType.Geometry,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Triangle [Cross-Vertex]: Top $top, Left $left, Right $right → Center [?]',
+        displayContent: 'Triangle: Top $t, Left $l, Right $r → Center = ?',
         nodes: [
-          PuzzleNode(id: 'top', displayValue: '$top', relX: 0.5, relY: 0.16),
-          PuzzleNode(id: 'left', displayValue: '$left', relX: 0.15, relY: 0.82),
-          PuzzleNode(id: 'right', displayValue: '$right', relX: 0.85, relY: 0.82),
+          PuzzleNode(id: 'top', displayValue: '$t', relX: 0.5, relY: 0.16),
+          PuzzleNode(id: 'left', displayValue: '$l', relX: 0.15, relY: 0.82),
+          PuzzleNode(id: 'right', displayValue: '$r', relX: 0.85, relY: 0.82),
           PuzzleNode(id: 'center', displayValue: '?', isTarget: true, relX: 0.5, relY: 0.56),
         ],
         correctAnswer: '$ans',
         hint: 'Formula: (Top × Left) + (Top × Right) - (Left × Right).',
-        solution: '($top × $left) + ($top × $right) - ($left × $right) = ${top * left} + ${top * right} - ${left * right} = $ans.',
+        solution: '($t × $l) + ($t × $r) - ($l × $r) = ${t * l} + ${t * r} - ${l * r} = $ans.',
       );
     } else if (tier <= 5) {
       final t = (k % 4) + 3; final l = (k % 3) + 2; const r = 2; final ans = ((t * t * t) - (l * l)) ~/ r;
@@ -529,7 +719,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Geometry,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Triangle [Cubic-Diff]: Top $t, Left $l, Right $r → Center [?]',
+        displayContent: 'Triangle: Top $t, Left $l, Right $r → Center = ?',
         nodes: [
           PuzzleNode(id: 'top', displayValue: '$t', relX: 0.5, relY: 0.16),
           PuzzleNode(id: 'left', displayValue: '$l', relX: 0.15, relY: 0.82),
@@ -538,7 +728,7 @@ class ProceduralLevelGenerator {
         ],
         correctAnswer: '$ans',
         hint: 'Cube Top, subtract Left squared, then divide by Right.',
-        solution: '($tÂ³ - $l²) ÷ $r = (${t * t * t} - ${l * l}) ÷ $r = ${t * t * t - l * l} ÷ $r = $ans.',
+        solution: '($t³ - $l²) ÷ $r = (${t * t * t} - ${l * l}) ÷ $r = ${t * t * t - l * l} ÷ $r = $ans.',
       );
     } else {
       final t = (k % 5) + 5; final r = (k % 4) + 3; final targetLeft = (k % 5) + 4; final center = (t * targetLeft) + r;
@@ -547,7 +737,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Geometry,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Triangle [Inverse-Left]: Top $t, Left [?], Right $r → Center $center',
+        displayContent: 'Triangle: Top $t, Left ?, Right $r → Center $center',
         nodes: [
           PuzzleNode(id: 'top', displayValue: '$t', relX: 0.5, relY: 0.16),
           PuzzleNode(id: 'left', displayValue: '?', isTarget: true, relX: 0.15, relY: 0.82),
@@ -755,8 +945,8 @@ class ProceduralLevelGenerator {
         difficulty: difficulty,
         displayContent: '$t1, $t2, $t3, ?',
         correctAnswer: '$ans',
-        hint: 'Generated by the cubic formula nÂ³ - n² + 1.',
-        solution: 'For next n = ${4 + shift}: ${4 + shift}Â³ - ${4 + shift}² + 1 = $ans.',
+        hint: 'Generated by the cubic formula n³ - n² + 1.',
+        solution: 'For next n = ${4 + shift}: ${4 + shift}³ - ${4 + shift}² + 1 = $ans.',
       );
     }
   }
@@ -888,7 +1078,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Grid,
         category: category,
         difficulty: difficulty,
-        displayContent: '3×3 Grid: Diagonal Product = $prod ($a × $b × [?])',
+        displayContent: '3×3 Grid: Diagonal Product = $prod ($a × $b × ?)',
         nodes: [
           PuzzleNode(id: 'r1c1', displayValue: '$a'),
           PuzzleNode(id: 'r1c2', displayValue: '5'),
@@ -944,7 +1134,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: '$count pens cost \$$cost. Cost of $targetCount pens? [?]',
+        displayContent: 'If $count pens cost \$$cost, what is the cost of $targetCount pens in dollars?',
         correctAnswer: '$ans',
         hint: 'Find the cost of 1 pen first: \$$cost ÷ $count.',
         solution: '1 pen = \$$cost ÷ $count = \$$unitPrice. $targetCount pens = $targetCount × \$$unitPrice = \$$ans.',
@@ -956,7 +1146,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'A \$$basePrice jacket has $discountPercent% off discount. Final price? [?]',
+        displayContent: 'A jacket originally priced at \$$basePrice is on sale for $discountPercent% off. What is the final price in dollars?',
         correctAnswer: '$ans',
         hint: '25% off means paying 75% of the original price.',
         solution: 'Discount = \$$basePrice × 0.25 = \$${basePrice ~/ 4}. Price = \$$basePrice - \$${basePrice ~/ 4} = \$$ans.',
@@ -968,7 +1158,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: '1 coffee + 1 donut = \$$c1. 2 coffees + 1 donut = \$$c2. Coffee cost? [?]',
+        displayContent: 'One coffee and one donut cost \$$c1. Two coffees and one donut cost \$$c2. What is the cost of one coffee in dollars?',
         correctAnswer: '$coffee',
         hint: 'The extra coffee accounts for the price difference.',
         solution: 'Coffee = \$$c2 - \$$c1 = \$$coffee.',
@@ -980,10 +1170,10 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: '$totalCoins coins (dimes & nickels) total $totalCentsÂ¢. Number of dimes? [?]',
+        displayContent: 'A collection of $totalCoins coins (dimes and nickels) totals $totalCents¢. How many dimes are there?',
         correctAnswer: '$dimes',
-        hint: 'If all were nickels, they would make ${totalCoins * 5}Â¢. Extra cents come from dimes (+5Â¢ each).',
-        solution: 'Extra = $totalCents - ${totalCoins * 5} = ${totalCents - totalCoins * 5}Â¢. Dimes = ${totalCents - totalCoins * 5} ÷ 5 = $dimes.',
+        hint: 'If all were nickels, they would make ${totalCoins * 5}¢. Extra cents come from dimes (+5¢ each).',
+        solution: 'Extra = $totalCents - ${totalCoins * 5} = ${totalCents - totalCoins * 5}¢. Dimes = ${totalCents - totalCoins * 5} ÷ 5 = $dimes.',
       );
     } else if (tier <= 4) {
       final cost = ((k * 3 % 7) + 4) * 25; const profit = 20; final sellPrice = cost + (cost * profit ~/ 100);
@@ -992,7 +1182,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Item sold for \$$sellPrice at $profit% profit. Original cost price? [?]',
+        displayContent: 'An item was sold for \$$sellPrice at a profit of $profit%. What was the original cost price in dollars?',
         correctAnswer: '$cost',
         hint: 'Selling price is 120% of the cost price. Divide by 1.2.',
         solution: 'Cost = \$$sellPrice ÷ 1.20 = \$$cost.',
@@ -1004,7 +1194,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: '\$$original item has 20% discount, then extra 10% off. Final price? [?]',
+        displayContent: 'An item priced at \$$original has a 20% discount, followed by an additional 10% off. What is the final price in dollars?',
         correctAnswer: '$finalPrice',
         hint: 'Successive discounts: multiply by 0.80, then by 0.90.',
         solution: '\$$original × 0.80 = \$$after20. Then \$$after20 × 0.90 = \$$finalPrice.',
@@ -1021,7 +1211,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Buy 3 get 1 free at \$$unit each. Minimum cost for $items items? [?]',
+        displayContent: 'A store offers "Buy 3 get 1 free" at \$$unit each. What is the minimum cost for $items items in dollars?',
         correctAnswer: '$ans',
         hint: 'Every 4 items gives 1 free ($free free items). Pay for only $paid items.',
         solution: '$items items = $free free + $paid paid. $paid × \$$unit = \$$ans.',
@@ -1038,7 +1228,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Even number between $lower and $upper whose digits sum to $sum? [?]',
+        displayContent: 'What is the even number between $lower and $upper whose digits sum to $sum?',
         correctAnswer: '$num',
         hint: 'Tens digit is $tens. Ones digit must be even and add up to $sum.',
         solution: '$tens + $ones = $sum. The number is $num.',
@@ -1050,7 +1240,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'A 2-digit number (digits sum to $sum) is 4 times its digit sum. Value? [?]',
+        displayContent: 'A 2-digit number (digits sum to $sum) is 4 times its digit sum. What is the number?',
         correctAnswer: '$num',
         hint: 'Multiply the digit sum $sum by 4.',
         solution: '4 × $sum = $num (digits: $t + $o = $sum).',
@@ -1070,7 +1260,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Smallest positive number divisible by ${item['n']}? [?]',
+        displayContent: 'What is the smallest positive number divisible by each of ${item['n']}?',
         correctAnswer: item['a']!,
         hint: 'Find the Least Common Multiple (LCM) of the numbers.',
         solution: 'LCM of ${item['n']} is ${item['a']}.',
@@ -1082,27 +1272,94 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: '3-digit palindrome whose digits sum to $sum and multiply to $prod? [?]',
+        displayContent: 'What is the 3-digit palindrome whose digits sum to $sum and multiply to $prod?',
         correctAnswer: '$num',
         hint: 'Outer digits are identical. Test factors of $prod.',
         solution: 'Digits are $outer, $inner, $outer: sum = $sum, product = $prod. Number is $num.',
       );
     } else if (tier <= 4) {
-      final val = (k % 2 == 0) ? 25 : 76;
-      final sq = val * val;
-      final ans = val;
-      return LevelData(
-        levelNumber: level,
-        questionType: QuestionType.Formula,
-        category: category,
-        difficulty: difficulty,
-        displayContent: '2-digit number (seed #${k + 1}) whose square ($sq) ends in the number itself? [?]',
-        correctAnswer: '$ans',
-        hint: (ans == 25) ? 'Think of a multiple of 5.' : 'A 2-digit number ending in 6.',
-        solution: '$ans² = $sq, which ends in $ans.',
-      );
+      final subIndex = k - 14;
+      switch (subIndex) {
+        case 0:
+          return LevelData(
+            levelNumber: level,
+            questionType: QuestionType.Formula,
+            category: category,
+            difficulty: difficulty,
+            displayContent: 'What 2-digit number has a square (625) that ends in the number itself?',
+            correctAnswer: '25',
+            hint: 'Think of a 2-digit multiple of 5.',
+            solution: '25² = 625, which ends in 25.',
+          );
+        case 1:
+          return LevelData(
+            levelNumber: level,
+            questionType: QuestionType.Formula,
+            category: category,
+            difficulty: difficulty,
+            displayContent: 'What 2-digit number has a square (5776) that ends in the number itself?',
+            correctAnswer: '76',
+            hint: 'A 2-digit number ending in 6.',
+            solution: '76² = 5776, which ends in 76.',
+          );
+        case 2:
+          return LevelData(
+            levelNumber: level,
+            questionType: QuestionType.Formula,
+            category: category,
+            difficulty: difficulty,
+            displayContent: 'What 3-digit number has a square (141376) that ends in the 3-digit number itself?',
+            correctAnswer: '376',
+            hint: 'Think of a 3-digit number ending in 76.',
+            solution: '376² = 141376, which ends in 376.',
+          );
+        case 3:
+          return LevelData(
+            levelNumber: level,
+            questionType: QuestionType.Formula,
+            category: category,
+            difficulty: difficulty,
+            displayContent: 'What 3-digit number has a square (390625) that ends in the 3-digit number itself?',
+            correctAnswer: '625',
+            hint: 'Think of a 3-digit power of 5 ending in 25.',
+            solution: '625² = 390625, which ends in 625.',
+          );
+        case 4:
+          return LevelData(
+            levelNumber: level,
+            questionType: QuestionType.Formula,
+            category: category,
+            difficulty: difficulty,
+            displayContent: 'I am a 2-digit multiple of 9 less than 30. When squared, my digits sum to 9. What number am I?',
+            correctAnswer: '18',
+            hint: 'The multiples of 9 less than 30 are 18 and 27. Check 18².',
+            solution: '18² = 324. Digit sum of 324 is 3 + 2 + 4 = 9. The number is 18.',
+          );
+        case 5:
+          return LevelData(
+            levelNumber: level,
+            questionType: QuestionType.Formula,
+            category: category,
+            difficulty: difficulty,
+            displayContent: 'I am a 2-digit number. When squared, my value is 729. What number am I?',
+            correctAnswer: '27',
+            hint: 'Take the square root of 729.',
+            solution: '√729 = 27. The number is 27.',
+          );
+        default:
+          return LevelData(
+            levelNumber: level,
+            questionType: QuestionType.Formula,
+            category: category,
+            difficulty: difficulty,
+            displayContent: 'I am the only 2-digit positive integer that is both a perfect square and a perfect cube. What number am I?',
+            correctAnswer: '64',
+            hint: '64 = 8² and 64 = 4³.',
+            solution: '8² = 64 and 4³ = 64. The number is 64.',
+          );
+      }
     } else if (tier <= 5) {
-      final offset = (k % 5);
+      final offset = (k - 21).clamp(0, 6);
       final c1 = 3 + offset;
       final c2 = 8;
       final c3 = 4;
@@ -1112,26 +1369,29 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Code clue (pattern #${k + 1}): ${c1}91 (one right placed), 2${c2}5 (one right placed), 7$c3$c2 (two right wrongly placed). Code? [?]',
+        displayContent: 'Crack the 3-digit lock: ${c1}91 (one digit correct & placed), 2${c2}5 (one digit correct & placed), 7$c3$c2 (two digits correct but misplaced). What is the code?',
         correctAnswer: ans,
         hint: 'Deduce position 1 ($c1), position 2 ($c2), position 3 ($c3).',
         solution: 'Digit 1 is $c1, Digit 2 is $c2, Digit 3 is $c3. Code is $ans.',
       );
     } else {
       final pairs = [
-        {'q': 'Two-digit prime whose reverse is 4 times 19 - 5 (71)? [?]', 'a': '17'},
-        {'q': 'Two-digit prime whose digits sum to 10 and reverse is 73? [?]', 'a': '37'},
-        {'q': 'Two-digit prime whose reverse is 31? [?]', 'a': '13'},
-        {'q': 'Two-digit prime whose reverse is 97? [?]', 'a': '79'},
-        {'q': 'Two-digit prime whose reverse is 79? [?]', 'a': '97'},
+        {'q': 'What 2-digit prime reversed is 97?', 'a': '79'},
+        {'q': 'What 2-digit prime reversed is 79?', 'a': '97'},
+        {'q': 'What 2-digit prime reversed is equal to 4 × 19 - 5 (71)?', 'a': '17'},
+        {'q': 'What 2-digit prime has digits summing to 10 and reverses to 73?', 'a': '37'},
+        {'q': 'What 2-digit prime reversed is 31?', 'a': '13'},
+        {'q': 'What 2-digit prime reversed is 13?', 'a': '31'},
+        {'q': 'What 2-digit prime has digits summing to 10 and reverses to 37?', 'a': '73'},
+        {'q': 'What 2-digit prime reversed is 17?', 'a': '71'},
       ];
-      final item = pairs[k % pairs.length];
+      final item = pairs[(k - 28) % pairs.length];
       return LevelData(
         levelNumber: level,
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Clue #${k + 1}: ${item['q']!}',
+        displayContent: item['q']!,
         correctAnswer: item['a']!,
         hint: 'Reverse the target number to find the answer.',
         solution: 'The prime is ${item['a']}.',
@@ -1148,7 +1408,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Geometry,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Circles [Average]: Left $a, Right $b → Overlap [?]',
+        displayContent: 'Circles: Left $a, Right $b → Overlap = ?',
         nodes: [
           PuzzleNode(id: 'left', displayValue: '$a'),
           PuzzleNode(id: 'center', displayValue: '?', isTarget: true),
@@ -1165,7 +1425,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Geometry,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Circles [Geo-Mean]: Left $a, Right $b → Overlap [?]',
+        displayContent: 'Circles: Left $a, Right $b → Overlap = ?',
         nodes: [
           PuzzleNode(id: 'left', displayValue: '$a'),
           PuzzleNode(id: 'center', displayValue: '?', isTarget: true),
@@ -1182,7 +1442,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Geometry,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Circles [Diff-Sq]: Left $a, Right $b → Overlap [?]',
+        displayContent: 'Circles: Left $a, Right $b → Overlap = ?',
         nodes: [
           PuzzleNode(id: 'left', displayValue: '$a'),
           PuzzleNode(id: 'center', displayValue: '?', isTarget: true),
@@ -1199,7 +1459,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Geometry,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Circles [Prod-Sum]: Left $a, Right $b → Overlap [?]',
+        displayContent: 'Circles: Left $a, Right $b → Overlap = ?',
         nodes: [
           PuzzleNode(id: 'left', displayValue: '$a'),
           PuzzleNode(id: 'center', displayValue: '?', isTarget: true),
@@ -1225,7 +1485,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Geometry,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Circles [Harmonic]: Left ${p['a']}, Right ${p['b']} → Overlap [?]',
+        displayContent: 'Circles: Left ${p['a']}, Right ${p['b']} → Overlap = ?',
         nodes: [
           PuzzleNode(id: 'left', displayValue: '${p['a']}'),
           PuzzleNode(id: 'center', displayValue: '?', isTarget: true),
@@ -1242,7 +1502,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Geometry,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Circles [GCD]: Left $a, Right $b → Overlap [?]',
+        displayContent: 'Circles: Left $a, Right $b → Overlap = ?',
         nodes: [
           PuzzleNode(id: 'left', displayValue: '$a'),
           PuzzleNode(id: 'center', displayValue: '?', isTarget: true),
@@ -1259,7 +1519,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Geometry,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Circles [Quad-Sym]: Left $a, Right $b → Overlap [?]',
+        displayContent: 'Circles: Left $a, Right $b → Overlap = ?',
         nodes: [
           PuzzleNode(id: 'left', displayValue: '$a'),
           PuzzleNode(id: 'center', displayValue: '?', isTarget: true),
@@ -1373,7 +1633,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Sam is $diff yrs older than Leo. Sum of ages is $sum. Sam\'s age? [?]',
+        displayContent: 'Sam is $diff years older than Leo. The sum of their ages is $sum. How old is Sam?',
         correctAnswer: '$a',
         hint: 'Subtract difference from sum, divide by 2 for Leo, then add $diff.',
         solution: 'Leo = ($sum - $diff) ÷ 2 = $b. Sam = $b + $diff = $a.',
@@ -1385,7 +1645,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Dad is 3× Son\'s age. In $inYears yrs, Dad is $fFuture. Son\'s age now? [?]',
+        displayContent: 'A father is 3 times as old as his son. In $inYears years, the father will be $fFuture years old. How old is the son now?',
         correctAnswer: '$son',
         hint: 'Find Dad\'s current age first by subtracting $inYears from $fFuture.',
         solution: 'Dad now = $fFuture - $inYears = $father. Son now = $father ÷ 3 = $son.',
@@ -1397,7 +1657,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Mom is $m and daughter is $d. In how many years will Mom be 2× daughter? [?]',
+        displayContent: 'A mother is $m years old and her daughter is $d years old. In how many years will the mother be twice as old as her daughter?',
         correctAnswer: '$inYears',
         hint: 'Set up equation: $m + x = 2($d + x).',
         solution: '$m + x = ${2 * d} + 2x\nx = $m - ${2 * d}\nx = $inYears.',
@@ -1409,7 +1669,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'A is 3× B, B is 2× C. Sum of ages is $total. Age of A? [?]',
+        displayContent: 'Person A is 3 times as old as B, and B is twice as old as C. If their ages sum to $total, how old is A?',
         correctAnswer: '$a',
         hint: 'Express in terms of C: B = 2C, A = 6C. Total = 9C.',
         solution: '9C = $total\nC = $c\nA = 6 × $c\nA = $a.',
@@ -1421,7 +1681,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'I am 2× as old as you were when I was your age. Ages sum to $sum. My age? [?]',
+        displayContent: 'I am twice as old as you were when I was your age. Our ages sum to $sum. How old am I?',
         correctAnswer: '$myAge',
         hint: 'Ratio of my age to your age is 4 : 3.',
         solution: 'My age = 4/7 of $sum = $myAge.',
@@ -1433,7 +1693,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Two brothers differ by $diff years. Product of ages is $prod. Older brother? [?]',
+        displayContent: 'Two brothers differ in age by $diff years, and the product of their ages is $prod. How old is the older brother?',
         correctAnswer: '$a',
         hint: 'Find two factors of $prod that differ by $diff.',
         solution: '$a × $b = $prod and $a - $b = $diff. Older brother is $a.',
@@ -1445,7 +1705,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Ages sum to $sum. Sum of their squares is $sumSquares. Older age? [?]',
+        displayContent: 'Two ages sum to $sum, and the sum of their squares is $sumSquares. What is the older age?',
         correctAnswer: '$a',
         hint: 'Use 2AB = (A+B)² - (A²+B²) to find their product, then find ages.',
         solution: '2AB = $sum² - $sumSquares\n2AB = ${sum * sum - sumSquares}\nAB = ${a * b}\nAges are $a and $b.',
@@ -1474,7 +1734,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: '$n people each shake hands with everyone once. Total handshakes? [?]',
+        displayContent: '$n people each shake hands with every other person exactly once. How many total handshakes occur?',
         correctAnswer: '$ans',
         hint: 'Handshake formula is n × (n - 1) ÷ 2.',
         solution: '$n × ${n - 1} ÷ 2 = ${n * (n - 1)} ÷ 2 = $ans.',
@@ -1486,7 +1746,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Snail climbs 3m by day, slips 2m by night in a ${depth}m well. Days to escape? [?]',
+        displayContent: 'A snail climbs 3m by day and slips back 2m by night in a ${depth}m well. How many days will it take to reach the top?',
         correctAnswer: '$ans',
         hint: 'On the final day, climbing 3m escapes before nightfall!',
         solution: 'After ${ans - 1} full days, reaches ${ans - 1}m. On day $ans, climbs 3m to $depth m and exits.',
@@ -1498,7 +1758,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Cuts needed to divide a ${length}m rope into 5m pieces? [?]',
+        displayContent: 'How many straight cuts are needed to divide a ${length}m rope into 5m pieces?',
         correctAnswer: '$cuts',
         hint: 'Number of cuts is always 1 less than the number of pieces.',
         solution: '$length ÷ 5 = ${length ~/ piece} pieces. Cuts = ${length ~/ piece} - 1 = $cuts.',
@@ -1510,14 +1770,16 @@ class ProceduralLevelGenerator {
         {'v1': 60, 'v2': 30, 'ans': 40},
         {'v1': 80, 'v2': 20, 'ans': 32},
         {'v1': 120, 'v2': 40, 'ans': 60},
+        {'v1': 90, 'v2': 60, 'ans': 72},
+        {'v1': 120, 'v2': 60, 'ans': 80},
       ];
-      final p = pairs[k % pairs.length];
+      final p = pairs[(k - 14) % pairs.length];
       return LevelData(
         levelNumber: level,
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Drive to city at ${p['v1']} km/h, return at ${p['v2']} km/h (route #${k + 1}). Avg speed? [?]',
+        displayContent: 'A car travels to a city at ${p['v1']} km/h and returns along the same route at ${p['v2']} km/h. What is the average speed for the round trip in km/h?',
         correctAnswer: '${p['ans']}',
         hint: 'Average speed is harmonic: 2·v1·v2 ÷ (v1 + v2), NOT arithmetic average!',
         solution: '(2 × ${p['v1']} × ${p['v2']}) ÷ (${p['v1']} + ${p['v2']}) = ${2 * p['v1']! * p['v2']!} ÷ ${p['v1']! + p['v2']!} = ${p['ans']}.',
@@ -1530,34 +1792,100 @@ class ProceduralLevelGenerator {
         {'time': '1:20', 'ans': 80},
         {'time': '5:10', 'ans': 95},
         {'time': '8:20', 'ans': 130},
+        {'time': '7:10', 'ans': 155},
       ];
-      final c = clockAngles[k % clockAngles.length];
+      final c = clockAngles[(k - 21) % clockAngles.length];
       return LevelData(
         levelNumber: level,
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Clock #${k + 1}: Angle (in degrees) between hour and minute hand at ${c['time']}? [?]',
+        displayContent: 'What is the smaller angle (in degrees) between the hour hand and minute hand of a clock at ${c['time']}?',
         correctAnswer: '${c['ans']}',
         hint: 'Formula: |30×H - 5.5×M| degrees.',
-        solution: 'Angle between hands at ${c['time']} is ${c['ans']}Â°.',
+        solution: 'Angle between hands at ${c['time']} is ${c['ans']}°.',
       );
     } else {
-      final coins = [9, 27, 81];
-      final weighings = [2, 3, 4];
-      final idx = k % coins.length;
-      final coinCount = coins[idx];
-      final ans = weighings[idx];
-      return LevelData(
-        levelNumber: level,
-        questionType: QuestionType.Formula,
-        category: category,
-        difficulty: difficulty,
-        displayContent: 'Minimum weighings on a balance scale to find 1 counterfeit among $coinCount coins (case #${k + 1})? [?]',
-        correctAnswer: '$ans',
-        hint: 'Each weighing divides candidates into 3 equal piles: 3^w >= N.',
-        solution: '3^$ans = $coinCount, so exactly $ans weighings are sufficient.',
-      );
+      final subIndex = k - 28;
+      switch (subIndex) {
+        case 0:
+          return LevelData(
+            levelNumber: level,
+            questionType: QuestionType.Formula,
+            category: category,
+            difficulty: difficulty,
+            displayContent: 'What is the minimum number of balance scale weighings needed to find 1 counterfeit coin among 9 coins?',
+            correctAnswer: '2',
+            hint: 'Divide the coins into 3 piles of 3. 3² = 9.',
+            solution: 'Each weighing divides candidates by 3: 3² = 9, so 2 weighings are needed.',
+          );
+        case 1:
+          return LevelData(
+            levelNumber: level,
+            questionType: QuestionType.Formula,
+            category: category,
+            difficulty: difficulty,
+            displayContent: 'What is the minimum number of balance scale weighings needed to find 1 counterfeit coin among 27 coins?',
+            correctAnswer: '3',
+            hint: 'Divide into 3 piles of 9. 3³ = 27.',
+            solution: 'Each weighing divides candidates by 3: 3³ = 27, so 3 weighings are needed.',
+          );
+        case 2:
+          return LevelData(
+            levelNumber: level,
+            questionType: QuestionType.Formula,
+            category: category,
+            difficulty: difficulty,
+            displayContent: 'What is the minimum number of balance scale weighings needed to find 1 counterfeit coin among 81 coins?',
+            correctAnswer: '4',
+            hint: 'Divide into 3 piles of 27. 3⁴ = 81.',
+            solution: 'Each weighing divides candidates by 3: 3⁴ = 81, so 4 weighings are needed.',
+          );
+        case 3:
+          return LevelData(
+            levelNumber: level,
+            questionType: QuestionType.Formula,
+            category: category,
+            difficulty: difficulty,
+            displayContent: 'What is the minimum number of balance scale weighings needed to find 1 counterfeit coin among 243 coins?',
+            correctAnswer: '5',
+            hint: 'Divide into 3 piles of 81. 3⁵ = 243.',
+            solution: 'Each weighing divides candidates by 3: 3⁵ = 243, so 5 weighings are needed.',
+          );
+        case 4:
+          return LevelData(
+            levelNumber: level,
+            questionType: QuestionType.Formula,
+            category: category,
+            difficulty: difficulty,
+            displayContent: 'A water lily patch doubles in size every day. If it completely covers a pond on Day 48, on which day did it cover half the pond?',
+            correctAnswer: '47',
+            hint: 'Since it doubles every day, one day before full coverage it must be half full.',
+            solution: 'Working backwards from Day 48, one day earlier (Day 47) it was half of the pond.',
+          );
+        case 5:
+          return LevelData(
+            levelNumber: level,
+            questionType: QuestionType.Formula,
+            category: category,
+            difficulty: difficulty,
+            displayContent: 'A bat and a ball cost \$110 in total. The bat costs \$100 more than the ball. What is the cost of the ball in dollars?',
+            correctAnswer: '5',
+            hint: 'Let the ball cost \$x. Then the bat costs \$(x + 100). Sum = 2x + 100 = 110.',
+            solution: '2x + 100 = 110\n2x = 10\nx = 5. The ball costs \$5.',
+          );
+        default:
+          return LevelData(
+            levelNumber: level,
+            questionType: QuestionType.Formula,
+            category: category,
+            difficulty: difficulty,
+            displayContent: 'If 5 cats can catch 5 mice in 5 minutes, how many minutes does it take 100 cats to catch 100 mice?',
+            correctAnswer: '5',
+            hint: 'Each cat takes 5 minutes to catch 1 mouse. With 100 cats working at once, 100 mice are caught in that same time.',
+            solution: 'Rate per cat = 1 mouse per 5 minutes. 100 cats catch 100 mice simultaneously in 5 minutes.',
+          );
+      }
     }
   }
 
@@ -1570,7 +1898,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Start: $s → (+$a) → (×$b) → (-$c) = [?]',
+        displayContent: 'Start: $s → (+$a) → (×$b) → (-$c) = ?',
         correctAnswer: '$ans',
         hint: 'Follow the arrows step by step.',
         solution: '$s + $a = ${s + a}. ${s + a} × $b = ${(s + a) * b}. ${(s + a) * b} - $c = $ans.',
@@ -1582,7 +1910,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Start: $s → (+4) → (×2) → (-6) → (÷2) = [?]',
+        displayContent: 'Start: $s → (+4) → (×2) → (-6) → (÷2) = ?',
         correctAnswer: '$ans',
         hint: 'Perform each operation sequentially along the path.',
         solution: '$s + 4 = ${s + 4}\n${s + 4} × 2 = ${(s + 4) * 2}\n${(s + 4) * 2} - 6 = ${(s + 4) * 2 - 6}\n${(s + 4) * 2 - 6} ÷ 2 = $ans.',
@@ -1594,7 +1922,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Path A: $s → (×2) → (+3). Path B: $s → (+3) → (×2). Path A + B = [?]',
+        displayContent: 'Path A: $s → (×2) → (+3). Path B: $s → (+3) → (×2). What is Path A + Path B?',
         correctAnswer: '$ans',
         hint: 'Calculate the end value of both paths, then sum them.',
         solution: 'Path A = $p1. Path B = $p2. Total = $p1 + $p2 = $ans.',
@@ -1606,13 +1934,14 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Start: [?] → (×2) → (+6) = $endVal. [?] = ?',
+        displayContent: 'Start: ? → (×2) → (+6) = $endVal. Find the starting value.',
         correctAnswer: '$start',
         hint: 'Work backwards from the exit: subtract 6, then divide by 2.',
         solution: '$endVal - 6 = ${endVal - 6}. ${endVal - 6} ÷ 2 = $start.',
       );
     } else if (tier <= 4) {
-      final startVals = [12, 14, 20, 24, 28, 30]; final s = startVals[k % startVals.length];
+      final startVals = [12, 14, 20, 24, 28, 30, 36];
+      final s = startVals[(k - 14) % startVals.length];
       int curr = s;
       for (int step = 0; step < 4; step++) {
         if (curr % 2 == 0) {
@@ -1627,7 +1956,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Rule: Even → ÷2, Odd → ×3+1. Start: $s (maze #${k + 1}) after 4 steps = [?]',
+        displayContent: 'Collatz rule: If even divide by 2, if odd multiply by 3 and add 1. Starting at $s, what is the value after 4 steps?',
         correctAnswer: '$ans',
         hint: 'Apply the rule 4 times consecutively starting from $s.',
         solution: 'Starting from $s: sequence reaches $ans after 4 steps.',
@@ -1639,7 +1968,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Nodes: A=$a, B=$b, C=$c (case #${k + 1}). Product of nodes minus Sum? [?]',
+        displayContent: 'Given numbers A = $a, B = $b, and C = $c: What is their product minus their sum: (A × B × C) - (A + B + C)?',
         correctAnswer: '$ans',
         hint: 'Calculate (A × B × C) - (A + B + C).',
         solution: '($a × $b × $c = ${a * b * c}) - ($a + $b + $c = ${a + b + c}) = $ans.',
@@ -1651,7 +1980,7 @@ class ProceduralLevelGenerator {
         questionType: QuestionType.Formula,
         category: category,
         difficulty: difficulty,
-        displayContent: 'Start: $s → (×3) → (mod 17) → (+25) = [?]',
+        displayContent: 'Start: $s → (×3) → (mod 17) → (+25) = ?',
         correctAnswer: '$ans',
         hint: 'Multiply $s by 3, find remainder when divided by 17, then add 25.',
         solution: '$s × 3 = ${s * 3}. ${s * 3} mod 17 = ${(s * 3) % 17}. Remainder + 25 = $ans.',

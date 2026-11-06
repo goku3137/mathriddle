@@ -55,23 +55,41 @@ class PuzzleCanvasPainter extends CustomPainter {
     // Responsive typography based on equation / word problem length
     final double fontSize;
     final double letterSpacing;
-    if (displayEquation.length > 55) {
-      fontSize = 15;
+    if (displayEquation.length > 70) {
+      fontSize = 14;
+      letterSpacing = 0.5;
+    } else if (displayEquation.length > 45) {
+      fontSize = 16;
       letterSpacing = 0.8;
-    } else if (displayEquation.length > 35) {
-      fontSize = 17;
-      letterSpacing = 1.2;
-    } else if (displayEquation.length > 20) {
-      fontSize = 21;
-      letterSpacing = 1.8;
+    } else if (displayEquation.length > 25) {
+      fontSize = 20;
+      letterSpacing = 1.4;
     } else {
       fontSize = 28;
       letterSpacing = 2.5;
     }
 
+    final textSpan = TextSpan(
+      text: displayEquation,
+      style: TextStyle(
+        color: isError
+            ? GameTheme.errorRed
+            : (currentInput.isNotEmpty ? GameTheme.amberAccent : GameTheme.textWhite),
+        fontSize: fontSize,
+        fontWeight: FontWeight.w400,
+        letterSpacing: letterSpacing,
+        height: 1.35,
+      ),
+    );
+
+    // Dynamic frame height derived from measured text layout + ample padding
+    _cachedTextPainter.text = textSpan;
+    _cachedTextPainter.textAlign = TextAlign.center;
+    _cachedTextPainter.layout(maxWidth: size.width * 0.84);
+
     final double frameHeight = math.min(
-      size.height * 0.78,
-      math.max(110.0, 100.0 + (displayEquation.length > 45 ? 30.0 : 0.0)),
+      size.height * 0.90,
+      math.max(110.0, _cachedTextPainter.height + 48.0),
     );
 
     final frameRect = RRect.fromRectAndRadius(
@@ -89,20 +107,11 @@ class PuzzleCanvasPainter extends CustomPainter {
       ..strokeWidth = 1.5;
     canvas.drawRRect(frameRect, _strokePaint);
 
-    final textSpan = TextSpan(
-      text: displayEquation,
-      style: TextStyle(
-        color: isError
-            ? GameTheme.errorRed
-            : (currentInput.isNotEmpty ? GameTheme.amberAccent : GameTheme.textWhite),
-        fontSize: fontSize,
-        fontWeight: FontWeight.w400,
-        letterSpacing: letterSpacing,
-        height: 1.35,
-      ),
+    // Paint centered text
+    _cachedTextPainter.paint(
+      canvas,
+      Offset(center.dx - _cachedTextPainter.width / 2, center.dy - _cachedTextPainter.height / 2),
     );
-
-    _paintCenteredText(canvas, center, textSpan, maxWidth: size.width * 0.84);
   }
 
   // ==========================================

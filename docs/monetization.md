@@ -58,11 +58,11 @@ flowchart TD
 
 ### Product Tiers & Multi-Currency Pricing
 
-| Tier Identifier | SKU / Product ID | Billing Type | INR (₹) | USD ($) | EUR (€) | GBP (£) |
-|:---|:---|:---|:---:|:---:|:---:|:---:|
-| **Remove Ads** | `math_remove_ads` | Non-Consumable | ₹49 | $0.99 | €0.99 | £0.89 |
-| **Monthly Premium** | `math_premium_monthly` | Auto-Renewing Sub | ₹99/mo | $1.99/mo | €1.99/mo | £1.79/mo |
-| **Lifetime Access** | `math_premium_lifetime`| Non-Consumable | ₹199 | $4.99 | €4.99 | £4.49 |
+| Tier Identifier | SKU / Product ID | Billing Type | INR (₹) | USD ($) | EUR (€) | GBP (£) | Psychological Anchor |
+|:---|:---|:---|:---:|:---:|:---:|:---:|:---:|
+| **Ad-Free Starter** | `math_remove_ads` | Non-Consumable | ₹49 | $0.99 | €0.99 | £0.89 | Impulse / Frictionless |
+| **30-Day Pro Pass** | `math_premium_monthly` | 30-Day Pass | ₹99 | $1.49 | €1.49 | £1.29 | Decoy Tier |
+| **Lifetime VIP Pass** | `math_premium_lifetime`| Non-Consumable | ₹199 | $2.99 | €2.99 | £2.49 | Anchored vs ₹399 / $6.99 (55% OFF) |
 
 ### Comprehensive Feature Matrix
 

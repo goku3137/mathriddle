@@ -86,14 +86,14 @@ class ProductionBillingService implements IBillingService {
 
   @override
   Future<bool> purchaseMonthlyPremium() async {
-    debugPrint('[BillingService] Initiating purchase: math_premium_monthly (₹99 / \$1.99)');
+    debugPrint('[BillingService] Initiating purchase: math_premium_monthly (₹99 / \$1.49)');
     await Future.delayed(const Duration(milliseconds: 400));
     return true;
   }
 
   @override
   Future<bool> purchaseLifetimePremium() async {
-    debugPrint('[BillingService] Initiating purchase: math_premium_lifetime (₹199 / \$4.99)');
+    debugPrint('[BillingService] Initiating purchase: math_premium_lifetime (₹199 / \$2.99)');
     await Future.delayed(const Duration(milliseconds: 400));
     return true;
   }

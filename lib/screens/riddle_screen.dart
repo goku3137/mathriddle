@@ -109,6 +109,7 @@ class _RiddleScreenState extends ConsumerState<RiddleScreen>
         level: gameState.currentLevel,
         isHintUnlocked: gameState.isHintUnlocked,
         isSolutionUnlocked: gameState.isSolutionUnlocked,
+        isPremium: ref.read(progressServiceProvider).isPremiumUser,
         onWatchAdForHint: () async {
           controller.resumeTimer();
           await controller.unlockHintWithAd();

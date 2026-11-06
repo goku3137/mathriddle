@@ -92,39 +92,14 @@ class ScalableLevelRepository implements ILevelRepository {
   @override
   LevelHeader getLevelHeader(int levelNumber) {
     final clampedLevel = levelNumber.clamp(1, _totalLevels);
-
-    if (clampedLevel <= gameLevels.length) {
-      final lvl = gameLevels[clampedLevel - 1];
-      return LevelHeader(
-        levelNumber: lvl.levelNumber,
-        questionType: lvl.questionType,
-        category: lvl.category,
-        difficulty: lvl.difficulty,
-        title: 'Level $clampedLevel',
-      );
-    }
-
-    if (clampedLevel == 500) {
-      return const LevelHeader(
-        levelNumber: 500,
-        questionType: QuestionType.Formula,
-        category: 'Final Boss: Grand Singularity',
-        difficulty: 'Final Boss',
-        title: 'Level 500: Boss',
-      );
-    }
-
-    final catIndex = (clampedLevel - 1) % 14;
-    final category = categories[catIndex];
-    final difficulty = getDifficulty(clampedLevel);
-    final qType = _questionTypeForCategory(catIndex);
+    final lvl = getLevelSync(clampedLevel);
 
     return LevelHeader(
-      levelNumber: clampedLevel,
-      questionType: qType,
-      category: category,
-      difficulty: difficulty,
-      title: 'Level $clampedLevel',
+      levelNumber: lvl.levelNumber,
+      questionType: lvl.questionType,
+      category: lvl.category,
+      difficulty: lvl.difficulty,
+      title: clampedLevel == 500 ? 'Level 500: Boss' : 'Level $clampedLevel',
     );
   }
 

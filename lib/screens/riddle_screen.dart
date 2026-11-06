@@ -180,6 +180,7 @@ class _RiddleScreenState extends ConsumerState<RiddleScreen>
               hasVibration: progress.vibrationEnabled,
               onDigitPressed: (digit) => controller.appendDigit(digit),
               onClear: () => controller.clearInput(),
+              onDelete: () => controller.deleteDigit(),
               onHintPressed: _openNeedHelpModal,
               onSubmit: _handleSubmit,
             ),

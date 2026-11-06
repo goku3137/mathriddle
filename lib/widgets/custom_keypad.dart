@@ -8,18 +8,22 @@ class CustomKeypad extends ConsumerWidget {
   final String inputString;
   final ValueChanged<String> onDigitPressed;
   final VoidCallback onClear;
+  final VoidCallback? onDelete;
   final VoidCallback onHintPressed;
   final VoidCallback onSubmit;
   final bool hasVibration;
+  final bool showHint;
 
   const CustomKeypad({
     super.key,
     required this.inputString,
     required this.onDigitPressed,
     required this.onClear,
+    this.onDelete,
     required this.onHintPressed,
     required this.onSubmit,
     this.hasVibration = true,
+    this.showHint = true,
   });
 
   void _feedback(WidgetRef ref) {
@@ -33,18 +37,22 @@ class CustomKeypad extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       color: GameTheme.background,
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      padding: const EdgeInsets.fromLTRB(16, 6, 16, 12),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 1. Live Input Indicator Bar with Bulb and Enter Actions
+          // 1. Live Input Indicator Bar with optional Bulb action
           _buildTopActionRow(ref),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
 
-          // 2. Strict Inbuilt 2-Row × 5-Column Numeric Pad (0-9)
-          _buildNumericRow(ref, ['1', '2', '3', '4', '5']),
+          // 2. Standard 4-Row × 3-Column Ergonomic Numeric Pad (1-9, 0, DEL, ENTER)
+          _buildNumericRow(ref, ['1', '2', '3']),
           const SizedBox(height: 8),
-          _buildNumericRow(ref, ['6', '7', '8', '9', '0']),
+          _buildNumericRow(ref, ['4', '5', '6']),
+          const SizedBox(height: 8),
+          _buildNumericRow(ref, ['7', '8', '9']),
+          const SizedBox(height: 8),
+          _buildBottomActionRow(ref),
         ],
       ),
     );
@@ -52,7 +60,7 @@ class CustomKeypad extends ConsumerWidget {
 
   Widget _buildTopActionRow(WidgetRef ref) {
     return Container(
-      height: 48,
+      height: 46,
       decoration: BoxDecoration(
         color: GameTheme.surface,
         borderRadius: BorderRadius.circular(10),
@@ -62,9 +70,8 @@ class CustomKeypad extends ConsumerWidget {
         children: [
           // Left: User input display with Clear '✕' trigger
           Expanded(
-            flex: 5,
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 14),
               child: Row(
                 children: [
                   Expanded(
@@ -75,8 +82,8 @@ class CustomKeypad extends ConsumerWidget {
                       style: TextStyle(
                         color: inputString.isEmpty ? GameTheme.textDim : GameTheme.textWhite,
                         fontSize: 18,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: 2.0,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 2.5,
                       ),
                     ),
                   ),
@@ -100,47 +107,20 @@ class CustomKeypad extends ConsumerWidget {
             ),
           ),
 
-          // Divider
-          Container(width: 1, height: 26, color: GameTheme.borderSubtle),
+          if (showHint) ...[
+            // Divider
+            Container(width: 1, height: 26, color: GameTheme.borderSubtle),
 
-          // Center: Lightbulb Icon (Triggers Need Help Modal)
-          IconButton(
-            icon: const Icon(Icons.lightbulb_outline_rounded, color: GameTheme.amberAccent, size: 22),
-            tooltip: 'Need Help?',
-            onPressed: () {
-              _feedback(ref);
-              onHintPressed();
-            },
-          ),
-
-          // Divider
-          Container(width: 1, height: 26, color: GameTheme.borderSubtle),
-
-          // Right: Bold ENTER button
-          Semantics(
-            button: true,
-            label: 'Submit answer',
-            child: InkWell(
-              onTap: () {
+            // Lightbulb Icon (Triggers Need Help Modal)
+            IconButton(
+              icon: const Icon(Icons.lightbulb_outline_rounded, color: GameTheme.amberAccent, size: 22),
+              tooltip: 'Need Help?',
+              onPressed: () {
                 _feedback(ref);
-                onSubmit();
+                onHintPressed();
               },
-              borderRadius: const BorderRadius.horizontal(right: Radius.circular(10)),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                alignment: Alignment.center,
-                child: const Text(
-                  'ENTER',
-                  style: TextStyle(
-                    color: GameTheme.amberAccent,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.5,
-                  ),
-                ),
-              ),
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -158,6 +138,36 @@ class CustomKeypad extends ConsumerWidget {
             ),
           )
           .toList(),
+    );
+  }
+
+  Widget _buildBottomActionRow(WidgetRef ref) {
+    return Row(
+      children: [
+        // Bottom-Left: Backspace / DEL
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: _buildDeleteButton(ref),
+          ),
+        ),
+
+        // Bottom-Center: '0' Digit
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: _buildDigitButton(ref, '0'),
+          ),
+        ),
+
+        // Bottom-Right: 'ENTER' Submit
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: _buildSubmitButton(ref),
+          ),
+        ),
+      ],
     );
   }
 
@@ -184,7 +194,80 @@ class CustomKeypad extends ConsumerWidget {
             style: const TextStyle(
               color: GameTheme.textWhite,
               fontSize: 20,
-              fontWeight: FontWeight.w400,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeleteButton(WidgetRef ref) {
+    return Material(
+      color: GameTheme.surface,
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () {
+          _feedback(ref);
+          if (onDelete != null) {
+            onDelete!();
+          } else {
+            onClear();
+          }
+        },
+        onLongPress: () {
+          _feedback(ref);
+          onClear();
+        },
+        splashColor: GameTheme.amberAccent.withValues(alpha: 0.15),
+        child: Container(
+          height: 48,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: GameTheme.borderSubtle, width: 1.0),
+          ),
+          child: Semantics(
+            button: true,
+            label: 'Backspace',
+            child: const Icon(
+              Icons.backspace_outlined,
+              color: GameTheme.textMuted,
+              size: 20,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton(WidgetRef ref) {
+    return Material(
+      color: GameTheme.surface,
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () {
+          _feedback(ref);
+          onSubmit();
+        },
+        splashColor: GameTheme.amberAccent.withValues(alpha: 0.25),
+        child: Container(
+          height: 48,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: GameTheme.amberAccent.withValues(alpha: 0.4), width: 1.2),
+            color: GameTheme.amberAccent.withValues(alpha: 0.08),
+          ),
+          child: const Text(
+            'ENTER',
+            style: TextStyle(
+              color: GameTheme.amberAccent,
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.5,
             ),
           ),
         ),

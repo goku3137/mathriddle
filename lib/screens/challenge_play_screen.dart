@@ -454,6 +454,7 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
             CustomKeypad(
               inputString: _input,
               hasVibration: true,
+              showHint: false,
               onDigitPressed: (d) {
                 if (_feedbackData != null) {
                   _dismissFeedbackAndContinue();
@@ -469,6 +470,15 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
                   return;
                 }
                 setState(() => _input = '');
+              },
+              onDelete: () {
+                if (_feedbackData != null) {
+                  _dismissFeedbackAndContinue();
+                  return;
+                }
+                if (_input.isNotEmpty) {
+                  setState(() => _input = _input.substring(0, _input.length - 1));
+                }
               },
               onHintPressed: () {},
               onSubmit: () {

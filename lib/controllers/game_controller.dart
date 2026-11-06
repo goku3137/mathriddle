@@ -222,6 +222,15 @@ class GameController extends Notifier<GameState> with WidgetsBindingObserver {
     );
   }
 
+  void deleteDigit() {
+    if (state.isSolved) return;
+    if (state.currentInput.isEmpty) return;
+    state = state.copyWith(
+      currentInput: state.currentInput.substring(0, state.currentInput.length - 1),
+      isError: false,
+    );
+  }
+
   int getPointsForLevel(int levelNumber) {
     return ScoringRules.pointsForRiddleLevel(levelNumber);
   }

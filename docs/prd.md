@@ -13,7 +13,7 @@
 
 **SMATH (Math Riddles & Mind Logic)** is a distraction-free, minimalist mathematical brain-training mobile application engineered for pure intellectual engagement. Rejecting intrusive paywalls, cartoon mascots, gambling mechanics, and ad fatigue, SMATH delivers a focused learning and puzzle-solving experience.
 
-The core gameplay centers on 500 handcrafted and procedurally generated mathematical riddles, 12 smart progressive challenge categories, and a 14-lesson interactive Math Academy. The entire experience is powered by an inbuilt dark virtual numeric keypad (bypassing native OS keyboards), vector canvas geometry via `CustomPainter`, reactive state management via Riverpod, and offline-first HMAC data persistence.
+The core gameplay centers on 500 mathematical riddles (hybrid handcrafted and deterministic procedural), 12 smart progressive challenge categories, and a 36-lesson interactive Math Academy featuring a Candy Crush-inspired adventure progression map. The entire experience is powered by an inbuilt dark virtual numeric keypad (bypassing native OS keyboards), vector canvas geometry via `CustomPainter`, reactive state management via Riverpod, and offline-first HMAC data persistence.
 
 ---
 
@@ -30,12 +30,12 @@ The core gameplay centers on 500 handcrafted and procedurally generated mathemat
 ## 3. Product Architecture & Features
 
 ### 3.1 Riddle Campaign (500 Mathematical Levels)
-* **Handcrafted Foundational Levels (1–20):** 20 authored lateral logic puzzles testing arithmetic operator shifts, Pythagorean geometry, concentric doubling, matrix determinants, and prime sequences.
-* **Procedural Scalable Levels (21–500):** Generated across 14 mathematical categories (BODMAS, Algebra, Number Series, Modular Arithmetic, Triangular Geometry, Matrix Grids, Percentages, Exponents, and Prime Logic) with deterministic seeding.
+* **Hybrid Scalable Engine:** 80 premium handcrafted milestone levels balanced across all 10 progression packs, combined with 420 deterministic procedural levels spanning 14 mathematical categories.
+* **Curated Difficulty & Zero Geometry in Levels 1–150:** Levels 1–150 focus exclusively on foundational arithmetic, operator shifts, sequence deduction, and numerical balances; geometry puzzles are introduced progressively only from Level 151 onward.
 * **Grand Singularity Finale (Level 500):** Multi-stage composite master riddle serving as the ultimate campaign milestone.
 * **Pack Organization:** Levels are organized into 10 collapsible packs of 50 levels (Levels 1–50, 51–100, ..., 451–500).
 * **Memory Management:** Scalable level repository leverages an LRU cache (capacity 50) and lazy-loading to keep memory consumption minimal on low-end devices.
-* **Sequential Progression:** Level 1 is unlocked initially. Level $N$ unlocks strictly upon successfully solving Level $N-1$.
+* **Sequential Progression:** Level 1 is unlocked initially. Level $N$ unlocks strictly upon successfully solving Level $N-1$. Zero duplicate questions across all 500 levels.
 
 ### 3.2 Smart Progressive Challenges (12 Categories)
 * **12 Dedicated Categories:**
@@ -43,13 +43,13 @@ The core gameplay centers on 500 handcrafted and procedurally generated mathemat
   2. *Subtraction* – Difference calculation
   3. *Multiplication* – Mental times tables
   4. *Division* – Exact quotient calculation
-  5. *Powers & Roots* – Squares, cubes, and square roots
-  6. *Percentages* – Mental fractions and discounts
-  7. *Number Sequences* – Next number in series
-  8. *Missing Number* – Algebraic placeholder deduction
-  9. *Order of Operations* – BODMAS / PEMDAS precedence
-  10. *Lateral Operators* – Custom functional transformations
-  11. *Math Tricks* – Shortcut arithmetic techniques
+  5. *Squares & Powers* – Squares, cubes, and power exponents
+  6. *Percentages & Rates* – Mental fractions, rates, and discounts
+  7. *Sequences & Patterns* – Next number in arithmetic, geometric & Fibonacci series
+  8. *Missing Number Puzzles* – Algebraic placeholder deduction
+  9. *BODMAS Precedence* – Order of operations precedence traps
+  10. *Lateral Operators* – Custom functional transformations with universal geometric symbols (`⊕`, `★`, `▲`, `⊗`, `⊙`, `⊘`, `◆`, `✦`, `∇`, `◎`, `◈`, `❖`, `△`, `◇`, `⬡`)
+  11. *Speed Math Tricks* – Shortcut arithmetic, handshake formulas, and clock angles
   12. *Mixed Challenge* – Grand synthesis combining all mechanics
 * **3-Tier Dynamic Progression:**
   * **Tier 0 (Beginner):** 1-digit numbers, accessible for all players.
@@ -65,17 +65,32 @@ The core gameplay centers on 500 handcrafted and procedurally generated mathemat
   - *Grandmaster* (200+ solved)
   All badges follow a unified amber-gold achievement styling to maintain visual consistency.
 
-### 3.3 Interactive Math Academy (14 Lessons)
-* **Curriculum Structure:**
-  * **Chapter 1: Foundational Arithmetic** (Order of Operations, Mental Multiplication, Mental Division, Fast Percentages, Square & Cube Roots)
-  * **Chapter 2: Pattern Recognition & Algebra** (Arithmetic Sequences, Geometric Sequences, Algebraic Isolation, Modular Arithmetic)
-  * **Chapter 3: Advanced Geometry & Lateral Logic** (Pythagorean Theorem, Matrix Determinants, Lateral Operator Shifts, Base Number Systems)
-* **Interactive Sandboxes:**
-  - *Balance Scale:* Drag-free algebraic balance demonstrating equation equivalence.
-  - *Clock Modular Wheel:* Interactive dial visualizing wrap-around modulo arithmetic.
-  - *Binary Bit-Flipper:* Interactive toggle bits demonstrating base-2 positional notation.
-  - *Fraction & Percentage Visualizer:* Dynamic area-fill bar.
-* **Mastery Practice Tests:** Graded multiple-choice question testing the core lesson concept. Solving awards **+50 PTS** (claimed once per lesson).
+### 3.3 Interactive Math Academy (36 Lessons Across 6 Stages)
+* **Candy Crush-Inspired Adventure Progression Map:**
+  - Replaces boxed card lists with a continuous, vertically scrolling progression path.
+  - Alternating nodes connected by smooth quadratic Bézier curves with dual-layer rendering (slate road underlay, glowing amber unlocked segment, dashed/slate locked trail).
+  - Node States:
+    - *Completed:* Emerald green token with white checkmark and lesson number.
+    - *Active / Next to Play:* Enlarged token with vibrant amber gradient, pulsing halo animation, and play icon.
+    - *Locked:* Muted dark slate token with padlock icon.
+  - Milestone stage portals marking entry into each of the 6 distinct curriculum stages.
+  - Auto-scroll on launch smoothly focuses the learner on their current active lesson.
+* **Curriculum Structure Across 6 Stages:**
+  * **Stage 1: Absolute Beginner (Lessons 1–6)** – Number sense, place values, four operations, parity, fractions & decimals.
+  * **Stage 2: Basic Mathematics (Lessons 7–12)** – Order of operations (BODMAS), factors, primes, divisibility, ratios, squares & roots.
+  * **Stage 3: Intermediate Mathematics (Lessons 13–18)** – Integers, algebraic expressions, linear equations, arithmetic & geometric sequences, commercial interest, time-speed-distance.
+  * **Stage 4: Advanced Mathematical Thinking (Lessons 19–24)** – Coordinate geometry, simultaneous equations, quadratics, exponents & logarithms, permutations & combinations, probability.
+  * **Stage 5: Mathematical Logic & Cryptarithms (Lessons 25–30)** – Modular arithmetic, number bases (binary/hex), set theory & Venn diagrams, lateral operators, cryptarithmetic alphametics, mathematical induction.
+  * **Stage 6: Master Competition & Olympiad Math (Lessons 31–36)** – Pigeonhole principle, Euclidean algorithm & modular inverses, Diophantine equations, geometric proofs, recurrence relations, extreme mathematical synthesis.
+* **8-Step Readability-First Pedagogical Flow Inside Lessons:**
+  1. *What You Will Learn:* 1–2 sentence non-intimidating overview.
+  2. *Why This Matters:* Everyday relatable application (shopping, gaming, time, finance).
+  3. *Core Rule / Formula:* High-contrast focal callout box.
+  4. *Step-by-Step Method:* Numbered recipe with bite-sized steps.
+  5. *Worked Example 1 (Simple):* Guided walkthrough with small numbers.
+  6. *Worked Example 2 (Real-World / Riddle Level):* Practical problem connected to actual campaign riddle levels.
+  7. *Common Pitfall to Avoid:* Red-accented warning addressing intuitive mistakes.
+  8. *Practice Test & Mastery Quiz:* 4-option interactive quiz testing the concept with instant feedback and +50 PTS reward.
 
 ### 3.4 Hearts & Energy Economy
 * **Capacity:** 5 maximum hearts (`❤️ 5`).
@@ -86,8 +101,9 @@ The core gameplay centers on 500 handcrafted and procedurally generated mathemat
 
 ### 3.5 Scoring Engine & Point Economy
 * **Riddle Campaign:** +5 PTS base for early levels, escalating by +10 PTS for every 10 levels completed (e.g., +15 PTS for Levels 11–20, +25 PTS for Levels 21–30).
-* **Learn Academy:** +50 PTS for each mastered lesson practice quiz.
+* **Learn Academy:** +50 PTS for each mastered lesson practice quiz (strictly single-claim per lesson).
 * **Challenges:** +3 PTS for each correctly solved challenge question.
+* **ScoreBadge Rules Modal:** Responsive, two-tiered card dialog with scrollable viewport that displays full scoring breakdown without horizontal or vertical RenderFlex overflow on any mobile screen width.
 * **Anti-Cheat & Idempotency:** Points are awarded exactly once per solved item. Replays or duplicates do not inflate score. Total points are clamped against maximum theoretical ceilings.
 
 ### 3.6 Audio & Haptics Engine
@@ -99,7 +115,7 @@ The core gameplay centers on 500 handcrafted and procedurally generated mathemat
 
 ## 4. Monetization & In-App Purchases
 
-* **Free Tier:** Complete access to all 500 riddles, 12 challenges, and 14 academy lessons. Non-intrusive interstitial ads appear strictly after every 3rd completed level with a 60-second cooldown. Rewarded ads are 100% opt-in for hints and heart refills.
+* **Free Tier:** Complete access to all 500 riddles, 12 challenges, and 36 academy lessons. Non-intrusive interstitial ads appear strictly after every 9th completed riddle level ($N = 9, 18, 27, \dots$) with a strict 120-second cooldown. Zero mid-round challenge interruptions. Rewarded ads are 100% opt-in for hints and heart refills.
 * **In-App Purchases (Google Play / Apple StoreKit):**
   1. *Remove Ads* (₹49 / $0.99) – Permanent removal of interstitials.
   2. *Monthly Premium* (₹99/mo / $1.99/mo) – Unlimited Hearts, zero ads, instant hints, and solutions.

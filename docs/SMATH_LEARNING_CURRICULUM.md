@@ -117,3 +117,4 @@ All 36 lessons are verified for:
 3. **Option Distribution**: Every lesson has 4 unique multiple-choice options with the correct answer included.
 4. **Pedagogical Structure**: Every lesson provides `whatItIs`, `whyItWorks`, `howToSolveIt`, `whenToUseIt`, step-by-step reasoning, formula, takeaway, common traps, and shortcuts.
 5. **Riddle Connection**: Valid linked riddle levels between 1 and 500.
+

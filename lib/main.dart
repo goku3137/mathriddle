@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'controllers/game_controller.dart';
-import 'screens/home_screen.dart';
+import 'screens/splash_screen.dart';
 import 'services/progress_service.dart';
 import 'theme/game_theme.dart';
 
@@ -66,15 +66,16 @@ void main() async {
 }
 
 class MathRiddlesApp extends StatelessWidget {
-  const MathRiddlesApp({super.key});
+  final Widget? home;
+  const MathRiddlesApp({super.key, this.home});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Math Riddles',
+      title: 'Math Riddle',
       debugShowCheckedModeBanner: false,
       theme: GameTheme.darkTheme,
-      home: const HomeScreen(),
+      home: home ?? const SplashScreen(),
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../controllers/game_controller.dart';
 import '../../../services/progress_service.dart';
 import '../../../theme/game_theme.dart';
+import 'legal_document_dialog.dart';
 
 /// Centralized confirmation and legal dialogs for the settings screen.
 class SettingsDialogs {
@@ -59,41 +60,55 @@ class SettingsDialogs {
     );
   }
 
+  static void showPrivacyPolicy(BuildContext context) {
+    LegalDocumentDialog.showPrivacyPolicy(context);
+  }
+
+  static void showTermsAndConditions(BuildContext context) {
+    LegalDocumentDialog.showTermsAndConditions(context);
+  }
+
   static void showLegalDialog(
     BuildContext context,
     String title,
     String content,
   ) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: GameTheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        title: Text(
-          title,
-          style: const TextStyle(
-            color: GameTheme.textWhite,
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.2,
+    final lowerTitle = title.toLowerCase();
+    if (lowerTitle.contains('privacy')) {
+      LegalDocumentDialog.showPrivacyPolicy(context);
+    } else if (lowerTitle.contains('term')) {
+      LegalDocumentDialog.showTermsAndConditions(context);
+    } else {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: GameTheme.surface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          title: Text(
+            title,
+            style: const TextStyle(
+              color: GameTheme.textWhite,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.2,
+            ),
           ),
+          content: Text(
+            content,
+            style: const TextStyle(
+              color: GameTheme.textMuted,
+              fontSize: 13,
+              height: 1.5,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('CLOSE', style: TextStyle(color: GameTheme.amberAccent)),
+            ),
+          ],
         ),
-        content: Text(
-          content,
-          style: const TextStyle(
-            color: GameTheme.textMuted,
-            fontSize: 13,
-            height: 1.5,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('CLOSE', style: TextStyle(color: GameTheme.amberAccent)),
-          ),
-        ],
-      ),
-    );
+      );
+    }
   }
 }
-

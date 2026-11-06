@@ -25,7 +25,7 @@ class RateAppDialog extends ConsumerWidget {
         side: const BorderSide(color: GameTheme.borderSubtle),
       ),
       title: const Text(
-        'Enjoying Math Riddles?',
+        'Enjoying Math Riddle?',
         textAlign: TextAlign.center,
         style: TextStyle(
           color: GameTheme.textWhite,

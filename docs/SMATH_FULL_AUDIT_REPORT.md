@@ -14,9 +14,9 @@ A comprehensive, end-to-end technical, functional, mathematical, and security au
 
 ### Overall Verification Scorecard
 * **Static Analysis:** `flutter analyze --no-pub` reported **0 issues found** (clean).
-* **Automated Test Suite:** **98 tests passed out of 98** across 15 test suites with 0 failures.
-* **Mathematical Riddles:** All 500 levels (20 handcrafted, 480 procedural) verified for correct, non-negative integer answers matching the virtual numeric keypad.
-* **Documentation:** Completely eliminated all Latin-1 mojibake encoding corruption across all markdown specifications (`README.md`, `docs/prd.md`, `docs/architecture.md`, `docs/design_system.md`, `docs/monetization.md`).
+* **Automated Test Suite:** **105 tests passed out of 105** across all unit and widget test suites with 0 failures.
+* **Mathematical Riddles:** All 500 levels (80 handcrafted, 420 deterministic procedural) verified for correct, non-negative integer answers matching the virtual numeric keypad.
+* **Documentation:** Completely eliminated all Latin-1 mojibake encoding corruption across all markdown specifications (`README.md`, `docs/prd.md`, `docs/architecture.md`, `docs/design_system.md`, `docs/monetization.md`, `docs/SMATH_LEARNING_CURRICULUM.md`, `docs/SMATH_LEARNING_UI_REPORT.md`).
 * **UI/UX Consistency:** Zero breaking UI redesigns; 100% visual layout, typography, animations, colors, and navigation preserved.
 
 ---
@@ -212,9 +212,11 @@ Findings are categorized into three severity tiers:
 
 ### Test Suites Added & Updated
 1. `test/unit/production_audit_requirements_test.dart` – Dedicated suite for answer validation, progression, doubled milestones, time manipulation, and data integrity.
-2. `test/unit/lesson_components_test.dart` – Practice card and learning components verification.
-3. `test/unit/challenge_status_bar_test.dart` – Challenge status bar tier label tests.
-4. `test/unit/security_hardening_audit_test.dart` – Security and OWASP MASVS verification.
+2. `test/unit/score_badge_modal_test.dart` – Zero-overflow verification on 320x640 mobile viewports for the scoring system dialog.
+3. `test/unit/challenge_hub_test.dart` – All 12 arithmetic & logic challenge categories, icon verification, and continuous generator verification.
+4. `test/unit/lesson_components_test.dart` – Practice card and learning components verification.
+5. `test/unit/challenge_status_bar_test.dart` – Challenge status bar tier label tests.
+6. `test/unit/security_hardening_audit_test.dart` – Security and OWASP MASVS verification.
 
 ---
 
@@ -229,7 +231,7 @@ flutter analyze --no-pub
 ### Complete Test Suite
 ```powershell
 flutter test
-# Result: All 98 tests passed across 15 test suites!
+# Result: All 105 tests passed across all unit and widget test suites!
 ```
 
 ---

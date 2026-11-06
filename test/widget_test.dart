@@ -3,8 +3,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:math/controllers/game_controller.dart';
+import 'package:math/features/home/widgets/home_menu_button.dart';
 import 'package:math/main.dart';
+import 'package:math/screens/home_screen.dart';
+import 'package:math/screens/splash_screen.dart';
 import 'package:math/services/progress_service.dart';
+import 'package:math/widgets/math_riddle_logo.dart';
 
 void main() {
   testWidgets('Math Riddles loads Home Screen with Top-Right Hearts and Score badge beside Settings', (WidgetTester tester) async {
@@ -17,7 +21,7 @@ void main() {
         overrides: [
           progressServiceProvider.overrideWithValue(progressService),
         ],
-        child: const MathRiddlesApp(),
+        child: const MathRiddlesApp(home: HomeScreen()),
       ),
     );
 
@@ -25,7 +29,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     // Verify Title & Hero Quote
-    expect(find.text('MATH RIDDLES'), findsOneWidget);
+    expect(find.byType(MathRiddleLogo), findsOneWidget);
     expect(find.text('“Logic is the anatomy of thought. Challenge your limits.”'), findsOneWidget);
 
     // Verify Top-Right Hearts (5) and Score Badge (0 PTS) are present beside Settings
@@ -51,16 +55,16 @@ void main() {
     await tester.pump(const Duration(milliseconds: 200));
 
     // Verify 3 Core Menu Buttons
-    expect(find.text('RIDDLE'), findsOneWidget);
+    expect(find.widgetWithText(HomeMenuButton, 'RIDDLE'), findsOneWidget);
     expect(find.text('LEARN'), findsOneWidget);
     expect(find.text('CHALLENGE'), findsOneWidget);
 
     // Verify Top-Right Crown PRO Badge & Rate Us Footer
     expect(find.text('PRO'), findsOneWidget);
-    expect(find.text('Rate Math Riddles'), findsOneWidget);
+    expect(find.text('Rate Math Riddle'), findsOneWidget);
 
     // Tap RIDDLE button to navigate to Level Select
-    await tester.tap(find.text('RIDDLE'));
+    await tester.tap(find.widgetWithText(HomeMenuButton, 'RIDDLE'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
@@ -215,7 +219,7 @@ void main() {
         overrides: [
           progressServiceProvider.overrideWithValue(progressService),
         ],
-        child: const MathRiddlesApp(),
+        child: const MathRiddlesApp(home: HomeScreen()),
       ),
     );
 
@@ -269,5 +273,32 @@ void main() {
     // Verify progress card now reflects 1 mastered and +50 PTS
     expect(find.text('1 of 36 Concepts Mastered'), findsOneWidget);
     expect(find.text('+50 PTS'), findsOneWidget);
+  });
+
+  testWidgets('App opens on SplashScreen with animated MathRiddleLogo and transitions to HomeScreen', (WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final progressService = ProgressService(prefs);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          progressServiceProvider.overrideWithValue(progressService),
+        ],
+        child: const MathRiddlesApp(),
+      ),
+    );
+
+    // Initial frame on launch: SplashScreen with MathRiddleLogo
+    expect(find.byType(SplashScreen), findsOneWidget);
+    expect(find.byType(MathRiddleLogo), findsOneWidget);
+    expect(find.text('PURE BRAIN LOGIC'), findsOneWidget);
+
+    // Advance timer past splash screen duration (1600ms + transition)
+    await tester.pump(const Duration(milliseconds: 1700));
+    await tester.pumpAndSettle();
+
+    // Now on HomeScreen
+    expect(find.byType(HomeScreen), findsOneWidget);
   });
 }

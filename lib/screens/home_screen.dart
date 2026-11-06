@@ -7,6 +7,7 @@ import '../features/home/widgets/rate_app_dialog.dart';
 import '../services/sound_service.dart';
 import '../theme/game_theme.dart';
 import '../widgets/heart_indicator.dart';
+import '../widgets/math_riddle_logo.dart';
 import '../widgets/score_badge.dart';
 import 'challenge_screen.dart';
 import 'learn_screen.dart';
@@ -68,18 +69,12 @@ class HomeScreen extends ConsumerWidget {
               Center(
                 child: Column(
                   children: [
-                    // Primary Game Title: Strong, clean font with reduced letter spacing
-                    const Text(
-                      'MATH RIDDLES',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: GameTheme.textWhite,
-                        fontSize: 34,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 2.0,
-                      ),
+                    // Primary Game Brand Wordmark: Typographic Logo
+                    const MathRiddleLogo(
+                      scale: 0.95,
+                      showSubtitle: false,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 10),
 
                     // Subtitle / Hero Quote: Smaller, understated, keeping game modes as the main focus
                     const Padding(
@@ -153,7 +148,7 @@ class HomeScreen extends ConsumerWidget {
                     size: 15,
                   ),
                   label: const Text(
-                    'Rate Math Riddles',
+                    'Rate Math Riddle',
                     style: TextStyle(
                       color: GameTheme.textDim,
                       fontSize: 11,

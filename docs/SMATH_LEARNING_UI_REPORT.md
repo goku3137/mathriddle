@@ -2,15 +2,46 @@
 
 ## 1. Executive Summary
 
-This report documents the readability redesign and UI/UX modernization of the **SMATH Learning Section (Academy)**. The redesign transitions the lesson reading experience from a dark, card-heavy interface to an uncluttered, high-contrast educational reading environment inspired by leading pedagogical platforms (Brilliant, Khan Academy), while preserving the dark theme of the outer SMATH shell.
+This report documents the UI/UX modernization of the **SMATH Learning Section (Academy)**, combining:
+1. **A Candy Crush-Inspired Vertical Adventure Map** for lesson selection—replacing boxed rectangular lists with a playful, winding progression trail through 6 mathematical stages.
+2. **A Readability-First 8-Step Study Environment** inside lessons—providing an uncluttered, high-contrast reading experience conforming to WCAG AAA contrast standards.
 
 ---
 
-## 2. Readability-First Visual Architecture
+## 2. Candy Crush-Inspired Learning Adventure Map
 
-### 2.1 The 8-Step Minimal-Text Layout
+### 2.1 Continuous Winding Path Geometry
+- **Rhythmic S-Curves**: Node horizontal coordinates follow alternating sine-wave ratios (`[0.50, 0.72, 0.80, 0.50, 0.20, 0.28]` for odd stages, mirroring for even stages).
+- **Cubic Bézier Interpolation**: Between adjacent nodes $P_i$ and $P_{i+1}$, path geometry is rendered using `canvas.drawPath` with control points $C_1 = (x_0, y_0 + 0.5\Delta y)$ and $C_2 = (x_1, y_1 - 0.5\Delta y)$, ensuring $C^1$ smooth vertical tangency at all connection points.
+- **Dual-Layer Track Architecture**:
+  - Base road underlay: $14\text{px}$ deep slate track (`#1E293B`).
+  - Active segment: $6\text{px}$ radiant amber-gold track (`#F59E0B`).
+  - Locked segment: $4\text{px}$ slate track (`#334155`).
+  - Luminous stepping stones (`2.5\text{px}` radius) spaced every $22\text{px}$ along the curve.
 
-Rather than stacking 10 distinct dark cards with heavy borders, `LessonDetailScreen` establishes visual hierarchy through typography, comfortable whitespace, and subtle dividers:
+### 2.2 Lesson Node Visual States
+- **Completed**: $56\text{px}$ circular token with emerald-green gradient (`#10B981` $\rightarrow$ `#059669`), white checkmark, and lesson number.
+- **Current / Next to Play**: $64\text{px}$ token with vibrant amber gradient (`#FBBF24` $\rightarrow$ `#D97706`), pulsing halo animation (`AnimationController` scale $1.0 \rightarrow 1.25$), play icon, and prominent gold drop shadow.
+- **Locked**: $56\text{px}$ token with dark slate surface (`#1E293B`), subtle border (`#334155`), lock icon (`#64748B`), and lesson number.
+- **Integrated Title Pill**: Placed beside each node on the opposite side of the curve to keep titles legible on all screen sizes while preserving widget test accessibility.
+
+### 2.3 Stage Milestone Checkpoints
+Horizontal milestone banners demarcate each of the 6 stages:
+1. *Stage 1: Beginner* – Foundations & Number Sense (Emerald)
+2. *Stage 2: Basic Mathematics* – Operations, Factors & Proportions (Cerulean)
+3. *Stage 3: Intermediate* – Algebra, Equations & Sequences (Purple)
+4. *Stage 4: Advanced* – Geometry, Quadratics & Probability (Amber)
+5. *Stage 5: Expert* – Calculus, Matrices & Complex Plane (Pink)
+6. *Stage 6: Extreme Mathematics* – Olympiad & Grandmaster Mastery (Gold)
+
+### 2.4 Auto-Scroll to Current Lesson
+On screen launch, a post-frame callback calculates the vertical coordinate of the learner's current unlocked lesson and smoothly animates the scroll position (`Curves.easeOutCubic`, $700\text{ms}$) to center the active node on screen.
+
+---
+
+## 3. Readability-First Lesson Screen Layout
+
+Inside [`LessonDetailScreen`](file:///c:/Users/gokul/code/math/lib/screens/lesson_detail_screen.dart), an 8-step minimal-text reading layout provides cognitive focus:
 
 1. **Top Bar**: Back navigation button, current progress tag (`STAGE X • LESSON Y OF 36`), and compact score badge.
 2. **Category & Stage Pill**: High-contrast blue chip (`#0284C7`) indicating the current stage and category.
@@ -23,9 +54,7 @@ Rather than stacking 10 distinct dark cards with heavy borders, `LessonDetailScr
 
 ---
 
-## 3. Dedicated Readability Color System (`LearningTheme`)
-
-The Learning reading surface uses a dedicated palette specifically calibrated for extended study without eye fatigue:
+## 4. Dedicated Readability Color System (`LearningTheme`)
 
 | Element | Color Hex | Color Role | WCAG Contrast Ratio | Compliance |
 |---|---|---|---|---|
@@ -44,19 +73,9 @@ The Learning reading surface uses a dedicated palette specifically calibrated fo
 
 ---
 
-## 4. Ergonomics & Interactive Quiz Experience
-
-1. **Touch Targets**: All multiple-choice answer rows enforce `constraints: BoxConstraints(minHeight: 48)` with `padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14)`, fully adhering to Android Material and Apple iOS 48×48pt guidelines.
-2. **Instant Error Feedback & Retry**: Selecting an incorrect answer reveals targeted diagnostic feedback explaining *why* that choice was wrong, paired with an on-screen **"TRY AGAIN"** button to retry immediately without leaving the screen.
-3. **Single-Claim Reward Guard**: Correct answers award +50 points once via `ProgressService.markLearnTopicCompleted()`, preventing double-crediting on restarts or retries.
-
----
-
 ## 5. Automated Verification Results
 
-All unit and widget tests were run and passed cleanly:
-
 - **Total Tests**: 104 passed / 0 failed.
-- **`test/widget_test.dart`**: Verified curriculum navigation, 36-concept progress counter, Stage 1 Lesson 1 completion, +50 PTS reward, and back-navigation state retention.
+- **`test/widget_test.dart`**: Verified adventure map navigation, 36-concept progress counter, Stage 1 Lesson 1 completion, +50 PTS reward, and back-navigation state retention.
 - **`test/unit/learning_curriculum_test.dart`**: Verified all 36 lessons, stage distribution (6 lessons per stage across 6 stages), unique IDs, valid 1..500 level linkages, 4 unique options per question, and mathematical non-negative integer correctness.
 - **`flutter analyze --no-pub`**: 0 warnings, 0 errors.

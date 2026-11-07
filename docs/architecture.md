@@ -73,16 +73,16 @@ flowchart TD
 ### Screen 1: Home Dashboard (`HomeScreen`)
 * **Top Header Cluster (Single Row):**
   * `HeartsIndicator`: Displays current hearts (`❤️ 5`, `❤️ 4 (18:22)`, or `❤️ ∞` for VIP) with remaining refill countdown.
-  * `ScoreBadge`: Outlined amber pill showing persistent player points (`★ 125 PTS`). Tapping opens scoring rules.
+  * `ScoreBadge`: Outlined amber pill showing persistent player points (`★ 125 PTS`). Tapping opens responsive scoring rules dialog (built with a two-tier card layout and `SingleChildScrollView` to prevent RenderFlex overflow across compact 320px–360px viewports).
   * `HomeProPill`: Understated, non-intrusive pill showing `PRO` badge. Tapping opens the Shop screen.
   * `SettingsGear`: Borderless circular button navigating to `SettingsScreen`.
 * **Center Branding:**
   * Title: `MATH RIDDLES` (`34sp`, font weight 800, tracking `2.0px`).
   * Hero Quote: *“Logic is the anatomy of thought. Challenge your limits.”* (`11sp`, italic, light grey).
 * **Primary Game Modes:**
-  * **RIDDLE:** Routes to `LevelsScreen` (500 levels organized in 10 packs of 50).
-  * **LEARN:** Routes to `LearnScreen` (14 conceptual lessons with interactive sandboxes).
-  * **CHALLENGE:** Routes to `ChallengeScreen` (12 progressive challenge categories).
+  * **RIDDLE:** Routes to `LevelsScreen` (500 levels: 80 handcrafted + 420 deterministic procedural in 10 packs of 50).
+  * **LEARN:** Routes to `LearnScreen` (36 lessons across 6 progressive stages with Candy Crush-inspired adventure map).
+  * **CHALLENGE:** Routes to `ChallengeScreen` (12 progressive challenge categories with continuous generators).
 * **Footer:**
   * Interactive **Rate Us ★★★★★** button triggering Google Play Store rating.
 
@@ -145,18 +145,37 @@ flowchart TD
 ---
 
 ### Screen 7: Interactive Math Academy (`LearnScreen` & `LessonDetailScreen`)
-* **Curriculum:** 14 lessons across 3 chapters: Foundational Arithmetic, Pattern Recognition, and Advanced Geometry.
-* **Modular Visual Sandboxes:**
-  * *Balance Scale:* Drag-free dynamic algebraic equilibrium.
-  * *Clock Modular Dial:* Circular wrap-around arithmetic visualization.
-  * *Binary Bit Flipper:* Interactive bits demonstrating base-2 positional notation.
-  * *Fraction Visualizer:* Dynamic percentage and fraction bar.
-* **Mastery Practice Quiz:** Graded question testing concept application. Awarding **+50 PTS** upon mastery (claimed once per lesson).
+* **Candy Crush-Inspired Progression Map:**
+  * Replaces standard rectangular card lists with an interactive vertical adventure journey.
+  * `CurvedAdventurePathPainter`: Custom Bézier painter that draws smooth cubic curves between alternating lesson nodes.
+  * Dual-layer road rendering: Deep slate underlay (`#1E293B`, 14px), active radiant amber trail (`#F59E0B`, 6px), and locked slate trail (`#334155`, 4px).
+  * Node Tokens:
+    - *Completed:* Emerald green token with checkmark icon and lesson number.
+    - *Active / Next Up:* Enlarged glowing amber token with continuous pulse animation and play icon.
+    - *Locked:* Muted dark slate token with padlock icon and tap tooltip.
+  * Milestone Stage Portals: Visual chapter checkpoints for each of the 6 stages with color-coded stage badges.
+  * Auto-Scroll Focus: On screen mount, automatically scrolls the map to center the learner's current active lesson.
+* **Curriculum Syllabus (36 Lessons Across 6 Stages):**
+  * Stage 1: Absolute Beginner (Lessons 1–6: Place values, operations, parity, fractions)
+  * Stage 2: Basic Mathematics (Lessons 7–12: BODMAS, factors, primes, divisibility, ratios)
+  * Stage 3: Intermediate Mathematics (Lessons 13–18: Algebra, equations, sequences, interest, time-speed-distance)
+  * Stage 4: Advanced Mathematical Thinking (Lessons 19–24: Geometry, simultaneous equations, quadratics, probability)
+  * Stage 5: Mathematical Logic & Cryptarithms (Lessons 25–30: Modular arithmetic, bases, Venn diagrams, lateral operators, cryptarithms)
+  * Stage 6: Master Competition Math (Lessons 31–36: Pigeonhole principle, Euclidean algorithm, Diophantine equations, Olympiad synthesis)
+* **8-Step Pedagogical Lesson View:**
+  * Concise concept overview, real-world utility, core formula callout, step-by-step recipe, two worked examples, common mistake warnings, and interactive 4-option mastery quiz.
+  * Quiz awards **+50 PTS** upon passing (strictly idempotent, single-reward policy) with step-by-step solution breakdown and instant "Try Again" retry mechanism.
 
 ---
 
 ### Screen 8: Smart Progressive Challenges (`ChallengeScreen` & `ChallengePlayScreen`)
-* **12 Categories:** Neutral card surfaces with shared amber-gold achievement styling.
+* **12 Categories:** Neutral card surfaces with shared amber-gold achievement styling:
+  * Addition, Subtraction, Multiplication, Division, Squares & Powers, Percentages & Rates, Sequences & Patterns, Missing Number Puzzles, BODMAS Precedence, Lateral Operators, Speed Math Tricks, Mixed Challenge.
+* **Standardized Unicode Operators:** Clean UTF-8 notation (`×`, `÷`, `−`, `²`, `³`, `⁴`, `⁵`, `⁶`, `°`) and universally supported geometric symbols for custom operators (`⊕`, `★`, `▲`, `⊗`, `⊙`, `⊘`, `◆`, `✦`, `∇`, `◎`, `◈`, `❖`, `△`, `◇`, `⬡`) to guarantee zero missing glyphs.
+* **Modular Generator Architecture:** Orchestrated via `ChallengeGenerator` delegating to:
+  * `BasicArithmeticChallengeGenerator` (Addition, Subtraction, Multiplication, Division)
+  * `AdvancedArithmeticChallengeGenerator` (Powers, Percentages, BODMAS, Math Tricks)
+  * `SequenceLogicChallengeGenerator` (Sequences, Missing Numbers, Lateral Operators)
 * **Dynamic 3-Tier Progression:**
   * Tier 0: 1-digit arithmetic (baseline for all new players).
   * Tier 1: 2-digit arithmetic (unlocked at **20 cumulative solved answers** with $\ge 60\%$ accuracy).

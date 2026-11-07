@@ -9,6 +9,12 @@ enum QuestionType {
   Geometry,
 }
 
+/// Provenance of the riddle: handcrafted vs procedurally generated
+enum QuestionSource {
+  handcrafted,
+  procedural,
+}
+
 /// Represents individual coordinate nodes for vector-rendered geometric riddles
 class PuzzleNode {
   final String id;
@@ -44,6 +50,7 @@ class PuzzleNode {
 
 /// Level Data Model Schema strictly following specifications
 class LevelData {
+  final String? id;
   final int levelNumber;
   final QuestionType questionType;
   final String category;
@@ -53,8 +60,12 @@ class LevelData {
   final String correctAnswer;
   final String hint;
   final String solution;
+  final QuestionSource sourceType;
+  final int? generationVersion;
+  final int? seed;
 
   const LevelData({
+    this.id,
     required this.levelNumber,
     required this.questionType,
     this.category = 'Formula Precedence',
@@ -64,9 +75,13 @@ class LevelData {
     required this.correctAnswer,
     required this.hint,
     required this.solution,
+    this.sourceType = QuestionSource.procedural,
+    this.generationVersion,
+    this.seed,
   });
 
   Map<String, dynamic> toJson() => {
+    if (id != null) 'id': id,
     'levelNumber': levelNumber,
     'questionType': questionType.name,
     'category': category,
@@ -76,9 +91,13 @@ class LevelData {
     'correctAnswer': correctAnswer,
     'hint': hint,
     'solution': solution,
+    'sourceType': sourceType.name,
+    if (generationVersion != null) 'generationVersion': generationVersion,
+    if (seed != null) 'seed': seed,
   };
 
   factory LevelData.fromJson(Map<String, dynamic> json) => LevelData(
+    id: json['id'] as String?,
     levelNumber: json['levelNumber'] as int,
     questionType: QuestionType.values.byName(json['questionType'] as String),
     category: json['category'] as String? ?? 'Formula Precedence',
@@ -92,6 +111,11 @@ class LevelData {
     correctAnswer: json['correctAnswer'] as String,
     hint: json['hint'] as String,
     solution: json['solution'] as String,
+    sourceType: json['sourceType'] != null
+        ? QuestionSource.values.byName(json['sourceType'] as String)
+        : QuestionSource.procedural,
+    generationVersion: json['generationVersion'] as int?,
+    seed: json['seed'] as int?,
   );
 
   static String encodeList(List<LevelData> levels) =>

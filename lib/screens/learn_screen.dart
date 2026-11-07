@@ -2,12 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/game_controller.dart';
 import '../data/learning_curriculum.dart';
-import '../features/learning/widgets/lesson_category_card.dart';
-import '../models/lesson_model.dart';
+import '../features/learning/widgets/map/adventure_progress_bar.dart';
+import '../features/learning/widgets/map/map_level_node.dart';
+import '../features/learning/widgets/map/map_models.dart';
+import '../features/learning/widgets/map/map_path_painter.dart';
+import '../features/learning/widgets/map/map_stage_milestone.dart';
 import '../services/sound_service.dart';
 import '../theme/game_theme.dart';
 import '../widgets/score_badge.dart';
 
+/// Candy Crush-inspired adventure level map for the SMATH Learning curriculum.
+/// Renders a vertically winding path connecting 36 circular lesson nodes across 6 milestone stages.
 class LearnScreen extends ConsumerStatefulWidget {
   const LearnScreen({super.key});
 
@@ -16,90 +21,112 @@ class LearnScreen extends ConsumerStatefulWidget {
 }
 
 class _LearnScreenState extends ConsumerState<LearnScreen> {
-  String _selectedCategory = 'All';
-  int _selectedChapter = 0; // 0: All Chapters, 1..5: Specific Chapters
+  final ScrollController _scrollController = ScrollController();
+  double _currentLessonY = 0.0;
 
-  final List<String> _chapters = [
-    'All Chapters',
-    'Ch 1: Foundational Arithmetic',
-    'Ch 2: Sequences & Patterns',
-    'Ch 3: Equations & Logic',
-    'Ch 4: Visual Geometry',
-    'Ch 5: Advanced & Boss',
+  // Horizontal position waves for odd and even stages (ratio of screen width)
+  static const List<double> _oddStageRatios = [0.50, 0.72, 0.80, 0.50, 0.20, 0.28];
+  static const List<double> _evenStageRatios = [0.50, 0.28, 0.20, 0.50, 0.80, 0.72];
+
+  // Stage milestone definitions
+  static const List<_StageConfig> _stageConfigs = [
+    _StageConfig(
+      index: 1,
+      name: 'Stage 1: Beginner',
+      subtitle: 'Foundations & Number Sense',
+      icon: Icons.explore_rounded,
+      accentColor: Color(0xFF10B981),
+    ),
+    _StageConfig(
+      index: 2,
+      name: 'Stage 2: Basic Mathematics',
+      subtitle: 'Operations, Factors & Proportions',
+      icon: Icons.calculate_rounded,
+      accentColor: Color(0xFF0284C7),
+    ),
+    _StageConfig(
+      index: 3,
+      name: 'Stage 3: Intermediate',
+      subtitle: 'Algebra, Equations & Sequences',
+      icon: Icons.auto_graph_rounded,
+      accentColor: Color(0xFF8B5CF6),
+    ),
+    _StageConfig(
+      index: 4,
+      name: 'Stage 4: Advanced',
+      subtitle: 'Geometry, Quadratics & Probability',
+      icon: Icons.change_history_rounded,
+      accentColor: Color(0xFFF59E0B),
+    ),
+    _StageConfig(
+      index: 5,
+      name: 'Stage 5: Expert',
+      subtitle: 'Calculus, Matrices & Complex Plane',
+      icon: Icons.grain_rounded,
+      accentColor: Color(0xFFEC4899),
+    ),
+    _StageConfig(
+      index: 6,
+      name: 'Stage 6: Extreme Mathematics',
+      subtitle: 'Olympiad & Grandmaster Mastery',
+      icon: Icons.military_tech_rounded,
+      accentColor: Color(0xFFEAB308),
+    ),
   ];
 
-  final List<String> _categories = [
-    'All',
-    'Arithmetic & Precedence',
-    'Patterns & Sequences',
-    'Algebra & Equations',
-    'Geometry',
-    'Matrices & Grids',
-    'Logic & Tricks',
-    'Commercial & Word Problems',
-    'Final Boss',
-  ];
-
-  bool _matchesFilter(Lesson lesson) {
-    if (_selectedChapter > 0 && lesson.chapterIndex != _selectedChapter) {
-      return false;
-    }
-
-    if (_selectedCategory == 'All') return true;
-    switch (_selectedCategory) {
-      case 'Arithmetic & Precedence':
-        return lesson.category == 'Formula Precedence' || lesson.category == 'Lateral Operators';
-      case 'Patterns & Sequences':
-        return lesson.category == 'Number Patterns' || lesson.category == 'Sequences';
-      case 'Algebra & Equations':
-        return lesson.category == 'Equation Riddles' || lesson.category == 'Missing Numbers';
-      case 'Geometry':
-        return lesson.category == 'Geometry: Triangles' || lesson.category == 'Geometry: Intersecting Circles';
-      case 'Matrices & Grids':
-        return lesson.category == 'Matrices & Grids';
-      case 'Logic & Tricks':
-        return lesson.category == 'Logic Numbers' || lesson.category == 'Mathematical Tricks';
-      case 'Commercial & Word Problems':
-        return lesson.category == 'Money & Shopping' || lesson.category == 'Age Riddles' || lesson.category == 'Number Mazes';
-      case 'Final Boss':
-        return lesson.category == 'Final Boss';
-      default:
-        return true;
-    }
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollToCurrentLesson();
+    });
   }
 
-  String _getAcademyRank(int completedCount) {
-    if (completedCount >= 15) return 'Grand Singularity Master';
-    if (completedCount >= 10) return 'Mathematical Specialist';
-    if (completedCount >= 5) return 'Pattern Adept';
-    if (completedCount >= 1) return 'Logic Novice';
-    return 'Academy Apprentice';
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToCurrentLesson() {
+    if (!_scrollController.hasClients || _currentLessonY <= 0) return;
+
+    final targetOffset = (_currentLessonY - 260.0).clamp(
+      0.0,
+      _scrollController.position.maxScrollExtent,
+    );
+
+    _scrollController.animateTo(
+      targetOffset,
+      duration: const Duration(milliseconds: 700),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    // Watch game controller state so score and completion updates trigger reactive rebuild
     ref.watch(gameControllerProvider);
     final progress = ref.watch(progressServiceProvider);
     final completedTopics = progress.completedLearnTopics;
-
-    final filteredLessons = learningCurriculum
-        .where((lesson) => _matchesFilter(lesson))
-        .toList();
 
     final totalCompleted = learningCurriculum
         .where((lesson) => completedTopics.contains(lesson.id))
         .length;
     final totalLessons = learningCurriculum.length;
-    final progressFraction = totalLessons > 0 ? (totalCompleted / totalLessons) : 0.0;
     final pointsEarned = totalCompleted * 50;
-    final academyRank = _getAcademyRank(totalCompleted);
+
+    final currentLesson = learningCurriculum.firstWhere(
+      (l) => !completedTopics.contains(l.id),
+      orElse: () => learningCurriculum.last,
+    );
+    final currentStageName = currentLesson.stage;
 
     return Scaffold(
       backgroundColor: GameTheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: GameTheme.background,
         elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new_rounded, color: GameTheme.textWhite, size: 20),
           onPressed: () {
@@ -113,7 +140,7 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
             color: GameTheme.textWhite,
             fontSize: 16,
             fontWeight: FontWeight.w800,
-            letterSpacing: 2.5,
+            letterSpacing: 2.0,
           ),
         ),
         centerTitle: true,
@@ -129,166 +156,138 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // 1. Learning Progress Summary Banner
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: GameTheme.surface,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: GameTheme.borderSubtle),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              academyRank.toUpperCase(),
-                              style: const TextStyle(
-                                color: GameTheme.amberAccent,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 1.0,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '$totalCompleted of $totalLessons Concepts Mastered',
-                              style: const TextStyle(
-                                color: GameTheme.textWhite,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ],
+            // 1. Floating Adventure Progress Bar
+            AdventureProgressBar(
+              totalCompleted: totalCompleted,
+              totalLessons: totalLessons,
+              pointsEarned: pointsEarned,
+              currentStageName: currentStageName,
+              onJumpToCurrent: _scrollToCurrentLesson,
+            ),
+
+            // 2. Continuous Winding Adventure Map
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final width = constraints.maxWidth;
+                  final nodes = <MapNodePosition>[];
+                  final milestones = <MapMilestonePosition>[];
+
+                  double currentY = 24.0;
+                  const double vStep = 115.0;
+                  const double milestoneHeight = 90.0;
+
+                  for (int stageIndex = 1; stageIndex <= 6; stageIndex++) {
+                    final config = _stageConfigs[stageIndex - 1];
+
+                    // Count completions in this stage
+                    final stageLessons = learningCurriculum.where((l) => l.stageIndex == stageIndex);
+                    final completedInStage = stageLessons.where((l) => completedTopics.contains(l.id)).length;
+
+                    // 1. Milestone position
+                    milestones.add(
+                      MapMilestonePosition(
+                        stageIndex: stageIndex,
+                        stageName: config.name,
+                        subtitle: config.subtitle,
+                        icon: config.icon,
+                        accentColor: config.accentColor,
+                        y: currentY,
+                        completedInStage: completedInStage,
+                        totalInStage: stageLessons.length,
+                      ),
+                    );
+
+                    currentY += milestoneHeight + 10;
+
+                    // 2. Lesson nodes for this stage (6 lessons)
+                    final ratios = (stageIndex % 2 == 1) ? _oddStageRatios : _evenStageRatios;
+                    for (int j = 0; j < 6; j++) {
+                      final globalIndex = (stageIndex - 1) * 6 + j;
+                      if (globalIndex >= learningCurriculum.length) break;
+
+                      final lesson = learningCurriculum[globalIndex];
+                      final isCompleted = completedTopics.contains(lesson.id);
+                      final isLocked = globalIndex > 0 &&
+                          !completedTopics.contains(learningCurriculum[globalIndex - 1].id) &&
+                          !isCompleted;
+                      final isCurrent = !isCompleted && !isLocked;
+
+                      final ratio = ratios[j];
+                      // Clamp horizontal center so node and pill have margin from screen edges
+                      final nodeCenterX = (width * ratio).clamp(42.0, width - 42.0);
+                      final nodeCenter = Offset(nodeCenterX, currentY + 30.0);
+
+                      if (isCurrent) {
+                        _currentLessonY = nodeCenter.dy;
+                      }
+
+                      nodes.add(
+                        MapNodePosition(
+                          lesson: lesson,
+                          globalIndex: globalIndex + 1,
+                          center: nodeCenter,
+                          isCompleted: isCompleted,
+                          isCurrent: isCurrent,
+                          isLocked: isLocked,
+                          horizontalRatio: ratio,
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                          decoration: BoxDecoration(
-                            color: GameTheme.amberGlow,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: GameTheme.amberAccent.withValues(alpha: 0.3)),
-                          ),
-                          child: Text(
-                            '+$pointsEarned PTS',
-                            style: const TextStyle(
-                              color: GameTheme.amberAccent,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w800,
+                      );
+
+                      currentY += vStep;
+                    }
+
+                    currentY += 20.0; // Spacing before next stage milestone
+                  }
+
+                  final totalMapHeight = currentY + 60.0;
+
+                  return SingleChildScrollView(
+                    controller: _scrollController,
+                    physics: const BouncingScrollPhysics(),
+                    child: SizedBox(
+                      width: width,
+                      height: totalMapHeight,
+                      child: Stack(
+                        children: [
+                          // A. Smooth Continuous Winding Path (CustomPainter)
+                          Positioned.fill(
+                            child: CustomPaint(
+                              painter: MapPathPainter(nodes: nodes),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: LinearProgressIndicator(
-                        value: progressFraction,
-                        minHeight: 6,
-                        backgroundColor: GameTheme.surfaceElevated,
-                        valueColor: const AlwaysStoppedAnimation<Color>(GameTheme.amberAccent),
+
+                          // B. Milestone Banners
+                          ...milestones.map((m) {
+                            return Positioned(
+                              top: m.y,
+                              left: 20,
+                              right: 20,
+                              child: MapStageMilestone(milestone: m),
+                            );
+                          }),
+
+                          // C. Circular Level Nodes & Title Pills
+                          ...nodes.map((pos) {
+                            final isRightSide = pos.horizontalRatio > 0.5;
+
+                            if (isRightSide) {
+                              return Positioned(
+                                top: pos.center.dy - 32,
+                                right: width - pos.center.dx - 32,
+                                child: MapLevelNode(position: pos),
+                              );
+                            } else {
+                              return Positioned(
+                                top: pos.center.dy - 32,
+                                left: pos.center.dx - 32,
+                                child: MapLevelNode(position: pos),
+                              );
+                            }
+                          }),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-
-            // 2. Chapter Path Filter Chips
-            SizedBox(
-              height: 40,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                itemCount: _chapters.length,
-                separatorBuilder: (context, index) => const SizedBox(width: 8),
-                itemBuilder: (context, index) {
-                  final chName = _chapters[index];
-                  final isSelected = _selectedChapter == index;
-                  return ChoiceChip(
-                    label: Text(chName),
-                    selected: isSelected,
-                    labelStyle: TextStyle(
-                      color: isSelected ? Colors.black87 : GameTheme.textLight,
-                      fontSize: 11,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    ),
-                    backgroundColor: GameTheme.surfaceElevated,
-                    selectedColor: GameTheme.amberAccent,
-                    side: BorderSide(
-                      color: isSelected ? GameTheme.amberAccent : GameTheme.borderSubtle,
-                    ),
-                    onSelected: (selected) {
-                      if (selected) {
-                        ref.read(soundServiceProvider).playTap();
-                        setState(() {
-                          _selectedChapter = index;
-                        });
-                      }
-                    },
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // 3. Category Filter Chips
-            SizedBox(
-              height: 38,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                itemCount: _categories.length,
-                separatorBuilder: (context, index) => const SizedBox(width: 8),
-                itemBuilder: (context, index) {
-                  final cat = _categories[index];
-                  final isSelected = _selectedCategory == cat;
-                  return ChoiceChip(
-                    label: Text(cat),
-                    selected: isSelected,
-                    labelStyle: TextStyle(
-                      color: isSelected ? Colors.black87 : GameTheme.textLight,
-                      fontSize: 11,
-                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    ),
-                    backgroundColor: GameTheme.surfaceElevated,
-                    selectedColor: GameTheme.amberAccent,
-                    side: BorderSide(
-                      color: isSelected ? GameTheme.amberAccent : GameTheme.borderSubtle,
-                    ),
-                    onSelected: (selected) {
-                      if (selected) {
-                        ref.read(soundServiceProvider).playTap();
-                        setState(() {
-                          _selectedCategory = cat;
-                        });
-                      }
-                    },
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // 4. Lessons List
-            Expanded(
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                itemCount: filteredLessons.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 14),
-                itemBuilder: (context, index) {
-                  final lesson = filteredLessons[index];
-                  final isCompleted = completedTopics.contains(lesson.id);
-
-                  return LessonCategoryCard(
-                    lesson: lesson,
-                    isCompleted: isCompleted,
                   );
                 },
               ),
@@ -298,4 +297,20 @@ class _LearnScreenState extends ConsumerState<LearnScreen> {
       ),
     );
   }
+}
+
+class _StageConfig {
+  final int index;
+  final String name;
+  final String subtitle;
+  final IconData icon;
+  final Color accentColor;
+
+  const _StageConfig({
+    required this.index,
+    required this.name,
+    required this.subtitle,
+    required this.icon,
+    required this.accentColor,
+  });
 }

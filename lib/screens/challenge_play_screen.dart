@@ -5,13 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/game_controller.dart';
 import '../data/challenge_data.dart';
 import '../features/challenges/widgets/challenge_feedback_card.dart';
+import '../features/challenges/widgets/challenge_play_app_bar.dart';
 import '../features/challenges/widgets/challenge_question_card.dart';
 import '../features/challenges/widgets/challenge_status_bar.dart';
 import '../features/challenges/widgets/challenge_timer_bar.dart';
 import '../services/sound_service.dart';
 import '../theme/game_theme.dart';
 import '../widgets/custom_keypad.dart';
-import '../widgets/score_badge.dart';
 
 
 class ChallengePlayScreen extends ConsumerStatefulWidget {
@@ -45,6 +45,7 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
   bool _isShowingPopup = false;
   bool _isSubmitting = false;
   FeedbackOverlayData? _feedbackData;
+  bool _isExiting = false;
 
   @override
   void initState() {
@@ -328,94 +329,48 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
     _startTimer();
   }
 
+  Future<void> _handleExit() async {
+    if (_isExiting) return;
+    _isExiting = true;
+    _stopTimer();
+    _autoAdvanceTimer?.cancel();
+
+    final progress = ref.read(progressServiceProvider);
+    final adService = ref.read(adServiceProvider);
+
+    // Polite SMath rule: Show interstitial ad ONLY when exiting/finishing a challenge
+    // (if the user actually participated: at least 2 attempts or 1 correct answer)
+    // NEVER interrupt during the active 15s timer rounds!
+    if (!progress.isAdsRemoved && (_sessionAttempts >= 2 || _sessionCorrect >= 1)) {
+      await adService.showChallengeExitInterstitial();
+    }
+
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final progressService = ref.watch(progressServiceProvider);
     final stats = progressService.getCategoryStats(widget.category.type);
-    final totalAttemptsForCategory = stats.attempts;
 
-    return Scaffold(
-      backgroundColor: GameTheme.background,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: GameTheme.textWhite, size: 20),
-          onPressed: () {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        await _handleExit();
+      },
+      child: Scaffold(
+        backgroundColor: GameTheme.background,
+        appBar: ChallengePlayAppBar(
+          category: widget.category,
+          stats: stats,
+          onBack: () {
             ref.read(soundServiceProvider).playTap();
-            Navigator.of(context).pop();
+            _handleExit();
           },
         ),
-        title: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Text(
-                    widget.category.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: GameTheme.textWhite,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: stats.badgeInfo.color.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: stats.badgeInfo.color.withValues(alpha: 0.4)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(stats.badgeInfo.icon, size: 10, color: stats.badgeInfo.color),
-                      const SizedBox(width: 3),
-                      Text(
-                        stats.badgeInfo.title,
-                        style: TextStyle(
-                          color: stats.badgeInfo.color,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 2),
-            Text(
-              'Played $totalAttemptsForCategory ${totalAttemptsForCategory == 1 ? 'time' : 'times'} • Best: ${stats.highestStreak} • ${stats.accuracyPercent}% ACC',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: GameTheme.textMuted,
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
-                letterSpacing: 0.4,
-              ),
-            ),
-          ],
-        ),
-        centerTitle: true,
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: Center(
-              child: ScoreBadge(compact: true),
-            ),
-          ),
-        ],
-      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -454,6 +409,7 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
             CustomKeypad(
               inputString: _input,
               hasVibration: true,
+              showHint: false,
               onDigitPressed: (d) {
                 if (_feedbackData != null) {
                   _dismissFeedbackAndContinue();
@@ -470,6 +426,15 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
                 }
                 setState(() => _input = '');
               },
+              onDelete: () {
+                if (_feedbackData != null) {
+                  _dismissFeedbackAndContinue();
+                  return;
+                }
+                if (_input.isNotEmpty) {
+                  setState(() => _input = _input.substring(0, _input.length - 1));
+                }
+              },
               onHintPressed: () {},
               onSubmit: () {
                 if (_feedbackData != null) {
@@ -482,7 +447,8 @@ class _ChallengePlayScreenState extends ConsumerState<ChallengePlayScreen>
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 
 }

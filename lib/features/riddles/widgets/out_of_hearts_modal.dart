@@ -118,7 +118,7 @@ class OutOfHeartsModal extends StatelessWidget {
                   },
                   icon: const Icon(Icons.play_circle_outline_rounded, color: GameTheme.amberAccent, size: 20),
                   label: const Text(
-                    'Watch an Ad to Refill Hearts',
+                    'Watch an Ad for 5 Hearts (Full Refill)',
                     style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                   ),
                 );

@@ -1,20 +1,25 @@
-import '../features/learning/data/chapter_1_foundations.dart';
-import '../features/learning/data/chapter_2_sequences.dart';
-import '../features/learning/data/chapter_3_logic_equations.dart';
-import '../features/learning/data/chapter_4_geometry.dart';
-import '../features/learning/data/chapter_5_advanced_boss.dart';
+import '../features/learning/data/stage_1_absolute_beginner.dart';
+import '../features/learning/data/stage_2_basic_mathematics.dart';
+import '../features/learning/data/stage_3_intermediate_mathematics.dart';
+import '../features/learning/data/stage_4_advanced_mathematics.dart';
+import '../features/learning/data/stage_5_expert_mathematics.dart';
+import '../features/learning/data/stage_6_extreme_mathematics.dart';
 import '../models/lesson_model.dart';
 
-export '../features/learning/data/chapter_1_foundations.dart';
-export '../features/learning/data/chapter_2_sequences.dart';
-export '../features/learning/data/chapter_3_logic_equations.dart';
-export '../features/learning/data/chapter_4_geometry.dart';
-export '../features/learning/data/chapter_5_advanced_boss.dart';
+export '../features/learning/data/stage_1_absolute_beginner.dart';
+export '../features/learning/data/stage_2_basic_mathematics.dart';
+export '../features/learning/data/stage_3_intermediate_mathematics.dart';
+export '../features/learning/data/stage_4_advanced_mathematics.dart';
+export '../features/learning/data/stage_5_expert_mathematics.dart';
+export '../features/learning/data/stage_6_extreme_mathematics.dart';
 
+/// The comprehensive 36-lesson progressive mathematics curriculum powering SMATH Academy.
+/// Spans from Stage 1 (Absolute Beginner) through Stage 6 (Extreme Olympiad & Research Mathematics).
 final List<Lesson> learningCurriculum = [
-  ...chapter1Foundations,
-  ...chapter2Sequences,
-  ...chapter3LogicEquations,
-  ...chapter4Geometry,
-  ...chapter5AdvancedBoss,
+  ...stage1AbsoluteBeginner,
+  ...stage2BasicMathematics,
+  ...stage3IntermediateMathematics,
+  ...stage4AdvancedMathematics,
+  ...stage5ExpertMathematics,
+  ...stage6ExtremeMathematics,
 ];

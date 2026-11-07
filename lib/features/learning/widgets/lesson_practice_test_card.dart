@@ -3,15 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../controllers/game_controller.dart';
 import '../../../models/lesson_model.dart';
 import '../../../services/sound_service.dart';
-import '../../../theme/game_theme.dart';
+import '../../../theme/learning_theme.dart';
 
-/// Self-contained Interactive Practice Test card for testing mathematical mastery.
+/// Readability-first interactive practice test widget for verifying mathematical mastery.
+/// Conforms to WCAG AAA contrast guidelines with large touch targets (≥ 48px).
 class LessonPracticeTestCard extends ConsumerStatefulWidget {
   final Lesson lesson;
+  final bool useReadabilityTheme;
 
   const LessonPracticeTestCard({
     super.key,
     required this.lesson,
+    this.useReadabilityTheme = true,
   });
 
   @override
@@ -42,17 +45,19 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: GameTheme.surfaceElevated,
+            backgroundColor: LearningTheme.textPrimary,
             duration: const Duration(seconds: 3),
             content: Row(
               children: [
-                const Icon(Icons.stars_rounded, color: GameTheme.amberAccent, size: 20),
+                const Icon(Icons.stars_rounded, color: Color(0xFFF59E0B), size: 20),
                 const SizedBox(width: 8),
-                Text(
-                  granted
-                      ? 'Concept Mastered! +50 PTS Added to Total Score!'
-                      : 'Concept Mastered! (Points already claimed)',
-                  style: const TextStyle(color: GameTheme.textWhite, fontWeight: FontWeight.w600),
+                Expanded(
+                  child: Text(
+                    granted
+                        ? 'Concept Mastered! +50 PTS Added to Total Score!'
+                        : 'Concept Mastered! (Points already claimed)',
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  ),
                 ),
               ],
             ),
@@ -69,14 +74,21 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: GameTheme.surface,
+        color: LearningTheme.surface,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: _isAnswerChecked
-              ? (_isCorrect ? GameTheme.successGreen : GameTheme.errorRed)
-              : GameTheme.borderActive,
+              ? (_isCorrect ? LearningTheme.correctGreen : LearningTheme.wrongRed)
+              : LearningTheme.border,
           width: 1.5,
         ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0A000000),
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,7 +99,7 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
               const Text(
                 'PRACTICE QUESTION',
                 style: TextStyle(
-                  color: GameTheme.amberAccent,
+                  color: LearningTheme.stageBlue,
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 1.2,
@@ -96,13 +108,13 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: GameTheme.amberGlow,
+                  color: LearningTheme.stageBlueBg,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: const Text(
                   '+50 PTS REWARD',
                   style: TextStyle(
-                    color: GameTheme.amberAccent,
+                    color: LearningTheme.stageBlue,
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
                   ),
@@ -114,7 +126,7 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
           Text(
             widget.lesson.practiceQuestion.question,
             style: const TextStyle(
-              color: GameTheme.textWhite,
+              color: LearningTheme.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.w700,
               height: 1.4,
@@ -122,30 +134,30 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
           ),
           const SizedBox(height: 16),
 
-          // Option Selector Chips
+          // Option Selector Chips (Touch target >= 48px)
           if (widget.lesson.practiceQuestion.options != null) ...[
             ...widget.lesson.practiceQuestion.options!.map((option) {
               final isSelected = _selectedOption == option;
               final isCorrectOption = option == widget.lesson.practiceQuestion.correctAnswer;
 
-              Color borderColor = GameTheme.borderSubtle;
-              Color bgColor = GameTheme.surfaceElevated;
-              Color textColor = GameTheme.textLight;
+              Color borderColor = LearningTheme.border;
+              Color bgColor = LearningTheme.surface;
+              Color textColor = LearningTheme.textPrimary;
 
               if (_isAnswerChecked) {
                 if (isCorrectOption) {
-                  borderColor = GameTheme.successGreen;
-                  bgColor = GameTheme.successGreen.withValues(alpha: 0.15);
-                  textColor = GameTheme.successGreen;
+                  borderColor = LearningTheme.correctGreen;
+                  bgColor = LearningTheme.correctBg;
+                  textColor = LearningTheme.correctGreen;
                 } else if (isSelected && !_isCorrect) {
-                  borderColor = GameTheme.errorRed;
-                  bgColor = GameTheme.errorRed.withValues(alpha: 0.15);
-                  textColor = GameTheme.errorRed;
+                  borderColor = LearningTheme.wrongRed;
+                  bgColor = LearningTheme.wrongBg;
+                  textColor = LearningTheme.wrongRed;
                 }
               } else if (isSelected) {
-                borderColor = GameTheme.amberAccent;
-                bgColor = GameTheme.amberGlow;
-                textColor = GameTheme.amberAccent;
+                borderColor = LearningTheme.stageBlue;
+                bgColor = LearningTheme.stageBlueBg;
+                textColor = LearningTheme.stageBlue;
               }
 
               return Padding(
@@ -159,11 +171,12 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
                           setState(() => _selectedOption = option);
                         },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    constraints: const BoxConstraints(minHeight: 48),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
                       color: bgColor,
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: borderColor),
+                      border: Border.all(color: borderColor, width: isSelected ? 1.8 : 1.0),
                     ),
                     child: Row(
                       children: [
@@ -174,15 +187,15 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
                                   : Icons.radio_button_checked_rounded)
                               : Icons.radio_button_off_rounded,
                           color: textColor,
-                          size: 18,
+                          size: 20,
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             option,
                             style: TextStyle(
                               color: textColor,
-                              fontSize: 14,
+                              fontSize: 15,
                               fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                             ),
                           ),
@@ -202,13 +215,13 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
               Expanded(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: GameTheme.amberAccent,
-                    foregroundColor: Colors.black87,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    backgroundColor: LearningTheme.primary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    disabledBackgroundColor: GameTheme.surfaceElevated,
+                    disabledBackgroundColor: LearningTheme.border,
                   ),
-                  onPressed: _selectedOption != null ? _checkAnswer : null,
+                  onPressed: (_selectedOption != null && !_isAnswerChecked) ? _checkAnswer : null,
                   child: const Text(
                     'SUBMIT ANSWER',
                     style: TextStyle(
@@ -222,8 +235,8 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
               const SizedBox(width: 10),
               OutlinedButton.icon(
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: GameTheme.borderSubtle),
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+                  side: const BorderSide(color: LearningTheme.border),
+                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 onPressed: () {
@@ -232,10 +245,10 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
                     _showHint = !_showHint;
                   });
                 },
-                icon: const Icon(Icons.lightbulb_outline_rounded, color: GameTheme.amberAccent, size: 18),
+                icon: const Icon(Icons.lightbulb_outline_rounded, color: LearningTheme.stageBlue, size: 18),
                 label: Text(
                   _showHint ? 'HIDE HINT' : 'HINT',
-                  style: const TextStyle(color: GameTheme.amberAccent, fontSize: 12, fontWeight: FontWeight.w700),
+                  style: const TextStyle(color: LearningTheme.stageBlue, fontSize: 12, fontWeight: FontWeight.w700),
                 ),
               ),
             ],
@@ -248,19 +261,19 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: GameTheme.surfaceElevated,
+                color: LearningTheme.surfaceSubtle,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: GameTheme.amberAccent.withValues(alpha: 0.3)),
+                border: Border.all(color: LearningTheme.stageBlue.withValues(alpha: 0.3)),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.info_outline_rounded, color: GameTheme.amberAccent, size: 16),
+                  const Icon(Icons.info_outline_rounded, color: LearningTheme.stageBlue, size: 16),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
                       widget.lesson.practiceQuestion.hint,
-                      style: const TextStyle(color: GameTheme.textLight, fontSize: 12, height: 1.4),
+                      style: const TextStyle(color: LearningTheme.textSecondary, fontSize: 13, height: 1.4),
                     ),
                   ),
                 ],
@@ -275,14 +288,10 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
               width: double.infinity,
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: _isCorrect
-                    ? GameTheme.successGreen.withValues(alpha: 0.1)
-                    : GameTheme.errorRed.withValues(alpha: 0.1),
+                color: _isCorrect ? LearningTheme.correctBg : LearningTheme.wrongBg,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: _isCorrect
-                      ? GameTheme.successGreen.withValues(alpha: 0.5)
-                      : GameTheme.errorRed.withValues(alpha: 0.5),
+                  color: _isCorrect ? LearningTheme.correctGreen : LearningTheme.wrongRed,
                 ),
               ),
               child: Column(
@@ -292,14 +301,14 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
                     children: [
                       Icon(
                         _isCorrect ? Icons.check_circle_rounded : Icons.cancel_rounded,
-                        color: _isCorrect ? GameTheme.successGreen : GameTheme.errorRed,
+                        color: _isCorrect ? LearningTheme.correctGreen : LearningTheme.wrongRed,
                         size: 18,
                       ),
                       const SizedBox(width: 8),
                       Text(
                         _isCorrect ? 'EXCELLENT! ANSWER CORRECT' : 'INCORRECT. TRY AGAIN!',
                         style: TextStyle(
-                          color: _isCorrect ? GameTheme.successGreen : GameTheme.errorRed,
+                          color: _isCorrect ? LearningTheme.correctGreen : LearningTheme.wrongRed,
                           fontSize: 12,
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.8,
@@ -310,7 +319,7 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
                   const SizedBox(height: 8),
                   Text(
                     widget.lesson.practiceQuestion.explanation,
-                    style: const TextStyle(color: GameTheme.textWhite, fontSize: 12, height: 1.4),
+                    style: const TextStyle(color: LearningTheme.textPrimary, fontSize: 13, height: 1.45),
                   ),
                   if (!_isCorrect &&
                       widget.lesson.practiceQuestion.wrongOptionExplanations != null &&
@@ -320,12 +329,13 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: GameTheme.surface,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: LearningTheme.wrongRed.withValues(alpha: 0.3)),
                       ),
                       child: Text(
                         widget.lesson.practiceQuestion.wrongOptionExplanations![_selectedOption!]!,
-                        style: const TextStyle(color: GameTheme.amberAccent, fontSize: 11, height: 1.35),
+                        style: const TextStyle(color: LearningTheme.wrongRed, fontSize: 12, height: 1.35),
                       ),
                     ),
                   ],
@@ -333,7 +343,33 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
                     const SizedBox(height: 8),
                     Text(
                       'Guided Step: ${widget.lesson.practiceQuestion.stepByStepGuidance!}',
-                      style: const TextStyle(color: GameTheme.textMuted, fontSize: 11, fontStyle: FontStyle.italic),
+                      style: const TextStyle(color: LearningTheme.textMuted, fontSize: 12, fontStyle: FontStyle.italic),
+                    ),
+                  ],
+                  if (!_isCorrect) ...[
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: LearningTheme.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                        ),
+                        onPressed: () {
+                          ref.read(soundServiceProvider).playTap();
+                          setState(() {
+                            _isAnswerChecked = false;
+                            _selectedOption = null;
+                          });
+                        },
+                        icon: const Icon(Icons.refresh_rounded, size: 16),
+                        label: const Text(
+                          'TRY AGAIN',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 0.5),
+                        ),
+                      ),
                     ),
                   ],
                 ],
@@ -345,4 +381,3 @@ class _LessonPracticeTestCardState extends ConsumerState<LessonPracticeTestCard>
     );
   }
 }
-

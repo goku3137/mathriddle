@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../models/challenge_models.dart';
-final List<ChallengeCategoryInfo> challengeCategories = [
+
+const List<ChallengeCategoryInfo> challengeCategories = [
   // 1. ADDITION CHALLENGE (+)
-  const ChallengeCategoryInfo(
+  ChallengeCategoryInfo(
     type: ChallengeType.addition,
     title: 'ADDITION CHALLENGE',
     icon: Icons.add_rounded,
@@ -29,8 +30,8 @@ final List<ChallengeCategoryInfo> challengeCategories = [
     ],
   ),
 
-  // 2. SUBTRACTION CHALLENGE (-)
-  const ChallengeCategoryInfo(
+  // 2. SUBTRACTION CHALLENGE (−)
+  ChallengeCategoryInfo(
     type: ChallengeType.subtraction,
     title: 'SUBTRACTION CHALLENGE',
     icon: Icons.remove_rounded,
@@ -57,7 +58,7 @@ final List<ChallengeCategoryInfo> challengeCategories = [
   ),
 
   // 3. MULTIPLICATION CHALLENGE (×)
-  const ChallengeCategoryInfo(
+  ChallengeCategoryInfo(
     type: ChallengeType.multiplication,
     title: 'MULTIPLICATION CHALLENGE',
     icon: Icons.close_rounded,
@@ -84,7 +85,7 @@ final List<ChallengeCategoryInfo> challengeCategories = [
   ),
 
   // 4. DIVISION CHALLENGE (÷)
-  const ChallengeCategoryInfo(
+  ChallengeCategoryInfo(
     type: ChallengeType.division,
     title: 'DIVISION CHALLENGE',
     icon: CupertinoIcons.divide,
@@ -111,7 +112,7 @@ final List<ChallengeCategoryInfo> challengeCategories = [
   ),
 
   // 5. SQUARES & POWERS CHALLENGE (x²)
-  const ChallengeCategoryInfo(
+  ChallengeCategoryInfo(
     type: ChallengeType.powers,
     title: 'SQUARES & POWERS',
     icon: Icons.superscript_rounded,
@@ -125,20 +126,20 @@ final List<ChallengeCategoryInfo> challengeCategories = [
       ChallengeItem(id: 'pow_4', question: '15² = ?', answer: '225'),
       ChallengeItem(id: 'pow_5', question: '20² = ?', answer: '400'),
       ChallengeItem(id: 'pow_6', question: '2⁴ = ?', answer: '16'),
-      ChallengeItem(id: 'pow_7', question: '3Â³ = ?', answer: '27'),
-      ChallengeItem(id: 'pow_8', question: '4Â³ = ?', answer: '64'),
-      ChallengeItem(id: 'pow_9', question: '5Â³ = ?', answer: '125'),
+      ChallengeItem(id: 'pow_7', question: '3³ = ?', answer: '27'),
+      ChallengeItem(id: 'pow_8', question: '4³ = ?', answer: '64'),
+      ChallengeItem(id: 'pow_9', question: '5³ = ?', answer: '125'),
       ChallengeItem(id: 'pow_10', question: '2⁵ = ?', answer: '32'),
       ChallengeItem(id: 'pow_11', question: '3² + 4² = ?', answer: '25'),
       ChallengeItem(id: 'pow_12', question: '6² + 8² = ?', answer: '100'),
       ChallengeItem(id: 'pow_13', question: '5² + 12² = ?', answer: '169'),
-      ChallengeItem(id: 'pow_14', question: '10Â³ - 10² = ?', answer: '900'),
+      ChallengeItem(id: 'pow_14', question: '10³ - 10² = ?', answer: '900'),
       ChallengeItem(id: 'pow_15', question: '2⁶ = ?', answer: '64'),
     ],
   ),
 
   // 6. PERCENTAGES & COMMERCIAL MATH (%)
-  const ChallengeCategoryInfo(
+  ChallengeCategoryInfo(
     type: ChallengeType.percentages,
     title: 'PERCENTAGES & RATES',
     icon: Icons.percent_rounded,
@@ -156,16 +157,16 @@ final List<ChallengeCategoryInfo> challengeCategories = [
       ChallengeItem(id: 'pct_8', question: '40% of 250 = ?', answer: '100'),
       ChallengeItem(id: 'pct_9', question: '15% of 200 = ?', answer: '30'),
       ChallengeItem(id: 'pct_10', question: '5% of 600 = ?', answer: '30'),
-      ChallengeItem(id: 'pct_11', question: '25% off \$80 item. Price = \$?', answer: '60'),
-      ChallengeItem(id: 'pct_12', question: '20% off \$150 item. Price = \$?', answer: '120'),
+      ChallengeItem(id: 'pct_11', question: r'25% off $80 item. Price = $?', answer: '60'),
+      ChallengeItem(id: 'pct_12', question: r'20% off $150 item. Price = $?', answer: '120'),
       ChallengeItem(id: 'pct_13', question: '50% of 360 = ?', answer: '180'),
       ChallengeItem(id: 'pct_14', question: '10% of 1200 = ?', answer: '120'),
       ChallengeItem(id: 'pct_15', question: '75% of 80 = ?', answer: '60'),
     ],
   ),
 
-  // 7. NUMBER SEQUENCES & PROGRESSIONS (...)
-  const ChallengeCategoryInfo(
+  // 7. NUMBER SEQUENCES & PROGRESSIONS (⋯)
+  ChallengeCategoryInfo(
     type: ChallengeType.sequences,
     title: 'SEQUENCES & PATTERNS',
     icon: Icons.trending_up_rounded,
@@ -192,7 +193,7 @@ final List<ChallengeCategoryInfo> challengeCategories = [
   ),
 
   // 8. MISSING NUMBER & BALANCES (?)
-  const ChallengeCategoryInfo(
+  ChallengeCategoryInfo(
     type: ChallengeType.missingNumbers,
     title: 'MISSING NUMBER PUZZLES',
     icon: Icons.question_mark_rounded,
@@ -219,7 +220,7 @@ final List<ChallengeCategoryInfo> challengeCategories = [
   ),
 
   // 9. BODMAS & ORDER OF OPERATIONS
-  const ChallengeCategoryInfo(
+  ChallengeCategoryInfo(
     type: ChallengeType.bodmas,
     title: 'BODMAS PRECEDENCE',
     icon: Icons.balance_rounded,
@@ -246,7 +247,7 @@ final List<ChallengeCategoryInfo> challengeCategories = [
   ),
 
   // 10. LATERAL OPERATORS & CUSTOM MATH (⊕)
-  const ChallengeCategoryInfo(
+  ChallengeCategoryInfo(
     type: ChallengeType.lateralOperators,
     title: 'LATERAL OPERATORS',
     icon: Icons.change_circle_outlined,
@@ -256,24 +257,24 @@ final List<ChallengeCategoryInfo> challengeCategories = [
     items: [
       ChallengeItem(id: 'lat_1', question: 'If a ⊕ b = a + 2b, then 5 ⊕ 4 = ?', answer: '13'),
       ChallengeItem(id: 'lat_2', question: 'If a ★ b = a × b - a, then 6 ★ 5 = ?', answer: '24'),
-      ChallengeItem(id: 'lat_3', question: 'If a ⨁ b = 2a + 3b, then 4 ⨁ 3 = ?', answer: '17'),
+      ChallengeItem(id: 'lat_3', question: 'If a ▲ b = 2a + 3b, then 4 ▲ 3 = ?', answer: '17'),
       ChallengeItem(id: 'lat_4', question: 'If a ⊗ b = a² - b, then 7 ⊗ 15 = ?', answer: '34'),
       ChallengeItem(id: 'lat_5', question: 'If a ⊙ b = (a + b) × 2, then 8 ⊙ 7 = ?', answer: '30'),
       ChallengeItem(id: 'lat_6', question: 'If a ⊘ b = a × b + 5, then 6 ⊘ 6 = ?', answer: '41'),
-      ChallengeItem(id: 'lat_7', question: 'If a ⧫ b = a² - b², then 10 ⧫ 6 = ?', answer: '64'),
-      ChallengeItem(id: 'lat_8', question: 'If a ⋇ b = 3a - b, then 9 ⋇ 7 = ?', answer: '20'),
+      ChallengeItem(id: 'lat_7', question: 'If a ◆ b = a² - b², then 10 ◆ 6 = ?', answer: '64'),
+      ChallengeItem(id: 'lat_8', question: 'If a ✦ b = 3a - b, then 9 ✦ 7 = ?', answer: '20'),
       ChallengeItem(id: 'lat_9', question: 'If a ∇ b = (a × b) ÷ 2, then 8 ∇ 6 = ?', answer: '24'),
-      ChallengeItem(id: 'lat_10', question: 'If a ⊛ b = a + b + a × b, then 4 ⊛ 5 = ?', answer: '29'),
-      ChallengeItem(id: 'lat_11', question: 'If a ⊞ b = 2(a + b) + 1, then 6 ⊞ 4 = ?', answer: '21'),
-      ChallengeItem(id: 'lat_12', question: 'If a ⨂ b = a² + b², then 4 ⨂ 5 = ?', answer: '41'),
+      ChallengeItem(id: 'lat_10', question: 'If a ◎ b = a + b + a × b, then 4 ◎ 5 = ?', answer: '29'),
+      ChallengeItem(id: 'lat_11', question: 'If a ◈ b = 2(a + b) + 1, then 6 ◈ 4 = ?', answer: '21'),
+      ChallengeItem(id: 'lat_12', question: 'If a ❖ b = a² + b², then 4 ❖ 5 = ?', answer: '41'),
       ChallengeItem(id: 'lat_13', question: 'If a △ b = (a - b)², then 12 △ 5 = ?', answer: '49'),
       ChallengeItem(id: 'lat_14', question: 'If a ◇ b = 4a - 2b, then 7 ◇ 5 = ?', answer: '18'),
-      ChallengeItem(id: 'lat_15', question: 'If a ⨝ b = (a + b) × (a - b), then 8 ⨝ 2 = ?', answer: '60'),
+      ChallengeItem(id: 'lat_15', question: 'If a ⬡ b = (a + b) × (a - b), then 8 ⬡ 2 = ?', answer: '60'),
     ],
   ),
 
   // 11. SPEED MATH TRICKS & SHORTCUTS
-  const ChallengeCategoryInfo(
+  ChallengeCategoryInfo(
     type: ChallengeType.mathTricks,
     title: 'SPEED MATH TRICKS',
     icon: Icons.lightbulb_outline_rounded,
@@ -285,9 +286,9 @@ final List<ChallengeCategoryInfo> challengeCategories = [
       ChallengeItem(id: 'trk_2', question: '4 people shake hands with each other once. Total handshakes? [?]', answer: '6'),
       ChallengeItem(id: 'trk_3', question: '6 people shake hands with each other once. Total handshakes? [?]', answer: '15'),
       ChallengeItem(id: 'trk_4', question: '8 people shake hands with each other once. Total handshakes? [?]', answer: '28'),
-      ChallengeItem(id: 'trk_5', question: 'Angle between clock hands at 3:00? [?]Â°', answer: '90'),
-      ChallengeItem(id: 'trk_6', question: 'Angle between clock hands at 4:00? [?]Â°', answer: '120'),
-      ChallengeItem(id: 'trk_7', question: 'Angle between clock hands at 6:00? [?]Â°', answer: '180'),
+      ChallengeItem(id: 'trk_5', question: 'Angle between clock hands at 3:00? [?]°', answer: '90'),
+      ChallengeItem(id: 'trk_6', question: 'Angle between clock hands at 4:00? [?]°', answer: '120'),
+      ChallengeItem(id: 'trk_7', question: 'Angle between clock hands at 6:00? [?]°', answer: '180'),
       ChallengeItem(id: 'trk_8', question: '99 × 6 = ?', answer: '594'),
       ChallengeItem(id: 'trk_9', question: '99 × 8 = ?', answer: '792'),
       ChallengeItem(id: 'trk_10', question: '1000 - 364 = ?', answer: '636'),
@@ -300,7 +301,7 @@ final List<ChallengeCategoryInfo> challengeCategories = [
   ),
 
   // 12. MIXED CHALLENGE (Combines all available categories)
-  const ChallengeCategoryInfo(
+  ChallengeCategoryInfo(
     type: ChallengeType.mixed,
     title: 'MIXED CHALLENGE',
     icon: Icons.shuffle_rounded,
@@ -311,12 +312,12 @@ final List<ChallengeCategoryInfo> challengeCategories = [
       ChallengeItem(id: 'c1', question: '7 × 8 - 6 = ?', answer: '50'),
       ChallengeItem(id: 'c2', question: '3² + 4² = ?', answer: '25'),
       ChallengeItem(id: 'c3', question: '4, 9, 16, 25, ?', answer: '36'),
-      ChallengeItem(id: 'c4', question: '100 / 4 + 17 = ?', answer: '42'),
+      ChallengeItem(id: 'c4', question: '100 ÷ 4 + 17 = ?', answer: '42'),
       ChallengeItem(id: 'c5', question: '2, 6, 18, 54, ?', answer: '162'),
       ChallengeItem(id: 'c6', question: '12 × 12 - 44 = ?', answer: '100'),
       ChallengeItem(id: 'c7', question: '15 + 25 × 2 = ?', answer: '65'),
       ChallengeItem(id: 'c8', question: '9² - 9 = ?', answer: '72'),
-      ChallengeItem(id: 'c9', question: '2Â³ + 3² = ?', answer: '17'),
+      ChallengeItem(id: 'c9', question: '2³ + 3² = ?', answer: '17'),
       ChallengeItem(id: 'c10', question: '50% of 140 = ?', answer: '70'),
       ChallengeItem(id: 'c11', question: '60 ÷ 5 × 3 = ?', answer: '36'),
       ChallengeItem(id: 'c12', question: '8 + 8 × 8 - 8 = ?', answer: '64'),

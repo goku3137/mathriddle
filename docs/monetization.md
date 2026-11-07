@@ -43,10 +43,11 @@ flowchart TD
    * Solution reward reveals full workings and immediately unlocks Level $N+1$.
 3. **Graceful Offline Fallback:** If an ad fails to load due to offline status, the app displays a graceful message encouraging the user to continue solving or subscribe to Premium.
 
-### Interstitial Cadence & Suppression
-* **Trigger Cadence:** Interstitial ads display strictly after completing every 3rd level ($N = 3, 6, 9, 12, \dots$).
-* **Minimum Cooldown:** 60 seconds between interstitials to prevent cognitive fatigue.
-* **Suppression Rule:** 100% suppressed for all players with `isPremiumUser == true` or `isAdsRemoved == true`.
+### Interstitial Cadence & Suppression (Polite SMath Standard)
+* **Riddle Cadence:** Interstitial ads display strictly after completing every 9th riddle level ($N = 9, 18, 27, 36, \dots$).
+* **Challenge Cadence:** Zero in-game interruptions during the 15-second timed rounds. Interstitials are triggered ONLY when a player exits/backs off from a challenge session (after at least 2 attempts or 1 correct answer).
+* **Global Cooldown:** Strict 120-second minimum cooldown between any interstitials across all app sections.
+* **Suppression Rule:** 100% suppressed for all players with `isPremiumUser == true` or `isAdsRemoved == true`. Zero popups or interruptions forever.
 
 ### GDPR / CCPA Privacy & Consent Protocols
 * Compliant with Google User Messaging Platform (UMP).
@@ -58,11 +59,11 @@ flowchart TD
 
 ### Product Tiers & Multi-Currency Pricing
 
-| Tier Identifier | SKU / Product ID | Billing Type | INR (₹) | USD ($) | EUR (€) | GBP (£) |
-|:---|:---|:---|:---:|:---:|:---:|:---:|
-| **Remove Ads** | `math_remove_ads` | Non-Consumable | ₹49 | $0.99 | €0.99 | £0.89 |
-| **Monthly Premium** | `math_premium_monthly` | Auto-Renewing Sub | ₹99/mo | $1.99/mo | €1.99/mo | £1.79/mo |
-| **Lifetime Access** | `math_premium_lifetime`| Non-Consumable | ₹199 | $4.99 | €4.99 | £4.49 |
+| Tier Identifier | SKU / Product ID | Billing Type | INR (₹) | USD ($) | EUR (€) | GBP (£) | Psychological Anchor |
+|:---|:---|:---|:---:|:---:|:---:|:---:|:---:|
+| **Ad-Free Starter** | `math_remove_ads` | Non-Consumable | ₹49 | $0.99 | €0.99 | £0.89 | Impulse / Frictionless |
+| **30-Day Pro Pass** | `math_premium_monthly` | 30-Day Pass | ₹99 | $1.99 | €1.99 | £1.79 | Decoy Tier |
+| **Lifetime VIP Pass** | `math_premium_lifetime`| Non-Consumable | ₹199 | $4.99 | €4.99 | £4.49 | Anchored vs ₹399 / $9.99 (50% OFF) |
 
 ### Comprehensive Feature Matrix
 
@@ -70,9 +71,9 @@ flowchart TD
 |:---|:---:|:---:|:---:|:---:|
 | **All 500 Riddles Access** | Yes | Yes | Yes | Yes |
 | **12 Progressive Challenges** | Yes | Yes | Yes | Yes |
-| **14 Academy Lessons & Sandboxes** | Yes | Yes | Yes | Yes |
+| **36 Academy Lessons Across 6 Stages** | Yes | Yes | Yes | Yes |
 | **Unlimited Hearts (No 20m Wait)** | No | No | **Active** | **Active (Lifetime)** |
-| **Interstitial Ads (Every 3 Levels)** | Active | **Disabled** | **Disabled** | **Disabled** |
+| **Interstitial Ads (Every 9 Levels / Session Exit)** | Active | **Disabled** | **Disabled** | **Disabled** |
 | **Hint Access** | Watch Ad | Watch Ad | **Instant / Ad-Free** | **Instant / Ad-Free** |
 | **Step-by-Step Solutions** | Watch Ad | Watch Ad | **Instant / Ad-Free** | **Instant / Ad-Free** |
 | **Understated Home PRO Pill** | Discoverable | Discoverable | **Active Badge** | **Active Badge** |

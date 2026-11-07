@@ -14,6 +14,7 @@ abstract class IAdService {
   Future<void> initialize();
   bool get isRewardedAdAvailable;
   Future<bool> showInterstitialAd();
+  Future<bool> showChallengeExitInterstitial();
   Future<bool> showRewardedAd({
     required VoidCallback onRewardEarned,
     VoidCallback? onFailed,
@@ -31,7 +32,9 @@ abstract class IBillingService {
 
 /// Production-ready mock and production implementation of AdService
 class ProductionAdService implements IAdService {
-  int _levelCompletedCounter = 0;
+  int _riddleCompletedCounter = 0;
+  DateTime? _lastInterstitialShownAt;
+  static const Duration _cooldownDuration = Duration(seconds: 120);
   final bool _adReady = true;
 
   @override
@@ -43,16 +46,39 @@ class ProductionAdService implements IAdService {
   @override
   bool get isRewardedAdAvailable => _adReady;
 
+  bool _isCooldownActive() {
+    if (_lastInterstitialShownAt == null) return false;
+    final elapsed = DateTime.now().difference(_lastInterstitialShownAt!);
+    return elapsed < _cooldownDuration;
+  }
+
   @override
   Future<bool> showInterstitialAd() async {
-    _levelCompletedCounter++;
-    // Show interstitial ad every 3 completed levels
-    if (_levelCompletedCounter % 3 == 0) {
-      debugPrint('[AdService] Interstitial Ad displayed');
+    _riddleCompletedCounter++;
+    // Polite SMath rule: Show interstitial ad strictly after every 9 completed riddle levels
+    if (_riddleCompletedCounter % 9 == 0) {
+      if (_isCooldownActive()) {
+        debugPrint('[AdService] Interstitial ad suppressed by 120s cooldown');
+        return false;
+      }
+      _lastInterstitialShownAt = DateTime.now();
+      debugPrint('[AdService] Interstitial Ad displayed (Riddle level interval: $_riddleCompletedCounter)');
       await Future.delayed(const Duration(milliseconds: 300));
       return true;
     }
     return false;
+  }
+
+  @override
+  Future<bool> showChallengeExitInterstitial() async {
+    if (_isCooldownActive()) {
+      debugPrint('[AdService] Challenge exit interstitial suppressed by 120s cooldown');
+      return false;
+    }
+    _lastInterstitialShownAt = DateTime.now();
+    debugPrint('[AdService] Interstitial Ad displayed on challenge session exit');
+    await Future.delayed(const Duration(milliseconds: 300));
+    return true;
   }
 
   @override
@@ -86,14 +112,14 @@ class ProductionBillingService implements IBillingService {
 
   @override
   Future<bool> purchaseMonthlyPremium() async {
-    debugPrint('[BillingService] Initiating purchase: math_premium_monthly (₹99 / \$1.99)');
+    debugPrint('[BillingService] Initiating purchase: math_premium_monthly (₹99 / \$1.49)');
     await Future.delayed(const Duration(milliseconds: 400));
     return true;
   }
 
   @override
   Future<bool> purchaseLifetimePremium() async {
-    debugPrint('[BillingService] Initiating purchase: math_premium_lifetime (₹199 / \$4.99)');
+    debugPrint('[BillingService] Initiating purchase: math_premium_lifetime (₹199 / \$2.99)');
     await Future.delayed(const Duration(milliseconds: 400));
     return true;
   }

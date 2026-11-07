@@ -18,61 +18,67 @@ class ScoreBadge extends ConsumerWidget {
       context: context,
       builder: (ctx) => Dialog(
         backgroundColor: GameTheme.surface,
+        insetPadding: const EdgeInsets.symmetric(horizontal: 22, vertical: 20),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: const BorderSide(color: GameTheme.amberAccent, width: 1.2),
         ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Row(
-                children: [
-                  Icon(Icons.stars_rounded, color: GameTheme.amberAccent, size: 24),
-                  SizedBox(width: 8),
-                  Text(
-                    'SCORING SYSTEM',
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Row(
+                  children: [
+                    Icon(Icons.stars_rounded, color: GameTheme.amberAccent, size: 22),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'SCORING SYSTEM',
+                        style: TextStyle(
+                          color: GameTheme.textWhite,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                _buildRuleRow('Levels 1–10', '+5 PTS per solved riddle'),
+                const SizedBox(height: 8),
+                _buildRuleRow('Levels 11–20', '+15 PTS (+10 increase per 10 levels)'),
+                const SizedBox(height: 8),
+                _buildRuleRow('Learn Mode', '+50 PTS per completed concept'),
+                const SizedBox(height: 8),
+                _buildRuleRow('Speedrun Challenge', '+3 PTS per solved challenge'),
+                const SizedBox(height: 18),
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: GameTheme.surfaceElevated,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      side: const BorderSide(color: GameTheme.borderSubtle),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: const Text(
+                    'GOT IT',
                     style: TextStyle(
-                      color: GameTheme.textWhite,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 2.0,
+                      color: GameTheme.amberAccent,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1.5,
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              _buildRuleRow('Levels 1–10', '+5 PTS per solved riddle'),
-              const SizedBox(height: 10),
-              _buildRuleRow('Levels 11–20', '+15 PTS (+10 increase per 10 levels)'),
-              const SizedBox(height: 10),
-              _buildRuleRow('Learn Mode', '+50 PTS per completed concept'),
-              const SizedBox(height: 10),
-              _buildRuleRow('Speedrun Challenge', '+3 PTS per solved challenge'),
-              const SizedBox(height: 20),
-              TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor: GameTheme.surfaceElevated,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    side: const BorderSide(color: GameTheme.borderSubtle),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text(
-                  'GOT IT',
-                  style: TextStyle(
-                    color: GameTheme.amberAccent,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.5,
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -81,29 +87,40 @@ class ScoreBadge extends ConsumerWidget {
 
   static Widget _buildRuleRow(String label, String value) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: GameTheme.surfaceElevated,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(color: GameTheme.borderSubtle),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: GameTheme.textWhite,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    color: GameTheme.textWhite,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Icon(Icons.stars_rounded, color: GameTheme.amberAccent, size: 16),
+            ],
           ),
+          const SizedBox(height: 4),
           Text(
             value,
             style: const TextStyle(
               color: GameTheme.amberAccent,
               fontSize: 12,
               fontWeight: FontWeight.w600,
+              height: 1.35,
             ),
           ),
         ],
@@ -195,4 +212,3 @@ class ScoreBadge extends ConsumerWidget {
     );
   }
 }
-

@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../data/game_levels.dart';
 import '../domain/energy_rules.dart';
 import '../domain/scoring_rules.dart';
 import '../models/level_model.dart';
@@ -46,10 +45,7 @@ class GameState {
   });
 
   LevelData get currentLevel =>
-      loadedLevel ??
-      (activeLevelNumber <= gameLevels.length
-          ? gameLevels[activeLevelNumber - 1]
-          : gameLevels.first);
+      loadedLevel ?? ScalableLevelRepository.generateLevel(activeLevelNumber);
 
   String get formattedTimer {
     final m = (remainingSeconds ~/ 60).toString().padLeft(2, '0');
@@ -222,6 +218,15 @@ class GameController extends Notifier<GameState> with WidgetsBindingObserver {
     );
   }
 
+  void deleteDigit() {
+    if (state.isSolved) return;
+    if (state.currentInput.isEmpty) return;
+    state = state.copyWith(
+      currentInput: state.currentInput.substring(0, state.currentInput.length - 1),
+      isError: false,
+    );
+  }
+
   int getPointsForLevel(int levelNumber) {
     return ScoringRules.pointsForRiddleLevel(levelNumber);
   }
@@ -321,10 +326,10 @@ class GameController extends Notifier<GameState> with WidgetsBindingObserver {
     await _ads.showRewardedAd(
       onRewardEarned: () async {
         _sound.playReward();
-        await _progress.addHearts(1);
+        await _progress.refillAllHearts();
         state = state.copyWith(
           hearts: _progress.currentHearts,
-          secondsUntilNextHeart: _progress.secondsUntilNextHeart,
+          secondsUntilNextHeart: 0,
         );
       },
     );

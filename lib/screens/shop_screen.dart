@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../controllers/game_controller.dart';
+import '../features/shop/widgets/shop_tier_card.dart';
 import '../services/monetization_service.dart';
 import '../services/sound_service.dart';
 import '../theme/game_theme.dart';
@@ -13,6 +14,10 @@ class ShopScreen extends ConsumerWidget {
     ref.watch(gameControllerProvider);
     final billing = ref.read(billingServiceProvider);
     final progress = ref.watch(progressServiceProvider);
+
+    final isLifetimeOwned = progress.premiumTier == PremiumTier.lifetimePremium;
+    final isMonthOwned = progress.premiumTier == PremiumTier.monthPremium;
+    final isAdsRemovedOwned = progress.isAdsRemoved;
 
     return Scaffold(
       backgroundColor: GameTheme.background,
@@ -27,43 +32,113 @@ class ShopScreen extends ConsumerWidget {
           },
         ),
         title: const Text(
-          'SHOP',
+          'UPGRADE ACCESS',
           style: TextStyle(
             color: GameTheme.textWhite,
-            fontSize: 18,
-            fontWeight: FontWeight.w300,
-            letterSpacing: 3.0,
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 2.5,
           ),
         ),
         centerTitle: true,
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           children: [
-            // Subtitle
+            // Header Hero Section
+            Center(
+              child: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: GameTheme.amberGlow,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: GameTheme.amberAccent.withAlpha(120), width: 1.5),
+                ),
+                child: const Icon(
+                  Icons.workspace_premium_rounded,
+                  color: GameTheme.amberAccent,
+                  size: 26,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
             const Center(
               child: Text(
-                'ENJOY DISTRACTION-FREE LOGIC',
+                'DISTRACTION-FREE BRAIN TRAINING',
+                style: TextStyle(
+                  color: GameTheme.textWhite,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.5,
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            const Center(
+              child: Text(
+                'Focus purely on logic. No interruptions, no wait times.',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   color: GameTheme.textMuted,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 2.0,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: 0.3,
                 ),
               ),
             ),
             const SizedBox(height: 24),
 
-            // Card 1: REMOVE ADS
-            _buildShopCard(
-              context: context,
-              title: 'REMOVE ADS',
-              accessType: 'Lifetime Access',
-              description: 'No forced ads between levels. Rewarded ads for hints remain optional.',
-              badgeText: 'AD FREE',
-              priceText: '₹49 / \$0.99',
-              isOwned: progress.isAdsRemoved,
+            // Card 1: LIFETIME VIP (HERO / BEST VALUE TIER)
+            ShopTierCard(
+              title: 'LIFETIME VIP PASS',
+              subtitle: 'Pay Once • Unlimited Forever',
+              originalPrice: '₹399 / \$9.99',
+              price: '₹199 / \$4.99',
+              badgeText: '⭐ BEST VALUE • 50% OFF',
+              isBestValue: true,
+              isOwned: isLifetimeOwned,
+              ctaLabel: isLifetimeOwned ? 'CURRENTLY ACTIVE' : 'GET LIFETIME VIP',
+              features: const [
+                'Zero ads forever (no interstitials or popups)',
+                'Unlimited Hearts (never wait 20m for refills)',
+                'Instant Hints & Step-by-Step Solutions',
+                'All 500 levels & all future content packs',
+                'Golden VIP badge on profile & home screen',
+              ],
+              onPurchase: () async {
+                final success = await billing.purchaseLifetimePremium();
+                if (success) {
+                  ref.read(soundServiceProvider).playReward();
+                  await progress.setPremiumTier(PremiumTier.lifetimePremium);
+                  ref.invalidate(gameControllerProvider);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('🎉 Lifetime VIP activated permanently!')),
+                    );
+                  }
+                }
+              },
+            ),
+
+            const SizedBox(height: 16),
+
+            // Card 2: AD-FREE STARTER
+            ShopTierCard(
+              title: 'AD-FREE STARTER',
+              subtitle: 'Single Purchase • Lifetime Ad Removal',
+              originalPrice: null,
+              price: '₹49 / \$0.99',
+              badgeText: 'POPULAR',
+              isBestValue: false,
+              isOwned: isAdsRemovedOwned,
+              ctaLabel: isAdsRemovedOwned ? 'CURRENTLY ACTIVE' : 'REMOVE ALL ADS',
+              features: const [
+                'Completely remove forced ads between levels',
+                'Smooth uninterrupted puzzle solving flow',
+                'Hints & solutions remain accessible anytime',
+              ],
               onPurchase: () async {
                 final success = await billing.purchaseRemoveAds();
                 if (success) {
@@ -79,18 +154,23 @@ class ShopScreen extends ConsumerWidget {
               },
             ),
 
-            const SizedBox(height: 18),
+            const SizedBox(height: 16),
 
-            // Card 2: A MONTH PREMIUM
-            _buildShopCard(
-              context: context,
-              title: 'A MONTH PREMIUM',
-              accessType: '30 Day Access',
-              description: 'Free hints, free solutions, zero forced ads for 30 consecutive days.',
-              badgeText: '30',
-              hasCrownBadge: true,
-              priceText: '₹99 / \$1.99',
-              isOwned: progress.premiumTier == PremiumTier.monthPremium,
+            // Card 3: 30-DAY PRO PASS (DECOY TIER)
+            ShopTierCard(
+              title: '30-DAY PRO PASS',
+              subtitle: '30 Days Full Access',
+              originalPrice: null,
+              price: '₹99 / \$1.99',
+              badgeText: 'FLEXIBLE',
+              isBestValue: false,
+              isOwned: isMonthOwned,
+              ctaLabel: isMonthOwned ? 'CURRENTLY ACTIVE' : 'ACTIVATE 30 DAYS',
+              features: const [
+                'Unlimited Hearts for 30 consecutive days',
+                'Zero forced ads between levels',
+                'Instant step-by-step hints and solutions',
+              ],
               onPurchase: () async {
                 final success = await billing.purchaseMonthlyPremium();
                 if (success) {
@@ -99,35 +179,7 @@ class ShopScreen extends ConsumerWidget {
                   ref.invalidate(gameControllerProvider);
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('30-Day Premium activated!')),
-                    );
-                  }
-                }
-              },
-            ),
-
-            const SizedBox(height: 18),
-
-            // Card 3: LIFETIME PREMIUM
-            _buildShopCard(
-              context: context,
-              title: 'LIFETIME PREMIUM',
-              accessType: 'Lifetime Access',
-              description: 'All future levels, instant free solutions, zero ads permanently unlocked.',
-              badgeText: '∞',
-              hasCrownBadge: true,
-              priceText: '₹199 / \$4.99',
-              isOwned: progress.premiumTier == PremiumTier.lifetimePremium,
-              isBestValue: true,
-              onPurchase: () async {
-                final success = await billing.purchaseLifetimePremium();
-                if (success) {
-                  ref.read(soundServiceProvider).playReward();
-                  await progress.setPremiumTier(PremiumTier.lifetimePremium);
-                  ref.invalidate(gameControllerProvider);
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Lifetime Premium activated!')),
+                      const SnackBar(content: Text('30-Day Pro Pass activated!')),
                     );
                   }
                 }
@@ -136,147 +188,74 @@ class ShopScreen extends ConsumerWidget {
 
             const SizedBox(height: 24),
 
-            // Restore purchase link
+            // Trust Indicators
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildTrustItem(Icons.lock_outline_rounded, 'Secure Play Billing'),
+                const SizedBox(width: 16),
+                _buildTrustItem(Icons.offline_pin_outlined, '100% Offline Ready'),
+                const SizedBox(width: 16),
+                _buildTrustItem(Icons.history_rounded, 'Restore Anytime'),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            // Restore Purchases Action
             Center(
-              child: TextButton(
+              child: TextButton.icon(
                 onPressed: () async {
                   final restoredTier = await billing.restorePurchases();
                   if (restoredTier != PremiumTier.none) {
                     await progress.setPremiumTier(restoredTier);
                     ref.invalidate(gameControllerProvider);
-                  }
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Purchase status refreshed.')),
-                    );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Purchases restored successfully!')),
+                      );
+                    }
+                  } else {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('No active purchases found to restore.')),
+                      );
+                    }
                   }
                 },
-                child: const Text(
-                  'Restore Purchases',
+                icon: const Icon(Icons.refresh_rounded, size: 14, color: GameTheme.textMuted),
+                label: const Text(
+                  'Restore Previous Purchases',
                   style: TextStyle(
                     color: GameTheme.textMuted,
                     fontSize: 12,
-                    letterSpacing: 1.0,
+                    letterSpacing: 0.8,
                   ),
                 ),
               ),
             ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildShopCard({
-    required BuildContext context,
-    required String title,
-    required String accessType,
-    required String description,
-    required String badgeText,
-    required String priceText,
-    required VoidCallback onPurchase,
-    bool isOwned = false,
-    bool hasCrownBadge = false,
-    bool isBestValue = false,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: GameTheme.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: isBestValue ? GameTheme.primaryOrange : GameTheme.borderCharcoal,
-          width: isBestValue ? 1.5 : 1.0,
+  Widget _buildTrustItem(IconData icon, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 13, color: GameTheme.textDim),
+        const SizedBox(width: 4),
+        Text(
+          text,
+          style: const TextStyle(
+            color: GameTheme.textDim,
+            fontSize: 10,
+            fontWeight: FontWeight.w500,
+          ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  color: GameTheme.textWhite,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: 2.0,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: GameTheme.surfaceElevated,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: GameTheme.borderDivider),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (hasCrownBadge) ...[
-                      const Icon(Icons.workspace_premium_rounded, color: GameTheme.primaryOrange, size: 14),
-                      const SizedBox(width: 4),
-                    ],
-                    Text(
-                      badgeText,
-                      style: const TextStyle(
-                        color: GameTheme.primaryOrange,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.0,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Text(
-            accessType,
-            style: const TextStyle(
-              color: GameTheme.textMuted,
-              fontSize: 12,
-              fontWeight: FontWeight.w400,
-              letterSpacing: 1.0,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            description,
-            style: const TextStyle(
-              color: GameTheme.textLightGrey,
-              fontSize: 13,
-              fontWeight: FontWeight.w300,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isOwned ? GameTheme.surfaceElevated : GameTheme.primaryOrange,
-                foregroundColor: isOwned ? GameTheme.textMuted : Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 13),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                elevation: 0,
-              ),
-              onPressed: isOwned ? null : onPurchase,
-              child: Text(
-                isOwned ? 'CURRENTLY ACTIVE' : priceText,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.0,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
 }
-
